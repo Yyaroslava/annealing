@@ -23,7 +23,7 @@ public class App
 		Tile.GenerateTiles();
 		Tile.DrawTiles(10, 20);
 
-		//netTest();
+		////netTest();
 	}	
 
 	public static void netTest () {
