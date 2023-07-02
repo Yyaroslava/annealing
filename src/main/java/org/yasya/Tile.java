@@ -8,11 +8,11 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 public class Tile {
-	public static Tile [] allTiles;
+	public static Tile[] allTiles;
 	public int size;
 	public int width;
 	public int height;
-	public int [][] area;
+	public int[][] area;
 
 	public Tile Copy() {
 		Tile newTile = new Tile(this.size, this.width, this.height);

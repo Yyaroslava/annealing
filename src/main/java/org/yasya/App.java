@@ -2,6 +2,10 @@ package org.yasya;
 
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.yasya.Game.Position;
+
+import java.security.NoSuchAlgorithmException;
+
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -14,7 +18,7 @@ import org.nd4j.linalg.factory.Nd4j;
 
 public class App 
 {
-	public static void main ( String[] args ) {
+	public static void main ( String[] args ) throws NoSuchAlgorithmException {
 		Field field = Field.getRandom();
 		field.show();
 		field.saveToImg(30);
@@ -23,7 +27,9 @@ public class App
 		Tile.GenerateTiles();
 		Tile.DrawTiles(10, 20);
 
-		////netTest();
+		//netTest();
+
+		gameTest();
 	}	
 
 	public static void netTest () {
@@ -60,5 +66,18 @@ public class App
 		for (int i = 0; i < output.length; i++) {
 			System.out.print("" + output[i] + " ");
 		}
+	}
+
+	public static void gameTest () throws NoSuchAlgorithmException {
+		Game game = new Game();
+		Position position0 = game.getStartPosition();
+		position0.saveToImg(10, "position0.png");
+		Game.Action action1 = new Game.Action(35, 2, 2);
+		Position position1 = game.getNextPosition(position0, action1);
+
+		position1.saveToImg(10, "position1.png");
+		Game.Action action2 = new Game.Action(277, 5, 3);
+		Position position2 = game.getNextPosition(position1, action2);
+		position2.saveToImg(10, "position2.png");
 	}
 }
