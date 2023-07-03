@@ -29,6 +29,7 @@ public class App {
 		//netTest();
 
 		gameTest();
+
 	}	
 
 	public static void netTest () {
@@ -100,24 +101,12 @@ public class App {
 
 		return net;
 
-		/*
-		Feeder feeder = new Feeder();
-		feeder.Train(net);
-
-		double [] input = new double [] {0, 1, 2};
-		INDArray inputNet = Nd4j.create(input, new int[] {1, input.length});
-		INDArray outputNet = net.output(inputNet);
-		double [] output = outputNet.toDoubleVector();
-		for (int i = 0; i < output.length; i++) {
-			System.out.print("" + output[i] + " ");
-		}
-		*/
 	}
 
 	public static void gameTest () throws NoSuchAlgorithmException {
 		Game game = new Game();
 		Position position = game.getStartPosition();
-		position.saveToImg(10, "position.png");
+		position.saveToImg(10, "gif\\position0.png");
 		MultiLayerNetwork net = buildRobot();
 		for (int k = 0; k < 10; k++) {
 			double[] output = position.calculate(net);
@@ -126,7 +115,13 @@ public class App {
 				.orElse(-1);
 			Game.Action action = Game.allActions[maxIndex];
 			position = game.getNextPosition(position, action);
-			position.saveToImg(10, "position" + (k + 1) + ".png");
+			position.saveToImg(10, "gif\\position" + (k + 1) + ".png");
 		}
+		position = game.getNextPosition(position, new Game.Action(15, 0, 0));
+		position.saveToImg(10, "gif\\position10.png");
+
+
+
+		GifMaker.make("gif\\", "game.gif", 500);
 	}
 }
