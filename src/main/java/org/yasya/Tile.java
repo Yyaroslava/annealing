@@ -211,7 +211,6 @@ public class Tile {
 		try {
 			File outputFile = new File("tiles.png");
 			ImageIO.write(image, "png", outputFile);
-			System.out.println("Изображение сохранено");
 		} catch (Exception e) {
 			System.out.println("Ошибка при сохранении изображения: " + e.getMessage());
 		}

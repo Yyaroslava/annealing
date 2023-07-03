@@ -79,7 +79,6 @@ public class Field {
 			return field;
 		}
 
-		
 		public void show() {
 			for (int y = 0; y < Constants.BOARD_HEIGHT ; y++) {
 				for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
@@ -131,7 +130,6 @@ public class Field {
 			try {
 				File outputFile = new File("image.png");
 				ImageIO.write(image, "png", outputFile);
-				System.out.println("Изображение сохранено");
 			} catch (Exception e) {
 				System.out.println("Ошибка при сохранении изображения: " + e.getMessage());
 			}
@@ -157,3 +155,4 @@ public class Field {
 		}	
 	
 	}
+	

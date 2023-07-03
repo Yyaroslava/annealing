@@ -13,9 +13,28 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
-public class Game{
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
+
+public class Game {
 	private Map<String, Position> positions = new HashMap<>();
+	public static Action[] allActions = new Action[Constants.ACTIONS_COUNT];
 	
+	static {
+		int k = 0;
+		for (int i = 0; i < Tile.allTiles.length; i++) {
+			Tile tile = Tile.allTiles[i];
+			for (int x = 0; x <= Constants.BOARD_WIDTH - tile.width; x++) {
+				for (int y = 0; y <= Constants.BOARD_HEIGHT - tile.height; y++) {
+					allActions[k++] = new Action(i, x, y);
+				}
+			}
+		}
+		System.out.println("allActions length: " + allActions.length);
+		System.out.println("tiles count: " + Tile.allTiles.length);
+	}
+
 	public class Position {
 		public int[][] area = null;
 		public int[] tiles = null;
@@ -23,6 +42,24 @@ public class Game{
 		public double score;
 
 		private Position(){}
+
+		public double[] calculate(MultiLayerNetwork net) {
+			double [] input = new double [Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT + Constants.TILES_COUNT];
+			int k = 0;
+			for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
+				for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+					input[k++] = area[x][y];
+				}
+			}
+			for (int i = 0; i < Constants.TILES_COUNT; i++) {
+				input[k++] = tiles[i];
+			}
+			INDArray inputNet = Nd4j.create(input, new int[] {1, input.length});
+			INDArray outputNet = net.output(inputNet);
+			double[] output = outputNet.toDoubleVector();
+			
+			return output;
+		}
 
 		public void saveToImg(int squareWidth, String fileName) {
 			int imgWidth = (Constants.BOARD_WIDTH + 2) * squareWidth;
@@ -38,8 +75,8 @@ public class Game{
 			graphics.setColor(Color.WHITE);
 			graphics.fillRect(0, 0, imgWidth, imgHeight);
 
-			Color rnc = Field.getRandomColor();
-			
+			//Color rnc = Field.getRandomColor();
+			Color rnc = Color.CYAN;
 			for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
 				for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
 					Color c = area[x][y] == 1 ? rnc : Color.PINK;
@@ -52,7 +89,6 @@ public class Game{
 			try {
 				File outputFile = new File(fileName);
 				ImageIO.write(image, "png", outputFile);
-				System.out.println("Изображение сохранено");
 			} catch (Exception e) {
 				System.out.println("Ошибка при сохранении изображения: " + e.getMessage());
 			}
@@ -101,7 +137,7 @@ public class Game{
 		return nextPosition;
 	}
 
-	public record Action(int tileIndex, int x, int y) {} 
+	public record Action(int tileIndex, int x, int y) {}
 
 	public static String getPositionHash(int[][] area, int[] tiles) throws NoSuchAlgorithmException{
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
