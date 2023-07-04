@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -42,6 +43,23 @@ public class Game {
 		public double score;
 
 		private Position(){}
+
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+				for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
+					sb.append(area[x][y]);
+				}
+				sb.append("\n");
+			}
+			sb.append("\n\n");
+			for (int k = 0; k < Constants.TILES_COUNT; k++) {
+				if(tiles[k] > 0) {
+					sb.append("" + k + ": " + tiles[k] + "\n");
+				}
+			}
+			return sb.toString();
+		}
 
 		public double[] calculate(MultiLayerNetwork net) {
 			double [] input = new double [Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT + Constants.TILES_COUNT];
@@ -99,11 +117,115 @@ public class Game {
 
 	}
 
-	public Position getStartPosition() {
-		Position position = new Position();
-		position.area = new int[Constants.BOARD_WIDTH][Constants.BOARD_HEIGHT];
-		position.tiles = new int[Constants.TILES_COUNT];
-		return position;
+	public Position getStartPosition() throws NoSuchAlgorithmException {
+		Map<Integer, Integer> tileSize = new HashMap<>();
+		int[][] area = new int[Constants.BOARD_WIDTH][Constants.BOARD_HEIGHT];
+		int[] tiles = new int[Constants.TILES_COUNT];
+		int k = 0;
+		for(int x = 0; x < Constants.BOARD_WIDTH; x++) {
+			for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+				area[x][y] = k;
+				tileSize.put(k, 1);
+				k++;
+			}
+		}
+		int bordersCount = (Constants.BOARD_HEIGHT - 1) * Constants.BOARD_WIDTH + Constants.BOARD_HEIGHT * (Constants.BOARD_WIDTH - 1);
+		int[][] borders = new int[bordersCount][4];
+
+		k = 0; 
+		for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
+			for (int y = 0; y < Constants.BOARD_HEIGHT - 1; y++) {
+				borders[k][0] = x;
+				borders[k][1] = y;
+				borders[k][2] = x;
+				borders[k][3] = y + 1;
+				k++;
+			}
+		}
+
+		for (int x = 0; x < Constants.BOARD_WIDTH - 1; x++) {
+			for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+				borders[k][0] = x;
+				borders[k][1] = y;
+				borders[k][2] = x + 1;
+				borders[k][3] = y;
+				k++;
+			}
+		}
+
+		Random random = new Random();
+		for (k = bordersCount - 1; k >= 0; k--) {
+			int randomBorder = random.nextInt(k + 1);
+			int x1 = borders[randomBorder][0];
+			int y1 = borders[randomBorder][1];
+			int x2 = borders[randomBorder][2];
+			int y2 = borders[randomBorder][3];
+			int n1 = area[x1][y1];
+			int n2 = area[x2][y2];
+			int size1 = tileSize.get(n1);
+			int size2 = tileSize.get(n2);
+			if(n1 != n2 && size1 + size2 <= Constants.MAX_FIGURE_SIZE) {
+				for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
+					for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+						if (area[x][y] == n2) {
+							area[x][y] = n1;
+						}
+					}
+				}
+				tileSize.put(n1, size1 + size2);
+				tileSize.put(n2, 0);
+			}
+			borders[randomBorder][0] = borders[k][0];
+			borders[randomBorder][1] = borders[k][1];
+			borders[randomBorder][2] = borders[k][2];
+			borders[randomBorder][3] = borders[k][3];
+		}
+
+		int[] up = new int[Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT];
+		int[] down = new int[Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT];
+		int[] left = new int[Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT];
+		int[] right = new int[Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT];
+
+		Arrays.fill(up, Constants.BOARD_HEIGHT - 1);
+		Arrays.fill(down, 0);
+		Arrays.fill(left, Constants.BOARD_WIDTH - 1);
+		Arrays.fill(right, 0);
+
+		for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
+			for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+				int n = area[x][y];
+				up[n] = Math.min(up[n], y);
+				down[n] = Math.max(down[n], y);
+				left[n] = Math.min(left[n], x);
+				right[n] = Math.max(right[n], x);
+			}
+		}
+		
+		for (int n = 0; n < Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT; n++) {
+			if (up[n] <= down[n] && left[n] <= right[n]) {
+				int tileWidth = right[n] - left[n] + 1;
+				int tileHeight = down[n] - up[n] + 1;
+				int[][] tileArea = new int[tileWidth][tileHeight];
+				for (int x = 0; x < tileWidth; x++) {
+					for (int y = 0; y < tileHeight; y++) {
+						tileArea[x][y] = area[left[n] + x][up[n] + y] == n ? 1 : 0;
+					}
+				}
+				int tileIndex = Tile.getTileIndex(tileWidth, tileHeight, tileArea);
+				tiles[tileIndex]++;
+			}
+		}
+
+		String hash = Game.getPositionHash(area, tiles);
+		if (positions.containsKey(hash)) {
+			return positions.get(hash);
+		}
+		Position nextPosition = new Position();
+		nextPosition.area = new int[Constants.BOARD_WIDTH][Constants.BOARD_HEIGHT];
+		nextPosition.tiles = tiles;
+		positions.put(hash, nextPosition);
+
+		return nextPosition;
 	}
 
 	Position getNextPosition(Position previousPosition, Action action) throws NoSuchAlgorithmException{
@@ -134,6 +256,7 @@ public class Game {
 		nextPosition.area = area;
 		nextPosition.tiles = tiles;
 		positions.put(hash, nextPosition);
+
 		return nextPosition;
 	}
 

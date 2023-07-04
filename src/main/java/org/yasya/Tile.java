@@ -2,6 +2,8 @@ package org.yasya;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -9,10 +11,31 @@ import javax.imageio.ImageIO;
 
 public class Tile {
 	public static Tile[] allTiles;
+	public static Map<String, Integer> allTilesMap = new HashMap<>();
 	public int size;
 	public int width;
 	public int height;
 	public int[][] area;
+
+	public static String getTileCode(int tileWidth, int tileHeight, int[][] tileArea) {
+		String code = "";
+		code = code + tileWidth;
+		code = code + tileHeight;
+		for (int x = 0; x < tileWidth; x++) {
+			for (int y = 0; y < tileHeight ; y++) {
+				code = code + tileArea[x][y];
+			}
+		}
+		return code;
+	}
+
+	public static int getTileIndex(int tileWidth, int tileHeight, int[][] tileArea) {
+		String code = getTileCode(tileWidth, tileHeight, tileArea);
+		if(allTilesMap.containsKey(code)) {
+			return allTilesMap.get(code);
+		}
+		return -1;
+	}
 
 	public Tile Copy() {
 		Tile newTile = new Tile(this.size, this.width, this.height);
@@ -173,6 +196,11 @@ public class Tile {
 			}
 		}
  		Tile.allTiles = tiles.toArray(new Tile[tiles.size()]);
+		for (int n = 0; n < Tile.allTiles.length; n++) {
+			Tile tile = Tile.allTiles[n];
+			String code = Tile.getTileCode(tile.width, tile.height, tile.area);
+			allTilesMap.put(code, n);
+		}
  		System.out.println("Length:" + Tile.allTiles.length);
 	}
 

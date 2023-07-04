@@ -5,7 +5,6 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.yasya.Game.Position;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.stream.IntStream;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -18,11 +17,6 @@ import org.nd4j.linalg.factory.Nd4j;
 
 public class App {
 	public static void main ( String[] args ) throws NoSuchAlgorithmException {
-		Field field = Field.getRandom();
-		field.show();
-		field.saveToImg(30);
-		field.showStatistic();
-		
 		Tile.GenerateTiles();
 		Tile.DrawTiles(10, 20);
 
@@ -106,22 +100,31 @@ public class App {
 	public static void gameTest () throws NoSuchAlgorithmException {
 		Game game = new Game();
 		Position position = game.getStartPosition();
+		System.out.println(position.toString());
 		position.saveToImg(10, "gif\\position0.png");
 		MultiLayerNetwork net = buildRobot();
 		for (int k = 0; k < 10; k++) {
 			double[] output = position.calculate(net);
-			int maxIndex = IntStream.range(0, output.length)
-				.reduce((i, j) -> output[i] > output[j] ? i : j)
-				.orElse(-1);
+			int maxIndex = -1;
+			double maxValue = -100;
+			for(int i = 0; i < output.length; i++) {
+				Game.Action a = Game.allActions[i];
+				if(position.tiles[a.tileIndex()] > 0) {
+					if(output[i] > maxValue) {
+						maxValue = output[i];
+						maxIndex = i;
+					}
+				}
+			}
+
 			Game.Action action = Game.allActions[maxIndex];
 			position = game.getNextPosition(position, action);
 			position.saveToImg(10, "gif\\position" + (k + 1) + ".png");
+
+			System.out.println(position.toString());
+
 		}
-		position = game.getNextPosition(position, new Game.Action(15, 0, 0));
-		position.saveToImg(10, "gif\\position10.png");
-
-
-
+		
 		GifMaker.make("gif\\", "game.gif", 500);
 	}
 }
