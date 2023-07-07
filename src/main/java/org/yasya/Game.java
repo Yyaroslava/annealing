@@ -9,6 +9,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.IntStream;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -21,6 +22,7 @@ import org.nd4j.linalg.factory.Nd4j;
 public class Game {
 	private Map<String, Position> positions = new HashMap<>();
 	public static Action[] allActions = new Action[Constants.ACTIONS_COUNT];
+	public MultiLayerNetwork nnet;
 	
 	static {
 		int k = 0;
@@ -36,11 +38,17 @@ public class Game {
 		System.out.println("tiles count: " + Tile.allTiles.length);
 	}
 
+	Game(MultiLayerNetwork nnet) {
+		this.nnet = nnet;
+	}
+
 	public class Position {
+		public MCTS.Node node = null;
 		public int[][] area = null;
 		public int[] tiles = null;
 		public boolean isFinal;
 		public double score;
+		public int[] validActions = null;
 
 		private Position(){}
 
@@ -61,7 +69,7 @@ public class Game {
 			return sb.toString();
 		}
 
-		public double[] calculate(MultiLayerNetwork net) {
+		public double[] calculate() {
 			double [] input = new double [Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT + Constants.TILES_COUNT];
 			int k = 0;
 			for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
@@ -73,10 +81,22 @@ public class Game {
 				input[k++] = tiles[i];
 			}
 			INDArray inputNet = Nd4j.create(input, new int[] {1, input.length});
-			INDArray outputNet = net.output(inputNet);
+			INDArray outputNet = nnet.output(inputNet);
 			double[] output = outputNet.toDoubleVector();
-			
 			return output;
+		}
+
+		public void calculateNewNode(MCTS.Node node) {
+			if(isFinal) {
+				node.v = score;
+			}
+			else {
+				double[] output = calculate();
+				for(int i = 0; i < Constants.ACTIONS_COUNT; i++) {
+					node.Pa[i] = output[i];
+				}
+				node.v = output[Constants.ACTIONS_COUNT];
+			}
 		}
 
 		public void saveToImg(int squareWidth, String fileName) {
@@ -117,6 +137,7 @@ public class Game {
 
 	}
 
+	//TODO calculate validActions, isFinal, score
 	public Position getStartPosition() throws NoSuchAlgorithmException {
 		Map<Integer, Integer> tileSize = new HashMap<>();
 		int[][] area = new int[Constants.BOARD_WIDTH][Constants.BOARD_HEIGHT];
@@ -225,6 +246,18 @@ public class Game {
 		nextPosition.tiles = tiles;
 		positions.put(hash, nextPosition);
 
+		nextPosition.isFinal = Arrays.stream(tiles).allMatch(element -> element == 0);
+		if(nextPosition.isFinal) {
+			int sum = Arrays.stream(area)
+				.flatMapToInt(row -> Arrays.stream(row))
+				.sum();
+			nextPosition.score = (double)sum / (Constants.BOARD_HEIGHT * Constants.BOARD_WIDTH);
+		}
+		else {
+			nextPosition.validActions = IntStream.range(0, Constants.ACTIONS_COUNT)
+				.filter(actionIndex -> nextPosition.tiles[Game.allActions[actionIndex].tileIndex] > 0)
+				.toArray();
+		}
 		return nextPosition;
 	}
 
@@ -256,7 +289,18 @@ public class Game {
 		nextPosition.area = area;
 		nextPosition.tiles = tiles;
 		positions.put(hash, nextPosition);
-
+		nextPosition.isFinal = Arrays.stream(tiles).allMatch(element -> element == 0);
+		if(nextPosition.isFinal) {
+			int sum = Arrays.stream(area)
+				.flatMapToInt(row -> Arrays.stream(row))
+				.sum();
+			nextPosition.score = (double)sum / (Constants.BOARD_HEIGHT * Constants.BOARD_WIDTH);
+		}
+		else {
+			nextPosition.validActions = IntStream.range(0, Constants.ACTIONS_COUNT)
+				.filter(actionIndex -> nextPosition.tiles[Game.allActions[actionIndex].tileIndex] > 0)
+				.toArray();
+		}
 		return nextPosition;
 	}
 
