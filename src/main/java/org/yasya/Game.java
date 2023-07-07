@@ -66,6 +66,7 @@ public class Game {
 					sb.append("" + k + ": " + tiles[k] + "\n");
 				}
 			}
+			sb.append("valid actions: " + Arrays.toString(validActions));
 			return sb.toString();
 		}
 
@@ -137,7 +138,6 @@ public class Game {
 
 	}
 
-	//TODO calculate validActions, isFinal, score
 	public Position getStartPosition() throws NoSuchAlgorithmException {
 		Map<Integer, Integer> tileSize = new HashMap<>();
 		int[][] area = new int[Constants.BOARD_WIDTH][Constants.BOARD_HEIGHT];

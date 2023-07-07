@@ -98,13 +98,13 @@ public class App {
 	}
 
 	public static void gameTest () throws NoSuchAlgorithmException {
-		Game game = new Game();
+		MultiLayerNetwork nnet = buildRobot();
+		Game game = new Game(nnet);
 		Position position = game.getStartPosition();
 		System.out.println(position.toString());
 		position.saveToImg(10, "gif\\position0.png");
-		MultiLayerNetwork net = buildRobot();
 		for (int k = 0; k < 10; k++) {
-			double[] output = position.calculate(net);
+			double[] output = position.calculate();
 			int maxIndex = -1;
 			double maxValue = -100;
 			for(int i = 0; i < output.length; i++) {
