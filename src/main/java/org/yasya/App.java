@@ -27,9 +27,13 @@ public class App {
 	}	
 
 	public static void Train() throws NoSuchAlgorithmException, IOException {
-		MultiLayerNetwork nnet = loadFromFile("T1.data");
+		MultiLayerNetwork nnet = loadNetFromFile("T1.data");
 		if(nnet == null) {
 			nnet = buildRobot();
+		}
+		Feeder babyFeeder = loadFeederFromFile("babyFeeder.data");
+		if(babyFeeder == null) {
+			babyFeeder = new Feeder(100);
 		}
 		Feeder feeder = new Feeder(100);
 		for(int i = 0; i < Constants.GAMES_PER_TRAIN; i++) {
@@ -37,15 +41,25 @@ public class App {
 			Game game = new Game(nnet);
 			Game.Position position = game.getStartPosition();
 			int moves = 0;
+			int moveNumber = random.nextInt(15);
+			String wall = "";
 			while(!position.isFinal) {
-				//System.out.println("Game № " + i + ", move № " + moves);
+				//System.out.println("Game No" + i + ", move No " + moves);
 				feeder.addInput(position.getInputs());
 				MCTS mcts = new MCTS(game, position);
 				double[] output = mcts.treeSearch();
 				feeder.addOutputP(output);
+				if(moves == moveNumber) {
+					wall = "vasyl was here";
+					babyFeeder.addInput(position.getInputs());
+					babyFeeder.addOutputP(output);
+				}
 				int actionIndex = getRandomIndex(output);
 				position = game.getNextPosition(position, Game.allActions[actionIndex]);
 				moves++;
+			}
+			if(wall.equals("vasyl was here")) {
+				babyFeeder.addOutputV(new double[] {position.score}, 1);
 			}
 			feeder.addOutputV(new double[] {position.score}, moves);
 			System.out.println(position.toString());
@@ -55,7 +69,8 @@ public class App {
 			double error = nnet.score();
 			System.out.println("Error: " + error);
 		}
-		saveToFile(nnet, "T1.data");
+		saveNetToFile(nnet, "T1.data");
+		saveFeederToFile(babyFeeder, "babyFeeder.data");
 	}
 
 	public static int getRandomIndex(double[] p) {
@@ -134,12 +149,12 @@ public class App {
 		GifMaker.make("gif\\", "game.gif", 500);
 	}
 
-	public static void saveToFile(MultiLayerNetwork net, String fileName) throws IOException {
+	public static void saveNetToFile(MultiLayerNetwork net, String fileName) throws IOException {
 		File file = new File(fileName);
 		ModelSerializer.writeModel(net, file, true);
 	}
 
-	public static MultiLayerNetwork loadFromFile(String fileName) throws IOException {
+	public static MultiLayerNetwork loadNetFromFile(String fileName) throws IOException {
 		MultiLayerNetwork net = null;
 		try {
 			File file = new File(fileName);
@@ -150,5 +165,23 @@ public class App {
 		}
 		return net;
 	}
+
+	public static void saveFeederToFile(Feeder feeder, String fileName) throws IOException {
+		File file = new File(fileName);
+		//ModelSerializer.writeModel(feeder, file, true);
+	}
+
+	public static Feeder loadFeederFromFile(String fileName) throws IOException {
+		Feeder feeder = null;
+		try {
+			File file = new File(fileName);
+			//feeder = ModelSerializer.restoreMultiLayerNetwork(file, true);
+		}
+		catch(Exception e) {
+			System.out.println(e);
+		}
+		return feeder;
+	}
+
 
 }
