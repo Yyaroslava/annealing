@@ -34,7 +34,7 @@ public class Game {
 				}
 			}
 		}
-		System.out.println("allActions length: " + allActions.length);
+		System.out.println("allActions length: " + k);
 		System.out.println("tiles count: " + Tile.allTiles.length);
 	}
 
@@ -51,6 +51,20 @@ public class Game {
 		public int[] validActions = null;
 
 		private Position(){}
+
+		public double[] getInputs() {
+			double[] inputs = new double[Constants.INPUT_SIZE];
+			int k = 0;
+			for(int x = 0; x < Constants.BOARD_WIDTH; x++) {
+				for(int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+					inputs[k++] = area[x][y];
+				}
+			}
+			for(int t = 0; t < Constants.TILES_COUNT; t++) {
+				inputs[k++] = tiles[t];
+			}
+			return inputs;
+		}
 
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
@@ -71,7 +85,7 @@ public class Game {
 		}
 
 		public double[] calculate() {
-			double [] input = new double [Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT + Constants.TILES_COUNT];
+			double [] input = new double [Constants.INPUT_SIZE];
 			int k = 0;
 			for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
 				for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
@@ -258,6 +272,7 @@ public class Game {
 				.filter(actionIndex -> nextPosition.tiles[Game.allActions[actionIndex].tileIndex] > 0)
 				.toArray();
 		}
+		//System.out.println("Valid actions: " + Arrays.toString(nextPosition.validActions) + ", is final: " + nextPosition.isFinal);
 		return nextPosition;
 	}
 
@@ -301,6 +316,7 @@ public class Game {
 				.filter(actionIndex -> nextPosition.tiles[Game.allActions[actionIndex].tileIndex] > 0)
 				.toArray();
 		}
+		//System.out.println("Valid actions: " + Arrays.toString(nextPosition.validActions) + ", is final: " + nextPosition.isFinal);
 		return nextPosition;
 	}
 

@@ -18,6 +18,9 @@ public class MCTS {
 			position.node = node;
 			return node.v;
 		}
+		if(position.isFinal) {
+			return position.score;
+		}
 		double bestReward = -100;
 		int bestAction = -1;
 		for(int a : position.validActions) {

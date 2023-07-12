@@ -1,8 +1,8 @@
 package org.yasya;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Random;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
@@ -10,26 +10,29 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 
 public class Feeder implements DataSetIterator {
-	private final int size = 100000;
+	private int size;
 	private int cursor = 0;
-	private final int batchSize = 100;
-	public double [][] inputs;
-	public double [][] outputs;
+	private int batchSize;
+	private List<double[]> inputList = new ArrayList<>();
+	private List<double[]> outputPList = new ArrayList<>();
+	private List<double[]> outputVList = new ArrayList<>();
 
-	public Feeder () {
-		this.inputs = new double [size][3];
-		this.outputs = new double [size][5];
-		Random random = new Random();
-		for (int i = 0; i < size; i++) {
-			inputs[i][0] = random.nextDouble();
-			inputs[i][1] = random.nextDouble();
-			inputs[i][2] = random.nextDouble();
+	public Feeder(int batchSize) {
+		this.batchSize = batchSize;
+	}
 
-			outputs[i][0] = inputs[i][0] + inputs[i][1] + inputs[i][2];
-			outputs[i][1] = inputs[i][0] + inputs[i][1] - inputs[i][2];
-			outputs[i][2] = inputs[i][0] - inputs[i][1] - inputs[i][2];
-			outputs[i][3] = 10 * inputs[i][0];
-			outputs[i][4] = -2 * inputs[i][1];
+	public void addInput(double[] input) {
+		inputList.add(input);
+		size = inputList.size();
+	}
+
+	public void addOutputP(double[] outputP) {
+		outputPList.add(outputP);
+	}
+
+	public void addOutputV(double[] outputV, int count) {
+		for(int i = 0; i < count; i++) {
+			outputVList.add(outputV);
 		}
 	}
 
@@ -47,20 +50,24 @@ public class Feeder implements DataSetIterator {
 	}
 
 	@Override
-	public DataSet next() {
+	public DataSet next(int num) {
 		if (cursor >= size) {
 			throw new NoSuchElementException();
 		}
 
 		int from = cursor;
-		int to = Math.min(cursor + batchSize, size);
-		cursor += batchSize;
+		int to = Math.min(cursor + num, size);
+		cursor += num;
 
-		double[][] batchInputs = new double[to - from][3];
-		double[][] batchOutputs = new double[to - from][5];
+		double[][] batchInputs = new double[to - from][Constants.INPUT_SIZE];
+		double[][] batchOutputs = new double[to - from][Constants.OUTPUT_SIZE];
 		for (int i = 0; i < to - from; i++) {
-			batchInputs[i] = inputs[from + i];
-			batchOutputs[i] = outputs[from + i];
+			batchInputs[i] = inputList.get(from + i);
+			batchOutputs[i] =  new double[Constants.OUTPUT_SIZE];
+			for(int k = 0; k < Constants.ACTIONS_COUNT; k++) {
+				batchOutputs[i][k] = outputPList.get(from + i)[k];
+			}
+			batchOutputs[i][Constants.OUTPUT_SIZE - 1] = outputVList.get(from + i)[0];
 		}
 
 		// Преобразование входных данных и меток в INDArray
@@ -93,12 +100,12 @@ public class Feeder implements DataSetIterator {
 
 	@Override
 	public int inputColumns() {
-		return 3;
+		return Constants.INPUT_SIZE;
 	}
 
 	@Override
-	public DataSet next(int arg0) {
-		return null;
+	public DataSet next() {
+		return next(batchSize);
 	}
 
 	@Override
@@ -114,7 +121,7 @@ public class Feeder implements DataSetIterator {
 
 	@Override
 	public int totalOutcomes() {
-		return 5;
+		return Constants.OUTPUT_SIZE;
 	}
 
 }
