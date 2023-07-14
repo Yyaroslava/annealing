@@ -14,7 +14,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
-
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -150,6 +149,42 @@ public class Game {
 			graphics.dispose();
 		}
 
+	}
+
+	public Position setStartPosition(Position p) throws NoSuchAlgorithmException {
+		int[][] area = new int[Constants.BOARD_WIDTH][Constants.BOARD_HEIGHT];
+		int[] tiles = new int[Constants.TILES_COUNT];
+		for(int x = 0; x < Constants.BOARD_WIDTH; x++) {
+			for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+				area[x][y] = p.area[x][y];
+			}
+		}
+		for(int k = 0; k < Constants.TILES_COUNT; k++) {
+			tiles[k] = p.tiles[k];
+		}
+		String hash = Game.getPositionHash(area, tiles);
+		if (positions.containsKey(hash)) {
+			return positions.get(hash);
+		}
+		Position nextPosition = new Position();
+		nextPosition.area = new int[Constants.BOARD_WIDTH][Constants.BOARD_HEIGHT];
+		nextPosition.tiles = tiles;
+		positions.put(hash, nextPosition);
+
+		nextPosition.isFinal = Arrays.stream(tiles).allMatch(element -> element == 0);
+		if(nextPosition.isFinal) {
+			int sum = Arrays.stream(area)
+				.flatMapToInt(row -> Arrays.stream(row))
+				.sum();
+			nextPosition.score = (double)sum / (Constants.BOARD_HEIGHT * Constants.BOARD_WIDTH);
+		}
+		else {
+			nextPosition.validActions = IntStream.range(0, Constants.ACTIONS_COUNT)
+				.filter(actionIndex -> nextPosition.tiles[Game.allActions[actionIndex].tileIndex] > 0)
+				.toArray();
+		}
+		//System.out.println("Valid actions: " + Arrays.toString(nextPosition.validActions) + ", is final: " + nextPosition.isFinal);
+		return nextPosition;
 	}
 
 	public Position getStartPosition() throws NoSuchAlgorithmException {

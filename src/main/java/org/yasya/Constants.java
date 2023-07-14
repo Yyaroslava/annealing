@@ -10,5 +10,5 @@ public final class Constants {
 	public static final int SEARCHES_PER_MOVE = 5000;
 	public static final int INPUT_SIZE = BOARD_WIDTH * BOARD_HEIGHT + TILES_COUNT;
 	public static final int OUTPUT_SIZE = ACTIONS_COUNT + 1;
-	public static final int GAMES_PER_TRAIN = 20;
+	public static final int GAMES_PER_TRAIN = 60;
 }

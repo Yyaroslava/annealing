@@ -4,7 +4,11 @@ import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.yasya.Game.Position;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -19,14 +23,14 @@ import org.nd4j.linalg.activations.Activation;
 public class App {
 	public static Random random = new Random();
 
-	public static void main ( String[] args ) throws NoSuchAlgorithmException, IOException {
+	public static void main ( String[] args ) throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
 		Tile.GenerateTiles();
 		Tile.DrawTiles(10, 20);
-		Train();
-		
+		//Train();
+		testT1();
 	}	
 
-	public static void Train() throws NoSuchAlgorithmException, IOException {
+	public static void Train() throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
 		MultiLayerNetwork nnet = loadNetFromFile("T1.data");
 		if(nnet == null) {
 			nnet = buildRobot();
@@ -167,21 +171,64 @@ public class App {
 	}
 
 	public static void saveFeederToFile(Feeder feeder, String fileName) throws IOException {
-		File file = new File(fileName);
-		//ModelSerializer.writeModel(feeder, file, true);
+		FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+		try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
+			objectOutputStream.writeObject(feeder);
+		}
 	}
 
-	public static Feeder loadFeederFromFile(String fileName) throws IOException {
+	public static Feeder loadFeederFromFile(String fileName) throws IOException, ClassNotFoundException {
 		Feeder feeder = null;
-		try {
-			File file = new File(fileName);
-			//feeder = ModelSerializer.restoreMultiLayerNetwork(file, true);
+		File file = new File(fileName);
+		if (!file.exists()){
+			return feeder;
 		}
-		catch(Exception e) {
-			System.out.println(e);
+		try (FileInputStream fileInputStream = new FileInputStream(fileName);
+			ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
+			feeder = (Feeder) objectInputStream.readObject();
 		}
 		return feeder;
 	}
 
+	public static boolean fightOnce(MultiLayerNetwork net1, MultiLayerNetwork net2) throws NoSuchAlgorithmException {
+		Game game1 = new Game(net1);
+		Game game2 = new Game(net2);
+		Game.Position position1 = game1.getStartPosition();
+		Game.Position position2 = game2.setStartPosition(position1);
+		while(!position1.isFinal) {
+			MCTS mcts = new MCTS(game1, position1);
+			double[] output = mcts.treeSearch();
+			int actionIndex = getRandomIndex(output);
+			position1 = game1.getNextPosition(position1, Game.allActions[actionIndex]);
+		}
+		double score1 = position1.score;
+
+		while(!position2.isFinal) {
+			MCTS mcts = new MCTS(game2, position2);
+			double[] output = mcts.treeSearch();
+			int actionIndex = getRandomIndex(output);
+			position2 = game2.getNextPosition(position2, Game.allActions[actionIndex]);
+		}
+		double score2 = position2.score;
+
+		return score1 > score2;
+	}
+
+	public static void fight(MultiLayerNetwork net1, MultiLayerNetwork net2, int count) throws NoSuchAlgorithmException {
+		for (int k = 0; k < count; k++) {
+			if(fightOnce(net1, net2)) {
+				System.out.println("wins first");
+			}
+			else{
+				System.out.println("wins second");
+			}
+		}
+	}
+
+	public static void testT1() throws IOException, NoSuchAlgorithmException {
+		MultiLayerNetwork net1 = loadNetFromFile("T1.data");
+		MultiLayerNetwork net2 = loadNetFromFile("X.data");
+		fight(net1, net2, 20);
+	}
 
 }
