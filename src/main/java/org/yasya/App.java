@@ -2,6 +2,7 @@ package org.yasya;
 
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.linalg.lossfunctions.impl.LossMSE;
 import org.yasya.Game.Position;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,6 +20,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.ops.LossFunction;
 
 public class App {
 	public static Random random = new Random();
@@ -26,8 +28,8 @@ public class App {
 	public static void main ( String[] args ) throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
 		Tile.GenerateTiles();
 		Tile.DrawTiles(10, 20);
-		//Train();
-		testT1();
+		Train();
+		//testT1();
 	}	
 
 	public static void Train() throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
@@ -111,14 +113,16 @@ public class App {
 				.build()
 			)
 			.layer( new OutputLayer
-				.Builder(LossFunctions.LossFunction.MCXENT)
+				.Builder(LossFunctions.LossFunction.MSE)
 				.nIn(2000)
 				.nOut(Constants.ACTIONS_COUNT + 1)
-				.activation(Activation.SIGMOID)
+				.activation(Activation.IDENTITY)
 				.build()
 			)
 			.validateOutputLayerConfig(false)
 			.build();
+
+		//LossFunction weightedLoss = new WeightedLossFunction(new LossMSE(), new double[]{20, 1, 1, 1, 1, 1, 1, 1, 1, 1});
 		
 		MultiLayerNetwork net = new MultiLayerNetwork(config);
 		net.init();
