@@ -227,7 +227,7 @@ public class App {
 
 	public static void testT1() throws IOException, NoSuchAlgorithmException {
 		MultiLayerNetwork net1 = loadNetFromFile("T1.data");
-		MultiLayerNetwork net2 = loadNetFromFile("X.data");
+		MultiLayerNetwork net2 = buildRobot();
 		fight(net1, net2, 20);
 	}
 
