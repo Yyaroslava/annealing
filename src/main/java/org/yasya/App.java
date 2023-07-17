@@ -31,6 +31,7 @@ public class App {
 		//Train();
 		testT1();
 		//explain();
+		//TODO split Train() and data collecting for BabyFedeer 
 	}	
 
 	public static void Train() throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
