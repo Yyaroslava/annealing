@@ -1,9 +1,5 @@
 package org.yasya;
 
-import org.nd4j.linalg.learning.config.Nesterovs;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.nd4j.linalg.lossfunctions.impl.LossMSE;
-import org.yasya.Game.Position;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,7 +7,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Random;
+
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -20,16 +18,19 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
-import org.nd4j.linalg.api.ops.LossFunction;
+import org.nd4j.linalg.learning.config.Nesterovs;
+import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.yasya.Game.Position;
 
 public class App {
 	public static Random random = new Random();
 
 	public static void main ( String[] args ) throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
 		Tile.GenerateTiles();
-		Tile.DrawTiles(10, 20);
-		Train();
-		//testT1();
+		//Tile.DrawTiles(10, 20);
+		//Train();
+		testT1();
+		//explain();
 	}	
 
 	public static void Train() throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
@@ -86,7 +87,41 @@ public class App {
 		return i;
 	}
 
+	public static int getBestIndex(double[] p) {
+		double maxValue = -1;
+		int count = 0;
+		for(int i = 0; i < p.length; i++) {
+			if(p[i] > maxValue) {
+				maxValue = p[i];
+				count = 1;
+			}
+			else if(p[i] == maxValue) {
+				count++;
+			}
+		}
+		int r = random.nextInt(count);
+		count = 0;
+		for(int i = 0; i < p.length; i++) {
+			if (p[i] == maxValue) {
+				if (count == r) {
+					return i;
+				}
+				count++;
+			}
+		}
+		return -1;
+	}
+
 	public static MultiLayerNetwork buildRobot() {
+		double[] multi = new double[Constants.OUTPUT_SIZE];
+		for (int i = 0; i < Constants.OUTPUT_SIZE; i++) {
+			if(i == Constants.OUTPUT_SIZE - 1) {
+				multi[i] = 150;
+			}
+			else {
+				multi[i] = 1;
+			}
+		}
 		MultiLayerConfiguration config = new NeuralNetConfiguration.Builder()
 			.weightInit(WeightInit.XAVIER)
 			.updater(new Nesterovs(0.1, 0.9))
@@ -194,7 +229,7 @@ public class App {
 		return feeder;
 	}
 
-	public static boolean fightOnce(MultiLayerNetwork net1, MultiLayerNetwork net2) throws NoSuchAlgorithmException {
+	public static double fightOnce(MultiLayerNetwork net1, MultiLayerNetwork net2) throws NoSuchAlgorithmException {
 		Game game1 = new Game(net1);
 		Game game2 = new Game(net2);
 		Game.Position position1 = game1.getStartPosition();
@@ -202,7 +237,7 @@ public class App {
 		while(!position1.isFinal) {
 			MCTS mcts = new MCTS(game1, position1);
 			double[] output = mcts.treeSearch();
-			int actionIndex = getRandomIndex(output);
+			int actionIndex = getBestIndex(output);
 			position1 = game1.getNextPosition(position1, Game.allActions[actionIndex]);
 		}
 		double score1 = position1.score;
@@ -210,18 +245,23 @@ public class App {
 		while(!position2.isFinal) {
 			MCTS mcts = new MCTS(game2, position2);
 			double[] output = mcts.treeSearch();
-			int actionIndex = getRandomIndex(output);
+			int actionIndex = getBestIndex(output);
 			position2 = game2.getNextPosition(position2, Game.allActions[actionIndex]);
 		}
 		double score2 = position2.score;
-
-		return score1 > score2;
+		System.out.println("" + score1 + " " + score2);
+		return score1 - score2;
 	}
 
-	public static void fight(MultiLayerNetwork net1, MultiLayerNetwork net2, int count) throws NoSuchAlgorithmException {
+	public static void fight(MultiLayerNetwork net1, int count) throws NoSuchAlgorithmException {
 		for (int k = 0; k < count; k++) {
-			if(fightOnce(net1, net2)) {
+			MultiLayerNetwork net2 = buildRobot();
+			double delta = fightOnce(net2, net1);
+			if(delta > 0) {
 				System.out.println("wins first");
+			}
+			else if(delta == 0) {
+				System.out.println("draw");
 			}
 			else{
 				System.out.println("wins second");
@@ -231,8 +271,29 @@ public class App {
 
 	public static void testT1() throws IOException, NoSuchAlgorithmException {
 		MultiLayerNetwork net1 = loadNetFromFile("T1.data");
-		MultiLayerNetwork net2 = buildRobot();
-		fight(net1, net2, 20);
+		fight(net1, 20);
+	}
+
+	public static void explain() throws IOException, NoSuchAlgorithmException {
+		MultiLayerNetwork net1 = loadNetFromFile("T1.data");
+		Game game1 = new Game(net1);
+		Game.Position position1 = game1.getStartPosition();
+		System.out.println(position1.toString());
+		while(!position1.isFinal) {
+			MCTS mcts = new MCTS(game1, position1);
+			double[] output = mcts.treeSearch();
+			for(int i = 0; i < Constants.ACTIONS_COUNT; i++) {
+				if (output[i] == 0) continue;
+				System.out.println("* " + Game.allActions[i].tileIndex() + " " + Game.allActions[i].x() + " " + Game.allActions[i].y() + " " + output[i]);
+			}
+			int actionIndex = getBestIndex(output);
+			System.out.println("chosen: " + Game.allActions[actionIndex].tileIndex() + " " + Game.allActions[actionIndex].x() + " " + Game.allActions[actionIndex].y() + " " + output[actionIndex]);
+			position1 = game1.getNextPosition(position1, Game.allActions[actionIndex]);
+			System.out.println(position1.toString());
+		}
+		double score1 = position1.score;
+		System.out.println(score1);
+
 	}
 
 }
