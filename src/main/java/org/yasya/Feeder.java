@@ -36,7 +36,7 @@ public class Feeder implements DataSetIterator {
 		}
 	}
 
-	public void Train (MultiLayerNetwork net) {
+	public void train (MultiLayerNetwork net) {
 		while (hasNext()) {
 			net.fit(this);
 			double score = net.score();

@@ -73,7 +73,6 @@ public class Game {
 				}
 				sb.append("\n");
 			}
-			sb.append("\n\n");
 			for (int k = 0; k < Constants.TILES_COUNT; k++) {
 				if(tiles[k] > 0) {
 					sb.append("" + k + ": " + tiles[k] + "\n");

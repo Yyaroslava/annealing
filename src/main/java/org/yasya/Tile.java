@@ -37,7 +37,7 @@ public class Tile {
 		return -1;
 	}
 
-	public Tile Copy() {
+	public Tile copy() {
 		Tile newTile = new Tile(this.size, this.width, this.height);
 		for (int x = 0; x < this.width; x++) {
 			for (int y = 0; y < this.height ; y++) {
@@ -47,7 +47,7 @@ public class Tile {
 		return newTile;
 	}
 
-	public static boolean Contains (ArrayList<Tile> tiles, Tile tile) {
+	public static boolean contains (ArrayList<Tile> tiles, Tile tile) {
 		for (Tile testTile : tiles) {
 			if (testTile.equals(tile)) {
 				return true;
@@ -88,7 +88,7 @@ public class Tile {
 		return true;
 	}
 
-	public static void GenerateTiles() {
+	public static void generateTiles() {
 		ArrayList<Tile> tiles = new ArrayList<>();
 		Tile uno = new Tile(1, 1, 1);
 		uno.area[0][0] = 1;
@@ -109,15 +109,15 @@ public class Tile {
 											newTile.area[xx][yy + 1] = tile.area[xx][yy];
 										}
 									}
-									if (!Contains(tiles, newTile)) {
+									if (!contains(tiles, newTile)) {
 										tiles.add(newTile);
 									}
 								}
 								else {
 									if (tile.area[x][y - 1] == 0) {
-										Tile newTile = tile.Copy();
+										Tile newTile = tile.copy();
 										newTile.area[x][y - 1] = 1;
-										if (!Contains(tiles, newTile)) {
+										if (!contains(tiles, newTile)) {
 											tiles.add(newTile);
 										}
 									}
@@ -131,15 +131,15 @@ public class Tile {
 											newTile.area[xx][yy] = tile.area[xx][yy];
 										}
 									}
-									if (!Contains(tiles, newTile)) {
+									if (!contains(tiles, newTile)) {
 										tiles.add(newTile);
 									}
 								}
 								else {
 									if (tile.area[x + 1][y] == 0) {
-										Tile newTile = tile.Copy();
+										Tile newTile = tile.copy();
 										newTile.area[x + 1][y] = 1;
-										if (!Contains(tiles, newTile)) {
+										if (!contains(tiles, newTile)) {
 											tiles.add(newTile);
 										}
 									}
@@ -153,15 +153,15 @@ public class Tile {
 											newTile.area[xx][yy] = tile.area[xx][yy];
 										}
 									}
-									if (!Contains(tiles, newTile)) {
+									if (!contains(tiles, newTile)) {
 										tiles.add(newTile);
 									}
 								}
 								else {
 									if (tile.area[x][y + 1] == 0) {
-										Tile newTile = tile.Copy();
+										Tile newTile = tile.copy();
 										newTile.area[x][y + 1] = 1;
-										if (!Contains(tiles, newTile)) {
+										if (!contains(tiles, newTile)) {
 											tiles.add(newTile);
 										}
 									}
@@ -175,15 +175,15 @@ public class Tile {
 											newTile.area[xx + 1][yy] = tile.area[xx][yy];
 										}
 									}
-									if (!Contains(tiles, newTile)) {
+									if (!contains(tiles, newTile)) {
 										tiles.add(newTile);
 									}
 								}
 								else {
 									if (tile.area[x - 1][y] == 0) {
-										Tile newTile = tile.Copy();
+										Tile newTile = tile.copy();
 										newTile.area[x - 1][y] = 1;
-										if (!Contains(tiles, newTile)) {
+										if (!contains(tiles, newTile)) {
 											tiles.add(newTile);
 										}
 									}
@@ -204,7 +204,7 @@ public class Tile {
  		System.out.println("Length:" + Tile.allTiles.length);
 	}
 
-	public static void DrawTiles (int squareWidth, int tilesInARow) {
+	public static void drawTiles (int squareWidth, int tilesInARow) {
 		int imgWidth = squareWidth * ((Constants.MAX_FIGURE_SIZE + 1) * tilesInARow + 1);
 		int rows = allTiles.length / tilesInARow + (allTiles.length % tilesInARow == 0 ? 0 : 1);
 		int imgHeight = squareWidth * ((Constants.MAX_FIGURE_SIZE + 1) * rows + 1);

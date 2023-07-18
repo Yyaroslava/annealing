@@ -26,16 +26,44 @@ public class App {
 	public static Random random = new Random();
 
 	public static void main ( String[] args ) throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
-		Tile.GenerateTiles();
-		//Tile.DrawTiles(10, 20);
-		//Train();
-		testT1();
+		Tile.generateTiles();
+		/*
+		if(args.length > 0) {
+			switch (args[0]) {
+				case "train":
+					train("T1.data");
+					break;
+				case "trainBaby":
+					tryBaby();
+					break;
+				case "testT1":
+					testT1();
+					break;
+				case "explain":
+					explain();
+					break;
+				case "drawTiles":
+					Tile.drawTiles(10, 20);
+					break;
+				default:
+			}
+		}
+		*/
+		train("T1.data");
+		//tryBaby();
 		//explain();
-		//TODO split Train() and data collecting for BabyFedeer 
 	}	
 
-	public static void Train() throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
-		MultiLayerNetwork nnet = loadNetFromFile("T1.data");
+	public static void tryBaby() throws ClassNotFoundException, IOException, NoSuchAlgorithmException {
+		MultiLayerNetwork t2 = trainBaby("babyFeeder.data");
+		saveNetToFile(t2, "T2.data");
+		train("T2.data");
+		MultiLayerNetwork t1 = loadNetFromFile("T1.data");
+		fight(t1, t2, Constants.FIGHTS_PER_COMPETITION);
+	}
+
+	public static void train(String netDataFileName) throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
+		MultiLayerNetwork nnet = loadNetFromFile(netDataFileName);
 		if(nnet == null) {
 			nnet = buildRobot();
 		}
@@ -45,6 +73,7 @@ public class App {
 		}
 		Feeder feeder = new Feeder(100);
 		for(int i = 0; i < Constants.GAMES_PER_TRAIN; i++) {
+			System.out.println("* * * * * * * * * * * *");
 			System.out.println("Game No " + i);
 			Game game = new Game(nnet);
 			Game.Position position = game.getStartPosition();
@@ -62,7 +91,7 @@ public class App {
 					babyFeeder.addInput(position.getInputs());
 					babyFeeder.addOutputP(output);
 				}
-				int actionIndex = getRandomIndex(output);
+				int actionIndex = getBestIndex(output);
 				position = game.getNextPosition(position, Game.allActions[actionIndex]);
 				moves++;
 			}
@@ -71,14 +100,30 @@ public class App {
 			}
 			feeder.addOutputV(new double[] {position.score}, moves);
 			System.out.println(position.toString());
+			System.out.println("score: " + position.score);
+
 		}
 		while(feeder.hasNext()){
 			nnet.fit(feeder);
 			double error = nnet.score();
 			System.out.println("Error: " + error);
 		}
-		saveNetToFile(nnet, "T1.data");
+		saveNetToFile(nnet, netDataFileName);
 		saveFeederToFile(babyFeeder, "babyFeeder.data");
+	}
+
+	public static MultiLayerNetwork trainBaby(String babyDataFileName) throws ClassNotFoundException, IOException {
+		MultiLayerNetwork net = buildRobot();
+		Feeder babyFeeder = loadFeederFromFile(babyDataFileName);
+		if(babyFeeder == null) {
+			return net;
+		}
+		while(babyFeeder.hasNext()){
+			net.fit(babyFeeder);
+			double error = net.score();
+			System.out.println("Error: " + error);
+		}
+		return net;
 	}
 
 	public static int getRandomIndex(double[] p) {
@@ -254,25 +299,38 @@ public class App {
 		return score1 - score2;
 	}
 
-	public static void fight(MultiLayerNetwork net1, int count) throws NoSuchAlgorithmException {
+	public static void fight(MultiLayerNetwork net1, MultiLayerNetwork net2, int count) throws NoSuchAlgorithmException, IOException {
+		int winsFirst = 0;
+		int winsSecond = 0;
+		int draw = 0;
 		for (int k = 0; k < count; k++) {
-			MultiLayerNetwork net2 = buildRobot();
 			double delta = fightOnce(net2, net1);
 			if(delta > 0) {
 				System.out.println("wins first");
+				winsFirst++;
 			}
 			else if(delta == 0) {
 				System.out.println("draw");
+				draw++;
 			}
 			else{
 				System.out.println("wins second");
+				winsSecond++;
 			}
+		}
+		System.out.println("First wins " + winsFirst + " times, " + "draw " + draw + " times, " + "second wins " + winsSecond + " times.");
+		if(winsSecond >= Constants.WINS_FOR_VICTORY) {
+			System.out.println("We have a champ from a new generation!!");
+			saveNetToFile(net2, "T1.data");
+			File file = new File("babyFeeder.data");
+			file.delete();
 		}
 	}
 
 	public static void testT1() throws IOException, NoSuchAlgorithmException {
 		MultiLayerNetwork net1 = loadNetFromFile("T1.data");
-		fight(net1, 20);
+		MultiLayerNetwork net2 = buildRobot();
+		fight(net1, net2, Constants.FIGHTS_PER_COMPETITION);
 	}
 
 	public static void explain() throws IOException, NoSuchAlgorithmException {
