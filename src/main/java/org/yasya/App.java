@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Random;
 
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -26,8 +25,9 @@ public class App {
 	public static Random random = new Random();
 
 	public static void main ( String[] args ) throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
+		System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error");
 		Tile.generateTiles();
-		/*
+		
 		if(args.length > 0) {
 			switch (args[0]) {
 				case "train":
@@ -48,10 +48,6 @@ public class App {
 				default:
 			}
 		}
-		*/
-		train("T1.data");
-		//tryBaby();
-		//explain();
 	}	
 
 	public static void tryBaby() throws ClassNotFoundException, IOException, NoSuchAlgorithmException {
@@ -343,10 +339,22 @@ public class App {
 			double[] output = mcts.treeSearch();
 			for(int i = 0; i < Constants.ACTIONS_COUNT; i++) {
 				if (output[i] == 0) continue;
-				System.out.println("* " + Game.allActions[i].tileIndex() + " " + Game.allActions[i].x() + " " + Game.allActions[i].y() + " " + output[i]);
+				System.out.printf(
+					"chosen: %4d %4d %4d %.5f \n", 
+					Game.allActions[i].tileIndex(),
+					Game.allActions[i].x(),
+					Game.allActions[i].y(),
+					output[i]
+				);
 			}
 			int actionIndex = getBestIndex(output);
-			System.out.println("chosen: " + Game.allActions[actionIndex].tileIndex() + " " + Game.allActions[actionIndex].x() + " " + Game.allActions[actionIndex].y() + " " + output[actionIndex]);
+			System.out.printf(
+				"chosen: %4d %4d %4d %.5f \n", 
+				Game.allActions[actionIndex].tileIndex(),
+				Game.allActions[actionIndex].x(),
+				Game.allActions[actionIndex].y(),
+				output[actionIndex]
+			); 
 			position1 = game1.getNextPosition(position1, Game.allActions[actionIndex]);
 			System.out.println(position1.toString());
 		}

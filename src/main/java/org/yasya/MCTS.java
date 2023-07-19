@@ -21,6 +21,16 @@ public class MCTS {
 		if(position.isFinal) {
 			return position.score;
 		}
+		for(int a : position.validActions) {
+			if(node.Na[a] == 0) {
+				Game.Position nextPosition = game.getNextPosition(position, Game.allActions[a]);
+				double v = search(nextPosition);
+				node.Qa[a] = (node.Na[a] * node.Qa[a] + v) / (node.Na[a] + 1);
+				node.Na[a]++;
+				node.N++;
+				return v;
+			}
+		}
 		double bestReward = -100;
 		int bestAction = -1;
 		for(int a : position.validActions) {

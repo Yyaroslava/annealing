@@ -1,0 +1,40 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "java",
+			"name": "train",
+			"request": "launch",
+			"mainClass": "org.yasya.App",
+			"args": ["train"]
+		},
+		{
+			"type": "java",
+			"name": "trainBaby",
+			"request": "launch",
+			"mainClass": "org.yasya.App",
+			"args": ["trainBaby"]
+		},
+		{
+			"type": "java",
+			"name": "testT1",
+			"request": "launch",
+			"mainClass": "org.yasya.App",
+			"args": ["testT1"]
+		},
+		{
+			"type": "java",
+			"name": "explain",
+			"request": "launch",
+			"mainClass": "org.yasya.App",
+			"args": ["explain"]
+		},
+		{
+			"type": "java",
+			"name": "drawTiles",
+			"request": "launch",
+			"mainClass": "org.yasya.App",
+			"args": ["drawTiles"]
+		}
+	]
+}
