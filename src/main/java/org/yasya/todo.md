@@ -1,12 +1,13 @@
-1. multithreading
-2. create video
-3. make babyFeeder as parametr
-4. add values to explain()
-5. performance measure
-6. speed up with CUDA (nvidia)
-7. Markdown syntaxxx look 
+- [ ] multithreading
+- [ ] create video
+- [ ] make babyFeeder as parametr
+- [ ] add values to explain()
+- [ ] performance measure
+- [ ] speed up with CUDA (nvidia)
+- [x] Markdown syntaxxx look 
 
 Love **is** bold
+
 Italicized text is the *cat's meow*.
 
 > Dorothy followed her through many of the beautiful rooms in her castle.
