@@ -24,14 +24,17 @@ import org.yasya.Game.Position;
 public class App {
 	public static Random random = new Random();
 
-	public static void main ( String[] args ) throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
+	public static void main ( String[] args ) throws NoSuchAlgorithmException, IOException, ClassNotFoundException, InterruptedException {
 		System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error");
 		Tile.generateTiles();
 		
 		if(args.length > 0) {
 			switch (args[0]) {
-				case "train":
-					train("T1.data");
+				case "play":
+					play("T1.data", null);
+					break;
+				case "trainAll":
+					trainAll();
 					break;
 				case "trainBaby":
 					tryBaby();
@@ -45,67 +48,100 @@ public class App {
 				case "drawTiles":
 					Tile.drawTiles(10, 20);
 					break;
+				case "thread":
+					thread();
+					break;
+				case "video":
+					video();
+					break;
 				default:
 			}
 		}
 	}	
 
+	public static void video() {
+		AviMaker avi = new AviMaker()
+			.setImagesFolder("video/src")
+			.setOutputVideoPath("video/1.avi");
+		avi.create();
+		
+	}
+
+	public static void thread() throws InterruptedException {
+		YThread thread1 = new YThread("T1.data", "F1.data");
+		YThread thread2 = new YThread("T1.data", "F2.data");
+		YThread thread3 = new YThread("T1.data", "F3.data");
+		thread1.start();
+		thread2.start();
+		thread3.start();
+		Thread.sleep(10);
+		System.out.printf("\n");
+		try {
+			thread1.join();
+			thread2.join();
+			thread3.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void tryBaby() throws ClassNotFoundException, IOException, NoSuchAlgorithmException {
 		MultiLayerNetwork t2 = trainBaby("babyFeeder.data");
 		saveNetToFile(t2, "T2.data");
-		train("T2.data");
+		play("T2.data", null);
 		MultiLayerNetwork t1 = loadNetFromFile("T1.data");
 		fight(t1, t2, Constants.FIGHTS_PER_COMPETITION);
 	}
 
-	public static void train(String netDataFileName) throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
+	public static void play(String netDataFileName, String feederDataFileName) throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
 		MultiLayerNetwork nnet = loadNetFromFile(netDataFileName);
 		if(nnet == null) {
 			nnet = buildRobot();
 		}
-		Feeder babyFeeder = loadFeederFromFile("babyFeeder.data");
-		if(babyFeeder == null) {
-			babyFeeder = new Feeder(100);
-		}
 		Feeder feeder = new Feeder(100);
-		for(int i = 0; i < Constants.GAMES_PER_TRAIN; i++) {
+		for(int i = 0; i < Constants.GAMES_PER_PLAY; i++) {
 			System.out.println("* * * * * * * * * * * *");
 			System.out.println("Game No " + i);
 			Game game = new Game(nnet);
 			Game.Position position = game.getStartPosition();
 			int moves = 0;
-			int moveNumber = random.nextInt(15);
-			String wall = "";
 			while(!position.isFinal) {
-				//System.out.println("Game No" + i + ", move No " + moves);
 				feeder.addInput(position.getInputs());
 				MCTS mcts = new MCTS(game, position);
 				double[] output = mcts.treeSearch();
 				feeder.addOutputP(output);
-				if(moves == moveNumber) {
-					wall = "vasyl was here";
-					babyFeeder.addInput(position.getInputs());
-					babyFeeder.addOutputP(output);
-				}
 				int actionIndex = getBestIndex(output);
 				position = game.getNextPosition(position, Game.allActions[actionIndex]);
 				moves++;
 			}
-			if(wall.equals("vasyl was here")) {
-				babyFeeder.addOutputV(new double[] {position.score}, 1);
-			}
 			feeder.addOutputV(new double[] {position.score}, moves);
 			System.out.println(position.toString());
 			System.out.println("score: " + position.score);
-
 		}
+		if(feederDataFileName != null) {
+			saveFeederToFile(feeder, feederDataFileName);
+		}
+	}
+
+	public static void train(String netDataFileName, String feederDataFileName) throws ClassNotFoundException, IOException {
+		MultiLayerNetwork nnet = loadNetFromFile(netDataFileName);
+		if(nnet == null) {
+			nnet = buildRobot();
+		}
+		Feeder feeder = loadFeederFromFile(feederDataFileName);
 		while(feeder.hasNext()){
 			nnet.fit(feeder);
 			double error = nnet.score();
 			System.out.println("Error: " + error);
 		}
 		saveNetToFile(nnet, netDataFileName);
-		saveFeederToFile(babyFeeder, "babyFeeder.data");
+
+	}
+
+	public static void trainAll() throws ClassNotFoundException, IOException {
+		train("T1.data", "F1.data");
+		train("T1.data", "F2.data");
+		train("T1.data", "F3.data");
 	}
 
 	public static MultiLayerNetwork trainBaby(String babyDataFileName) throws ClassNotFoundException, IOException {
@@ -333,6 +369,10 @@ public class App {
 		MultiLayerNetwork net1 = loadNetFromFile("T1.data");
 		Game game1 = new Game(net1);
 		Game.Position position1 = game1.getStartPosition();
+		int frameNumber = 0;
+		for(int n = 0; n < 25; n++) {
+			position1.saveToImg(20, String.format("video/src/%04d.png", frameNumber++));
+		}
 		System.out.println(position1.toString());
 		while(!position1.isFinal) {
 			MCTS mcts = new MCTS(game1, position1);
@@ -357,6 +397,9 @@ public class App {
 			); 
 			position1 = game1.getNextPosition(position1, Game.allActions[actionIndex]);
 			System.out.println(position1.toString());
+			for(int n = 0; n < 25; n++) {
+				position1.saveToImg(20, String.format("video/src/%04d.png", frameNumber++));
+			}
 		}
 		double score1 = position1.score;
 		System.out.println(score1);

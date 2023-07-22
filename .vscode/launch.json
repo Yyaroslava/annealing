@@ -3,10 +3,17 @@
 	"configurations": [
 		{
 			"type": "java",
-			"name": "train",
+			"name": "play",
 			"request": "launch",
 			"mainClass": "org.yasya.App",
-			"args": ["train"]
+			"args": ["play"]
+		},
+		{
+			"type": "java",
+			"name": "trainAll",
+			"request": "launch",
+			"mainClass": "org.yasya.App",
+			"args": ["trainAll"]
 		},
 		{
 			"type": "java",
@@ -35,6 +42,20 @@
 			"request": "launch",
 			"mainClass": "org.yasya.App",
 			"args": ["drawTiles"]
+		},
+		{
+			"type": "java",
+			"name": "thread",
+			"request": "launch",
+			"mainClass": "org.yasya.App",
+			"args": ["thread"]
+		},
+		{
+			"type": "java",
+			"name": "video",
+			"request": "launch",
+			"mainClass": "org.yasya.App",
+			"args": ["video"]
 		}
 	]
 }
