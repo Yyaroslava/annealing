@@ -1,7 +1,9 @@
 - [x] multithreading
 - [x] create video
-- [x] make babyFeeder as parametr
+- [x] ~~make babyFeeder as parametr~~
+- [x] split train into play() and train()
+- [x] Markdown syntaxxx look 
 - [ ] add values to explain()
 - [ ] performance measure
 - [ ] speed up with CUDA (nvidia)
-- [x] Markdown syntaxxx look 
+- [ ] make tiles fly to their positions in video
