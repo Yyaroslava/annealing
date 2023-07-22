@@ -10,3 +10,4 @@
 - [ ] make treesearch algorithm visualisation
 - [ ] навчання через покоління 
 - [ ] optimize neuronet shape 
+- [ ] use simulated annealing
