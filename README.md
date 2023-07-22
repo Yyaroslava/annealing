@@ -7,3 +7,4 @@
 - [ ] performance measure
 - [ ] speed up with CUDA (nvidia)
 - [ ] make tiles fly to their positions in video
+- [ ] make video about treesearch algorithm visualisation
