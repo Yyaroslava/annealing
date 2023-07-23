@@ -54,6 +54,9 @@ public class App {
 				case "video":
 					video();
 					break;
+				case "algorythmRandom":
+					algorythmRandom();
+					break;
 				default:
 			}
 		}
@@ -121,6 +124,33 @@ public class App {
 		if(feederDataFileName != null) {
 			saveFeederToFile(feeder, feederDataFileName);
 		}
+	}
+
+	public static void algorythmRandom() throws NoSuchAlgorithmException {
+		double scoreSum = 0;
+		for(int i = 0; i < Constants.GAMES_PER_PLAY; i++) {
+			System.out.println("* * * * * * * * * * * *");
+			System.out.println("Game No " + i);
+			Game game = new Game(null);
+			Game.Position position = game.getStartPosition();
+			while(!position.isFinal) {
+				double[] output = new double[Constants.ACTIONS_COUNT];
+				for(int k = 0; k < Constants.ACTIONS_COUNT; k++) {
+					if(position.tiles[Game.allActions[k].tileIndex()] > 0) {
+						output[k] = 1;
+					}
+					else {
+						output[k] = 0;
+					}
+				}
+				int actionIndex = getBestIndex(output);
+				position = game.getNextPosition(position, Game.allActions[actionIndex]);
+			}
+			System.out.println(position.toString());
+			System.out.println("score: " + position.score);
+			scoreSum += position.score;
+		}
+		System.out.printf("average score: %f", scoreSum / Constants.GAMES_PER_PLAY);
 	}
 
 	public static void train(String netDataFileName, String feederDataFileName) throws ClassNotFoundException, IOException {
