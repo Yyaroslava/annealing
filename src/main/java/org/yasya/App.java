@@ -57,17 +57,87 @@ public class App {
 				case "algorythmRandom":
 					algorythmRandom();
 					break;
+				case "algorythmGreedy":
+					algorythmGreedy();
+					break;
 				default:
 			}
 		}
 	}	
+
+	public static void algorythmGreedy() throws NoSuchAlgorithmException {
+		Game game = new Game(null);
+		Game.Position position = game.getStartPosition();
+		while(!position.isFinal) {
+			Tile bestTile = null;
+			int bestX = -1;
+			int bestY = -1;
+			int bestInersect = Constants.MAX_FIGURE_SIZE + 1;
+			int bestTileIndex = -1;
+			int bestSize = 0;
+			for(int q = Constants.MAX_FIGURE_SIZE; q > 0; q--) {
+				for(int tileIndex = 0; tileIndex < Constants.TILES_COUNT; tileIndex++) {
+					if(position.tiles[tileIndex] > 0 && Tile.allTiles[tileIndex].size == q) {
+						Tile currentTile = Tile.allTiles[tileIndex];
+						for( int y = 0; y < Constants.BOARD_HEIGHT - currentTile.height + 1; y++) {
+							for( int x = 0; x < Constants.BOARD_WIDTH - currentTile.width + 1; x++) {
+								int currentIntersect = intersect(position.area, currentTile, x, y);
+								System.out.printf("tile index: %d, x: %d, y: %d, width: %d, height: %d \n", tileIndex, x, y, currentTile.width, currentTile.height);
+								if(bestTile == null) {
+									bestTile = currentTile;
+									bestX = x;
+									bestY = y;
+									bestInersect = currentIntersect;
+									bestTileIndex = tileIndex;
+									bestSize = currentTile.size;
+								}
+								else if(currentTile.size > bestTile.size) {
+									bestTile = currentTile;
+									bestX = x;
+									bestY = y;
+									bestInersect = currentIntersect;
+									bestTileIndex = tileIndex;
+									bestSize = currentTile.size;
+								}
+								else if(currentTile.size == bestTile.size && bestInersect > currentIntersect) {
+									bestTile = currentTile;
+									bestX = x;
+									bestY = y;
+									bestInersect = currentIntersect;
+									bestTileIndex = tileIndex;
+									bestSize = currentTile.size;
+								}
+							}
+						}
+					}
+				}
+			}
+			int actionIndex = Game.findAction(bestTileIndex, bestX, bestY);
+			System.out.printf("tile index: %d, x: %d, y: %d, size: %d, intersect: %d \n", bestTileIndex, bestX, bestY, bestSize, bestInersect);
+			position = game.getNextPosition(position, Game.allActions[actionIndex]);
+			System.out.println(position.toString());
+		}
+		System.out.println(position.toString());
+		System.out.printf("position score: %f", position.score);
+	}
+
+	public static int intersect(int[][] area, Tile tile, int deltaX, int deltaY) {
+		int count = 0;
+		for(int y = 0; y < tile.height; y++) {
+			for(int x = 0; x < tile.width; x++) {
+				if(tile.area[x][y] == 1 && area[x + deltaX][y + deltaY] == 1) {
+					count++;
+				}
+			}
+		}
+		return count;
+	}
 
 	public static void video() {
 		AviMaker avi = new AviMaker()
 			.setImagesFolder("video/src")
 			.setOutputVideoPath("video/1.avi");
 		avi.create();
-		
 	}
 
 	public static void thread() throws InterruptedException {
@@ -129,8 +199,6 @@ public class App {
 	public static void algorythmRandom() throws NoSuchAlgorithmException {
 		double scoreSum = 0;
 		for(int i = 0; i < Constants.GAMES_PER_PLAY; i++) {
-			System.out.println("* * * * * * * * * * * *");
-			System.out.println("Game No " + i);
 			Game game = new Game(null);
 			Game.Position position = game.getStartPosition();
 			while(!position.isFinal) {
@@ -146,11 +214,35 @@ public class App {
 				int actionIndex = getBestIndex(output);
 				position = game.getNextPosition(position, Game.allActions[actionIndex]);
 			}
-			System.out.println(position.toString());
-			System.out.println("score: " + position.score);
 			scoreSum += position.score;
 		}
-		System.out.printf("average score: %f", scoreSum / Constants.GAMES_PER_PLAY);
+		System.out.printf("average score: %f \n", scoreSum / Constants.GAMES_PER_PLAY);
+
+		double scoreMax = 0;
+		Game game0 = new Game(null);
+		Game.Position position0 = game0.getStartPosition();
+		for(int i = 0; i < Constants.GAMES_PER_PLAY; i++) {
+			Game game = new Game(null);
+			Game.Position position = game.setStartPosition(position0);
+			while(!position.isFinal) {
+				double[] output = new double[Constants.ACTIONS_COUNT];
+				for(int k = 0; k < Constants.ACTIONS_COUNT; k++) {
+					if(position.tiles[Game.allActions[k].tileIndex()] > 0) {
+						output[k] = 1;
+					}
+					else {
+						output[k] = 0;
+					}
+				}
+				int actionIndex = getBestIndex(output);
+				position = game.getNextPosition(position, Game.allActions[actionIndex]);
+			}
+			if(scoreMax < position.score) {
+				scoreMax = position.score;
+			}
+		}
+		System.out.printf("max score: %f \n", scoreMax);
+
 	}
 
 	public static void train(String netDataFileName, String feederDataFileName) throws ClassNotFoundException, IOException {

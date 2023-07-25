@@ -30,6 +30,7 @@ public class Game {
 			for (int x = 0; x <= Constants.BOARD_WIDTH - tile.width; x++) {
 				for (int y = 0; y <= Constants.BOARD_HEIGHT - tile.height; y++) {
 					allActions[k++] = new Action(i, x, y);
+					//System.out.printf("i: %d, x: %d, y: %d \n", i, x, y);
 				}
 			}
 		}
@@ -362,6 +363,15 @@ public class Game {
 		byte[] byteHash = md.digest(str.getBytes(StandardCharsets.UTF_8));
 		String hash = Base64.getEncoder().encodeToString(byteHash);
 		return hash;
+	}
+
+	public static int findAction(int tileIndex, int x, int y) {
+		for(int i = 0; i < Constants.ACTIONS_COUNT; i++) {
+			if(allActions[i].tileIndex == tileIndex && allActions[i].x == x && allActions[i].y == y) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 }
