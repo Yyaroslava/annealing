@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
@@ -20,21 +21,23 @@ import org.nd4j.linalg.factory.Nd4j;
 
 public class Game {
 	private Map<String, Position> positions = new HashMap<>();
-	public static Action[] allActions = new Action[Constants.ACTIONS_COUNT];
+	public static Action[] allActions = null;
 	public MultiLayerNetwork nnet;
 	
-	static {
-		int k = 0;
+	public static void generateActions() {
+		ArrayList<Action> actions = new ArrayList<>();
 		for (int i = 0; i < Tile.allTiles.length; i++) {
 			Tile tile = Tile.allTiles[i];
 			for (int x = 0; x <= Constants.BOARD_WIDTH - tile.width; x++) {
 				for (int y = 0; y <= Constants.BOARD_HEIGHT - tile.height; y++) {
-					allActions[k++] = new Action(i, x, y);
-					//System.out.printf("i: %d, x: %d, y: %d \n", i, x, y);
+					actions.add(new Action(i, x, y));
 				}
 			}
 		}
-		System.out.println("allActions length: " + k);
+		
+		Game.allActions = actions.toArray(new Action[actions.size()]);
+		Constants.ACTIONS_COUNT = Game.allActions.length;
+		System.out.println("allActions length: " + Constants.ACTIONS_COUNT);
 		System.out.println("tiles count: " + Tile.allTiles.length);
 	}
 

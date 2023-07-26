@@ -201,7 +201,8 @@ public class Tile {
 			String code = Tile.getTileCode(tile.width, tile.height, tile.area);
 			allTilesMap.put(code, n);
 		}
- 		System.out.println("Length:" + Tile.allTiles.length);
+		Constants.TILES_COUNT = Tile.allTiles.length;
+		System.out.println("Length:" + Tile.allTiles.length);
 	}
 
 	public static void drawTiles (int squareWidth, int tilesInARow) {

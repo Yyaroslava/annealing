@@ -27,6 +27,7 @@ public class App {
 	public static void main ( String[] args ) throws NoSuchAlgorithmException, IOException, ClassNotFoundException, InterruptedException {
 		System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error");
 		Tile.generateTiles();
+		Game.generateActions();
 		
 		if(args.length > 0) {
 			switch (args[0]) {
@@ -68,6 +69,10 @@ public class App {
 	public static void algorythmGreedy() throws NoSuchAlgorithmException {
 		Game game = new Game(null);
 		Game.Position position = game.getStartPosition();
+		int frameNumber = 0;
+		for(int n = 0; n < 25; n++) {
+			position.saveToImg(20, String.format("video/src/%04d.png", frameNumber++));
+		}
 		while(!position.isFinal) {
 			Tile bestTile = null;
 			int bestX = -1;
@@ -115,10 +120,27 @@ public class App {
 			int actionIndex = Game.findAction(bestTileIndex, bestX, bestY);
 			System.out.printf("tile index: %d, x: %d, y: %d, size: %d, intersect: %d \n", bestTileIndex, bestX, bestY, bestSize, bestInersect);
 			position = game.getNextPosition(position, Game.allActions[actionIndex]);
+			for(int n = 0; n < 25; n++) {
+				position.saveToImg(20, String.format("video/src/%04d.png", frameNumber++));
+			}
 			System.out.println(position.toString());
 		}
 		System.out.println(position.toString());
 		System.out.printf("position score: %f", position.score);
+	}
+
+	public static void clearDirectory(String path) {
+		File directory = new File(path);
+		if (directory.exists() && directory.isDirectory()) {
+			File[] files = directory.listFiles();
+			if (files != null) {
+				for (File file : files) {
+					if (file.isFile()) {
+						file.delete();
+					}
+				}
+			}
+		}
 	}
 
 	public static int intersect(int[][] area, Tile tile, int deltaX, int deltaY) {
