@@ -285,6 +285,9 @@ public class Game {
 					}
 				}
 				int tileIndex = Tile.getTileIndex(tileWidth, tileHeight, tileArea);
+				if(tileIndex == -1) {
+					System.out.println(Tile.toString(tileArea, tileWidth, tileHeight));
+				}
 				tiles[tileIndex]++;
 			}
 		}

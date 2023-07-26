@@ -17,16 +17,27 @@ public class Tile {
 	public int height;
 	public int[][] area;
 
+	public static String toString(int[][] tileArea, int width, int height) {
+		StringBuilder sb = new StringBuilder();
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				sb.append(tileArea[x][y]);
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+
 	public static String getTileCode(int tileWidth, int tileHeight, int[][] tileArea) {
-		String code = "";
-		code = code + tileWidth;
-		code = code + tileHeight;
+		StringBuilder sb = new StringBuilder();
+		sb.append(tileWidth);
+		sb.append(tileHeight);
 		for (int x = 0; x < tileWidth; x++) {
 			for (int y = 0; y < tileHeight ; y++) {
-				code = code + tileArea[x][y];
+				sb.append(tileArea[x][y]);
 			}
 		}
-		return code;
+		return sb.toString();
 	}
 
 	public static int getTileIndex(int tileWidth, int tileHeight, int[][] tileArea) {
@@ -89,10 +100,12 @@ public class Tile {
 	}
 
 	public static void generateTiles() {
+		Map<String, Integer> allTilesMap = new HashMap<>();
 		ArrayList<Tile> tiles = new ArrayList<>();
 		Tile uno = new Tile(1, 1, 1);
 		uno.area[0][0] = 1;
 		tiles.add(uno);
+		allTilesMap.put(getTileCode(uno.width, uno.height, uno.area), 1);
 		for (int size = 1; size < Constants.MAX_FIGURE_SIZE; size++) {
 			ArrayList<Tile> tilesCopy = new ArrayList<>(tiles);
 			for (Tile tile : tilesCopy) {
@@ -109,16 +122,26 @@ public class Tile {
 											newTile.area[xx][yy + 1] = tile.area[xx][yy];
 										}
 									}
-									if (!contains(tiles, newTile)) {
+									if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
 										tiles.add(newTile);
+										allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
+										System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
+									}
+									else {
+										System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
 									}
 								}
 								else {
 									if (tile.area[x][y - 1] == 0) {
 										Tile newTile = tile.copy();
 										newTile.area[x][y - 1] = 1;
-										if (!contains(tiles, newTile)) {
+										if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
 											tiles.add(newTile);
+											allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
+											System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
+										}
+										else {
+											System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
 										}
 									}
 								}
@@ -131,16 +154,26 @@ public class Tile {
 											newTile.area[xx][yy] = tile.area[xx][yy];
 										}
 									}
-									if (!contains(tiles, newTile)) {
+									if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
 										tiles.add(newTile);
+										allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
+										System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
+									}
+									else {
+										System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
 									}
 								}
 								else {
 									if (tile.area[x + 1][y] == 0) {
 										Tile newTile = tile.copy();
 										newTile.area[x + 1][y] = 1;
-										if (!contains(tiles, newTile)) {
+										if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
 											tiles.add(newTile);
+											allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
+											System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
+										}
+										else {
+											System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
 										}
 									}
 								}
@@ -153,16 +186,26 @@ public class Tile {
 											newTile.area[xx][yy] = tile.area[xx][yy];
 										}
 									}
-									if (!contains(tiles, newTile)) {
+									if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
 										tiles.add(newTile);
+										allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
+										System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
+									}
+									else {
+										System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
 									}
 								}
 								else {
 									if (tile.area[x][y + 1] == 0) {
 										Tile newTile = tile.copy();
 										newTile.area[x][y + 1] = 1;
-										if (!contains(tiles, newTile)) {
+										if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
 											tiles.add(newTile);
+											allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
+											System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
+										}
+										else {
+											System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
 										}
 									}
 								}
@@ -174,17 +217,27 @@ public class Tile {
 										for (int yy = 0; yy < tile.height; yy++) {
 											newTile.area[xx + 1][yy] = tile.area[xx][yy];
 										}
-									}
-									if (!contains(tiles, newTile)) {
+									} 
+									if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
 										tiles.add(newTile);
+										allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
+										System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
+									}
+									else {
+										System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
 									}
 								}
 								else {
 									if (tile.area[x - 1][y] == 0) {
 										Tile newTile = tile.copy();
 										newTile.area[x - 1][y] = 1;
-										if (!contains(tiles, newTile)) {
+										if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
 											tiles.add(newTile);
+											allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
+											System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
+										}
+										else {
+											System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
 										}
 									}
 								}
@@ -203,6 +256,11 @@ public class Tile {
 		}
 		Constants.TILES_COUNT = Tile.allTiles.length;
 		System.out.println("Length:" + Tile.allTiles.length);
+	}
+
+	public static void generateTilesNew() {
+		ArrayList<Tile> tiles = new ArrayList<>();
+
 	}
 
 	public static void drawTiles (int squareWidth, int tilesInARow) {

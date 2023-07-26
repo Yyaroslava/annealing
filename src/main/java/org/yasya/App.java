@@ -67,6 +67,7 @@ public class App {
 	}	
 
 	public static void algorythmGreedy() throws NoSuchAlgorithmException {
+		clearDirectory("video\src");
 		Game game = new Game(null);
 		Game.Position position = game.getStartPosition();
 		int frameNumber = 0;
