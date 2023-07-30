@@ -8,10 +8,15 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 public class Tile {
 	public static Tile[] allTiles;
-	public static Map<String, Integer> allTilesMap = new HashMap<>();
+	public static Map<String, Tile> allTilesMap;
+	public static Map<String, Integer> tileIndexMap;
 	public int size;
 	public int width;
 	public int height;
@@ -28,6 +33,24 @@ public class Tile {
 		return sb.toString();
 	}
 
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
+		sb.append(width);
+		sb.append("|");
+		sb.append(height);
+		sb.append("|");
+		sb.append(size);
+		sb.append("|");
+		for ( int x = 0; x < width; x++ ) {
+			for ( int y = 0; y < height; y++ ) {
+				sb.append(area[x][y]);
+			}
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+
 	public static String getTileCode(int tileWidth, int tileHeight, int[][] tileArea) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(tileWidth);
@@ -38,14 +61,6 @@ public class Tile {
 			}
 		}
 		return sb.toString();
-	}
-
-	public static int getTileIndex(int tileWidth, int tileHeight, int[][] tileArea) {
-		String code = getTileCode(tileWidth, tileHeight, tileArea);
-		if(allTilesMap.containsKey(code)) {
-			return allTilesMap.get(code);
-		}
-		return -1;
 	}
 
 	public Tile copy() {
@@ -74,193 +89,101 @@ public class Tile {
 		this.area = new int [width][height];
 	};
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-
-		if (obj == null || getClass() != obj.getClass()) {
-			return false;
-		}
-
-		Tile tile = (Tile)obj;
-		if (this.width != tile.width || this.height != tile.height) {
-			return false;
-		}
-
-		for (int x = 0; x < this.width; x++) {
-			for (int y = 0; y < this.height ; y++) {
-				if (this.area[x][y] != tile.area[x][y]) {
-					return false;
-				}
-			}
-		}
-		return true;
+	public Tile(int width, int height, int size, int[][] area) {
+		this.width = width;
+		this.height = height;
+		this.size = size;
+		this.area = Arrays.stream(area)
+			.map(obj -> Arrays.copyOf((int[])obj, ((int[]) obj).length))
+			.toArray(int[][]::new);
 	}
 
-	public static void generateTiles() {
-		Map<String, Integer> allTilesMap = new HashMap<>();
-		ArrayList<Tile> tiles = new ArrayList<>();
-		Tile uno = new Tile(1, 1, 1);
-		uno.area[0][0] = 1;
-		tiles.add(uno);
-		allTilesMap.put(getTileCode(uno.width, uno.height, uno.area), 1);
-		for (int size = 1; size < Constants.MAX_FIGURE_SIZE; size++) {
-			ArrayList<Tile> tilesCopy = new ArrayList<>(tiles);
-			for (Tile tile : tilesCopy) {
-				if (tile.size == size) {
-					for (int x = 0; x < tile.width; x++) {
-						for (int y = 0; y < tile.height; y++) {
-							if (tile.area[x][y] == 1) {
-								// вставляем квадрат сверху
-								if (y == 0) {
-									Tile newTile = new Tile(size + 1, tile.width, tile.height + 1);
-									newTile.area[x][0] = 1;
-									for (int xx = 0; xx < tile.width; xx++) {
-										for (int yy = 0; yy < tile.height; yy++) {
-											newTile.area[xx][yy + 1] = tile.area[xx][yy];
-										}
-									}
-									if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
-										tiles.add(newTile);
-										allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
-										System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
-									}
-									else {
-										System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
-									}
-								}
-								else {
-									if (tile.area[x][y - 1] == 0) {
-										Tile newTile = tile.copy();
-										newTile.area[x][y - 1] = 1;
-										if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
-											tiles.add(newTile);
-											allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
-											System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
-										}
-										else {
-											System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
-										}
-									}
-								}
-								// вставляем квадрат справа
-								if (x == tile.width - 1) {
-									Tile newTile = new Tile(size + 1, tile.width + 1, tile.height);
-									newTile.area[x + 1][y] = 1;
-									for (int xx = 0; xx < tile.width; xx++) {
-										for (int yy = 0; yy < tile.height; yy++) {
-											newTile.area[xx][yy] = tile.area[xx][yy];
-										}
-									}
-									if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
-										tiles.add(newTile);
-										allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
-										System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
-									}
-									else {
-										System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
-									}
-								}
-								else {
-									if (tile.area[x + 1][y] == 0) {
-										Tile newTile = tile.copy();
-										newTile.area[x + 1][y] = 1;
-										if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
-											tiles.add(newTile);
-											allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
-											System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
-										}
-										else {
-											System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
-										}
-									}
-								}
-								// вставляем квадрат снизу
-								if (y == tile.height - 1) {
-									Tile newTile = new Tile(size + 1, tile.width, tile.height + 1);
-									newTile.area[x][y + 1] = 1;
-									for (int xx = 0; xx < tile.width; xx++) {
-										for (int yy = 0; yy < tile.height; yy++) {
-											newTile.area[xx][yy] = tile.area[xx][yy];
-										}
-									}
-									if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
-										tiles.add(newTile);
-										allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
-										System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
-									}
-									else {
-										System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
-									}
-								}
-								else {
-									if (tile.area[x][y + 1] == 0) {
-										Tile newTile = tile.copy();
-										newTile.area[x][y + 1] = 1;
-										if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
-											tiles.add(newTile);
-											allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
-											System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
-										}
-										else {
-											System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
-										}
-									}
-								}
-								// вставляем квадрат слева
-								if (x == 0) {
-									Tile newTile = new Tile(size + 1, tile.width + 1, tile.height);
-									newTile.area[0][y] = 1;
-									for (int xx = 0; xx < tile.width; xx++) {
-										for (int yy = 0; yy < tile.height; yy++) {
-											newTile.area[xx + 1][yy] = tile.area[xx][yy];
-										}
-									} 
-									if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
-										tiles.add(newTile);
-										allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
-										System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
-									}
-									else {
-										System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
-									}
-								}
-								else {
-									if (tile.area[x - 1][y] == 0) {
-										Tile newTile = tile.copy();
-										newTile.area[x - 1][y] = 1;
-										if (!allTilesMap.containsKey(getTileCode(newTile.width, newTile.height, newTile.area))) {
-											tiles.add(newTile);
-											allTilesMap.put(getTileCode(newTile.width, newTile.height, newTile.area), 1);
-											System.out.println("+ " + getTileCode(newTile.width, newTile.height, newTile.area));
-										}
-										else {
-											System.out.println("x " + getTileCode(newTile.width, newTile.height, newTile.area));
-										}
-									}
-								}
-							}
-						}
+	public Tile(int[][] area, int deltaX, int deltaY, int width, int height) {
+		this.width = width;
+		this.height = height;
+		int size = 0;
+		this.area = new int[width][height];
+		for ( int x = 0; x < width; x++ ) {
+			for ( int y = 0; y < height; y++ ) {
+				this.area[x][y] = area[x+deltaX][y+deltaY];
+				if (this.area[x][y] == 1) size++;
+			}
+		}
+		this.size = size;
+	}
 
+	public void stamp(int[][] area, int deltaX, int deltaY) {
+		for ( int x = 0; x < this.width; x++ ) {
+			for ( int y = 0; y < this.height; y++ ) {
+				area[x+deltaX][y+deltaY] = Math.max(area[x+deltaX][y+deltaY], this.area[x][y]);
+			}
+		}
+	}
+
+	public static void init() {
+		allTilesMap = new HashMap<>();
+		List<Tile> allTilesList = new LinkedList<>();
+		Queue<Tile> queue = new LinkedList<>();
+		queue.offer(new Tile(1, 1, 1, new int[][]{{1}}));
+		while (!queue.isEmpty()) {
+			Tile base = queue.poll();
+			allTilesList.add(base);
+			if (base.size == Constants.MAX_FIGURE_SIZE) continue;
+			int[][] area = new int[base.width + 2][base.height + 2];
+			base.stamp(area, 1, 1);
+
+			for ( int x = 0; x < base.width + 2; x++ ) {
+				for ( int y = 0; y < base.height + 2; y++ ) {
+					
+					if ( ( x == 0 || x == base.width + 1 ) && ( y == 0 || y == base.height + 1 ) ) continue;
+
+					Tile newTile;
+
+					if ( x == 0 ) {
+						if ( area[x+1][y] == 0 ) continue;
+						newTile = new Tile(area, 0, 1, base.width + 1, base.height);
+						newTile.area[x][y-1] = 1;
 					}
+					else if ( x == base.width + 1 ) {
+						if ( area[x-1][y] == 0 ) continue;
+						newTile = new Tile(area, 1, 1, base.width + 1, base.height);
+						newTile.area[x-1][y-1] = 1;
+					}
+					else if ( y == 0 ) {
+						if ( area[x][y+1] == 0 ) continue;
+						newTile = new Tile(area, 1, 0, base.width, base.height + 1);
+						newTile.area[x-1][y] = 1;
+					}
+					else if ( y == base.height + 1 ) {
+						if ( area[x][y-1] == 0 ) continue;
+						newTile = new Tile(area, 1, 1, base.width, base.height + 1);
+						newTile.area[x-1][y-1] = 1;
+					}
+					else {
+						if ( area[x][y] == 1 ) continue;
+						if ( area[x+1][y] == 0 && area[x-1][y] == 0 && area[x][y+1] == 0 && area[x][y-1] == 0 ) continue;
+						newTile = new Tile(area, 1, 1, base.width, base.height);
+						newTile.area[x-1][y-1] = 1;
+					}
+					newTile.size++;
+					String newTileCode = newTile.toString();
+					if (allTilesMap.containsKey(newTileCode)) continue;
+					allTilesMap.put(newTileCode, newTile);
+					queue.offer(newTile);
+					//System.out.println(newTile);
+
 				}
 			}
 		}
- 		Tile.allTiles = tiles.toArray(new Tile[tiles.size()]);
-		for (int n = 0; n < Tile.allTiles.length; n++) {
-			Tile tile = Tile.allTiles[n];
-			String code = Tile.getTileCode(tile.width, tile.height, tile.area);
-			allTilesMap.put(code, n);
+
+		allTiles = allTilesList.toArray(Tile[]::new);
+
+		tileIndexMap = new HashMap<>();
+		for (int i = 0; i < allTiles.length; i++) {
+			tileIndexMap.put(allTiles[i].toString(), i);
 		}
-		Constants.TILES_COUNT = Tile.allTiles.length;
-		System.out.println("Length:" + Tile.allTiles.length);
-	}
-
-	public static void generateTilesNew() {
-		ArrayList<Tile> tiles = new ArrayList<>();
-
+		Constants.TILES_COUNT = allTiles.length;
+		System.out.printf("all tiles: %d\n", allTiles.length);
 	}
 
 	public static void drawTiles (int squareWidth, int tilesInARow) {

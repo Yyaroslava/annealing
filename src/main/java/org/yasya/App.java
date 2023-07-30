@@ -26,7 +26,7 @@ public class App {
 
 	public static void main ( String[] args ) throws NoSuchAlgorithmException, IOException, ClassNotFoundException, InterruptedException {
 		System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error");
-		Tile.generateTiles();
+		Tile.init();
 		Game.generateActions();
 		
 		if(args.length > 0) {
@@ -61,10 +61,44 @@ public class App {
 				case "algorythmGreedy":
 					algorythmGreedy();
 					break;
+				case "algorythmAnnealing":
+					algorythmAnnealing();
+					break;
 				default:
 			}
 		}
 	}	
+
+	public static void algorythmAnnealing() {
+		int STEP_COUNT = 1000000;
+		double INITIAL_T = 1000000;
+		Solution s = Solution.startSolution();
+		int score = s.score();
+		System.out.printf("score: %d \n", s.score());
+		double t = INITIAL_T;
+		int bestScore = 9999;
+		for(int i = 0; i < STEP_COUNT; i++) {
+			Solution newS = s.next();
+			int newScore = newS.score();
+			if(newScore <= score) {
+				score = newScore;
+				s = newS;
+				if(bestScore > score) {
+					bestScore = score;
+				}
+			}
+			else {
+				double p = Math.exp(-(double)(newScore - score) / t);
+				if(random.nextDouble() > p) {
+					score = newScore;
+					s = newS;
+				}
+			}
+			t -= INITIAL_T / STEP_COUNT;
+		}
+		System.out.printf("final score: %d, best score: %d \n", s.score(), bestScore);
+	}
+
 
 	public static void algorythmGreedy() throws NoSuchAlgorithmException {
 		clearDirectory("video\src");
@@ -88,7 +122,7 @@ public class App {
 						for( int y = 0; y < Constants.BOARD_HEIGHT - currentTile.height + 1; y++) {
 							for( int x = 0; x < Constants.BOARD_WIDTH - currentTile.width + 1; x++) {
 								int currentIntersect = intersect(position.area, currentTile, x, y);
-								System.out.printf("tile index: %d, x: %d, y: %d, width: %d, height: %d \n", tileIndex, x, y, currentTile.width, currentTile.height);
+								//System.out.printf("tile index: %d, x: %d, y: %d, width: %d, height: %d \n", tileIndex, x, y, currentTile.width, currentTile.height);
 								if(bestTile == null) {
 									bestTile = currentTile;
 									bestX = x;
@@ -119,7 +153,7 @@ public class App {
 				}
 			}
 			int actionIndex = Game.findAction(bestTileIndex, bestX, bestY);
-			System.out.printf("tile index: %d, x: %d, y: %d, size: %d, intersect: %d \n", bestTileIndex, bestX, bestY, bestSize, bestInersect);
+			//System.out.printf("tile index: %d, x: %d, y: %d, size: %d, intersect: %d \n", bestTileIndex, bestX, bestY, bestSize, bestInersect);
 			position = game.getNextPosition(position, Game.allActions[actionIndex]);
 			for(int n = 0; n < 25; n++) {
 				position.saveToImg(20, String.format("video/src/%04d.png", frameNumber++));

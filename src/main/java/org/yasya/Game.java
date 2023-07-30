@@ -82,7 +82,7 @@ public class Game {
 					sb.append("" + k + ": " + tiles[k] + "\n");
 				}
 			}
-			sb.append("valid actions: " + Arrays.toString(validActions));
+			//sb.append("valid actions: " + Arrays.toString(validActions));
 			return sb.toString();
 		}
 
@@ -204,7 +204,6 @@ public class Game {
 		}
 		int bordersCount = (Constants.BOARD_HEIGHT - 1) * Constants.BOARD_WIDTH + Constants.BOARD_HEIGHT * (Constants.BOARD_WIDTH - 1);
 		int[][] borders = new int[bordersCount][4];
-
 		k = 0; 
 		for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
 			for (int y = 0; y < Constants.BOARD_HEIGHT - 1; y++) {
@@ -215,7 +214,6 @@ public class Game {
 				k++;
 			}
 		}
-
 		for (int x = 0; x < Constants.BOARD_WIDTH - 1; x++) {
 			for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
 				borders[k][0] = x;
@@ -279,13 +277,16 @@ public class Game {
 				int tileWidth = right[n] - left[n] + 1;
 				int tileHeight = down[n] - up[n] + 1;
 				int[][] tileArea = new int[tileWidth][tileHeight];
+				int size = 0;
 				for (int x = 0; x < tileWidth; x++) {
 					for (int y = 0; y < tileHeight; y++) {
 						tileArea[x][y] = area[left[n] + x][up[n] + y] == n ? 1 : 0;
+						if(tileArea[x][y] == 1) size++;
 					}
 				}
-				int tileIndex = Tile.getTileIndex(tileWidth, tileHeight, tileArea);
-				if(tileIndex == -1) {
+				Tile newTile = new Tile(tileWidth, tileHeight, size, tileArea);
+				Integer tileIndex = Tile.tileIndexMap.get(newTile.toString());
+				if(tileIndex == null) {
 					System.out.println(Tile.toString(tileArea, tileWidth, tileHeight));
 				}
 				tiles[tileIndex]++;

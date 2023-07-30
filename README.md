@@ -3,17 +3,21 @@
 - [x] ~~make babyFeeder as parametr~~
 - [x] split train into play() and train()
 - [x] Markdown syntaxxx look 
-- [ ] add values to explain()
+- [x] ~~add values to explain()~~
 - [ ] performance measure
 - [ ] speed up with CUDA (nvidia)
 - [ ] make tiles fly to their positions in video
 - [ ] make treesearch algorithm visualisation
 - [ ] навчання через покоління 
 - [ ] optimize neuronet shape 
-- [ ] use simulated annealing
+- [x] use simulated annealing
+- [ ] подобрать оптимальную температуру
+- [ ] annealing video flashing
+- [ ] make competition between algorythmAnnealing and algorythmGreedy
 - [x] написать алгоритм рандомного заполнения, запустить несколько раз, найти средний рандомный score чтоб было на что опираться при оценке хорошо у нас получилось или плохо
 - [x] запустить N рандомных заполнений на одной и той же игре и выбрать лучший, опять таки с той же целью
 - [ ] для одной и той же игры получить 3 оценки, лучший из N случайных заполнений, отжиг с помощью перебора N вариантов и MCTS и тут надо как то найти аналог N, чтоб сравнивать подобное с подобным, может просто подбирать N чтоб первые 2 алгоритма занимали такое же время
 - [x] реализовать жадный алгоритм заполнения, жадных алгоритмов может быть тоже много, можно выбирать рандомную последовательность тайлов а потом или жадно заполнять
 - [x] сделать константы TILES_COUNT и ACTIONS_COUNT вычисляемыми
-- [ ] исправить алгоритм generateTiles()
+- [x] исправить алгоритм generateTiles()
+- [ ] try maxFlow algorythm

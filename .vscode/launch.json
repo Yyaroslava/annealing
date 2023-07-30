@@ -70,6 +70,13 @@
 			"request": "launch",
 			"mainClass": "org.yasya.App",
 			"args": ["algorythmGreedy"]
+		},
+		{
+			"type": "java",
+			"name": "algorythmAnnealing",
+			"request": "launch",
+			"mainClass": "org.yasya.App",
+			"args": ["algorythmAnnealing"]
 		}
 	]
 }
