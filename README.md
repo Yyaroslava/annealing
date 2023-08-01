@@ -21,3 +21,6 @@
 - [x] сделать константы TILES_COUNT и ACTIONS_COUNT вычисляемыми
 - [x] исправить алгоритм generateTiles()
 - [ ] try maxFlow algorythm
+- [ ] запускать annealing algorythm в цикле с разной начальной температурой
+- [ ] 3SAT задача 
+

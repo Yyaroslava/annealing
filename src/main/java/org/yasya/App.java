@@ -69,13 +69,11 @@ public class App {
 		}
 	}	
 
-	public static void algorythmAnnealing() {
+	public static int fire(double initialT) {
 		int STEP_COUNT = 1000000;
-		double INITIAL_T = 1000000;
 		Solution s = Solution.startSolution();
 		int score = s.score();
-		System.out.printf("score: %d \n", s.score());
-		double t = INITIAL_T;
+		double t = initialT;
 		int bestScore = 9999;
 		for(int i = 0; i < STEP_COUNT; i++) {
 			Solution newS = s.next();
@@ -89,16 +87,32 @@ public class App {
 			}
 			else {
 				double p = Math.exp(-(double)(newScore - score) / t);
-				if(random.nextDouble() > p) {
+				if(random.nextDouble() < p) {
 					score = newScore;
 					s = newS;
 				}
 			}
-			t -= INITIAL_T / STEP_COUNT;
+			t -= initialT / STEP_COUNT;
 		}
-		System.out.printf("final score: %d, best score: %d \n", s.score(), bestScore);
+
+		return bestScore;
 	}
 
+	public static void algorythmAnnealing() {
+		double START_T = 0.5;
+		double END_T = 0.5;
+		int STEPS = 1;
+		System.out.printf("%8s %4s \n", "t", "score");
+		for(int i = 0; i <= STEPS; i++) {
+			double t = START_T + i * (END_T - START_T) / STEPS;
+			double score = 0;
+			for(int k = 0; k < 50; k++) {
+				score += fire(t);
+			}
+			score = score / 50;
+			System.out.printf("%8.2f %4.2f \n", t, score);
+		}
+	}
 
 	public static void algorythmGreedy() throws NoSuchAlgorithmException {
 		clearDirectory("video\src");
