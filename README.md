@@ -11,8 +11,8 @@
 - [ ] навчання через покоління 
 - [ ] optimize neuronet shape 
 - [x] use simulated annealing
-- [ ] подобрать оптимальную температуру
-- [ ] annealing video flashing
+- [x] подобрать оптимальную температуру
+- [x] annealing video flashing
 - [ ] make competition between algorythmAnnealing and algorythmGreedy
 - [x] написать алгоритм рандомного заполнения, запустить несколько раз, найти средний рандомный score чтоб было на что опираться при оценке хорошо у нас получилось или плохо
 - [x] запустить N рандомных заполнений на одной и той же игре и выбрать лучший, опять таки с той же целью
@@ -21,6 +21,8 @@
 - [x] сделать константы TILES_COUNT и ACTIONS_COUNT вычисляемыми
 - [x] исправить алгоритм generateTiles()
 - [ ] try maxFlow algorythm
-- [ ] запускать annealing algorythm в цикле с разной начальной температурой
+- [x] запускать annealing algorythm в цикле с разной начальной температурой
 - [ ] 3SAT задача 
-
+- [ ] добавить параллельный запуск algorythmAnnealing
+- [ ] добавить параллельный запуск algorythmGreedy
+- [ ] сделать гибрид algorythmGreedy и algorythmAnnealing

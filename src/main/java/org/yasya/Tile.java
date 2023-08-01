@@ -120,6 +120,19 @@ public class Tile {
 		}
 	}
 
+	public void stampColor(int[][] area, int deltaX, int deltaY, int colorNumber) {
+		for ( int x = 0; x < this.width; x++ ) {
+			for ( int y = 0; y < this.height; y++ ) {
+				if(area[x+deltaX][y+deltaY] > 0 && this.area[x][y] > 0) {
+					area[x+deltaX][y+deltaY] = -1;
+				}
+				else {
+					area[x+deltaX][y+deltaY] = Math.max(area[x+deltaX][y+deltaY], this.area[x][y] * colorNumber);
+				}
+			}
+		}
+	}
+
 	public static void init() {
 		allTilesMap = new HashMap<>();
 		List<Tile> allTilesList = new LinkedList<>();

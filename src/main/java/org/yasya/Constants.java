@@ -3,7 +3,7 @@ package org.yasya;
 public final class Constants {
 	public static final int BOARD_WIDTH = 16;
 	public static final int BOARD_HEIGHT = 16;
-	public static final int MAX_FIGURE_SIZE = 7;
+	public static final int MAX_FIGURE_SIZE = 4;
 	public static int TILES_COUNT;
 	public static int ACTIONS_COUNT;
 	public static final double C_PUCT = 0.1; //Polynomial Upper Confidence Trees aka curiousity

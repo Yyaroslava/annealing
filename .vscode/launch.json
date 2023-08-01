@@ -77,6 +77,13 @@
 			"request": "launch",
 			"mainClass": "org.yasya.App",
 			"args": ["algorythmAnnealing"]
+		},
+		{
+			"type": "java",
+			"name": "AnnealingVideo",
+			"request": "launch",
+			"mainClass": "org.yasya.App",
+			"args": ["AnnealingVideo"]
 		}
 	]
 }

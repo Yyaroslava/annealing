@@ -64,6 +64,9 @@ public class App {
 				case "algorythmAnnealing":
 					algorythmAnnealing();
 					break;
+				case "AnnealingVideo":
+					AnnealingVideo.makeVideo();
+					break;
 				default:
 			}
 		}
