@@ -22,6 +22,109 @@ public class Tile {
 	public int height;
 	public int[][] area;
 
+	public static Tile[] randomSmash() {
+		Map<Integer, Integer> tileSize = new HashMap<>();
+		int[][] area = new int[Constants.BOARD_WIDTH][Constants.BOARD_HEIGHT];
+		List<Tile> tilesList = new ArrayList<>();
+		int k = 0;
+		for(int x = 0; x < Constants.BOARD_WIDTH; x++) {
+			for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+				area[x][y] = k;
+				tileSize.put(k, 1);
+				k++;
+			}
+		}
+		int bordersCount = (Constants.BOARD_HEIGHT - 1) * Constants.BOARD_WIDTH + Constants.BOARD_HEIGHT * (Constants.BOARD_WIDTH - 1);
+		int[][] borders = new int[bordersCount][4];
+		k = 0; 
+		for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
+			for (int y = 0; y < Constants.BOARD_HEIGHT - 1; y++) {
+				borders[k][0] = x;
+				borders[k][1] = y;
+				borders[k][2] = x;
+				borders[k][3] = y + 1;
+				k++;
+			}
+		}
+		for (int x = 0; x < Constants.BOARD_WIDTH - 1; x++) {
+			for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+				borders[k][0] = x;
+				borders[k][1] = y;
+				borders[k][2] = x + 1;
+				borders[k][3] = y;
+				k++;
+			}
+		}
+		for (k = bordersCount - 1; k >= 0; k--) {
+			int randomBorder = App.random.nextInt(k + 1);
+			int x1 = borders[randomBorder][0];
+			int y1 = borders[randomBorder][1];
+			int x2 = borders[randomBorder][2];
+			int y2 = borders[randomBorder][3];
+			int n1 = area[x1][y1];
+			int n2 = area[x2][y2];
+			int size1 = tileSize.get(n1);
+			int size2 = tileSize.get(n2);
+			if(n1 != n2 && size1 + size2 <= Constants.MAX_FIGURE_SIZE) {
+				for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
+					for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+						if (area[x][y] == n2) {
+							area[x][y] = n1;
+						}
+					}
+				}
+				tileSize.put(n1, size1 + size2);
+				tileSize.put(n2, 0);
+			}
+			borders[randomBorder][0] = borders[k][0];
+			borders[randomBorder][1] = borders[k][1];
+			borders[randomBorder][2] = borders[k][2];
+			borders[randomBorder][3] = borders[k][3];
+		}
+
+		int[] up = new int[Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT];
+		int[] down = new int[Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT];
+		int[] left = new int[Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT];
+		int[] right = new int[Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT];
+
+		Arrays.fill(up, Constants.BOARD_HEIGHT - 1);
+		Arrays.fill(down, 0);
+		Arrays.fill(left, Constants.BOARD_WIDTH - 1);
+		Arrays.fill(right, 0);
+
+		for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
+			for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+				int n = area[x][y];
+				up[n] = Math.min(up[n], y);
+				down[n] = Math.max(down[n], y);
+				left[n] = Math.min(left[n], x);
+				right[n] = Math.max(right[n], x);
+			}
+		}
+		for (int n = 0; n < Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT; n++) {
+			if (up[n] <= down[n] && left[n] <= right[n]) {
+				int tileWidth = right[n] - left[n] + 1;
+				int tileHeight = down[n] - up[n] + 1;
+				int[][] tileArea = new int[tileWidth][tileHeight];
+				int size = 0;
+				for (int x = 0; x < tileWidth; x++) {
+					for (int y = 0; y < tileHeight; y++) {
+						tileArea[x][y] = area[left[n] + x][up[n] + y] == n ? 1 : 0;
+						if(tileArea[x][y] == 1) size++;
+					}
+				}
+				Tile newTile = new Tile(tileWidth, tileHeight, size, tileArea);
+				Integer tileIndex = Tile.tileIndexMap.get(newTile.toString());
+				if(tileIndex == null) {
+					System.out.println(Tile.toString(tileArea, tileWidth, tileHeight));
+				}
+				tilesList.add(newTile);
+			}
+		}
+		Tile[] tiles = tilesList.toArray(Tile[]::new);
+		return tiles;
+	}
+
 	public static String toString(int[][] tileArea, int width, int height) {
 		StringBuilder sb = new StringBuilder();
 		for (int y = 0; y < height; y++) {

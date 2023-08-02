@@ -26,3 +26,5 @@
 - [ ] добавить параллельный запуск algorythmAnnealing
 - [ ] добавить параллельный запуск algorythmGreedy
 - [ ] сделать гибрид algorythmGreedy и algorythmAnnealing
+- [x] шаблон проектирования witness
+- [x] сделать algorythmAnnealing независимым от решаемой задачи с помощью Dependency Injection (DI)

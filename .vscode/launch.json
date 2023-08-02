@@ -84,6 +84,13 @@
 			"request": "launch",
 			"mainClass": "org.yasya.App",
 			"args": ["AnnealingVideo"]
+		},
+		{
+			"type": "java",
+			"name": "Hybrid",
+			"request": "launch",
+			"mainClass": "org.yasya.App",
+			"args": ["Hybrid"]
 		}
 	]
 }
