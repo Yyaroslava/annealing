@@ -1,29 +1,32 @@
+- [ ] добавить параллельный запуск algorythmAnnealing + algorythmGreedy
+- [ ] make tiles fly to their positions in video
+- [ ] performance measure
+- [ ] make UI
+
 - [x] multithreading
 - [x] create video
 - [x] ~~make babyFeeder as parametr~~
 - [x] split train into play() and train()
 - [x] Markdown syntaxxx look 
 - [x] ~~add values to explain()~~
-- [ ] performance measure
-- [ ] speed up with CUDA (nvidia)
-- [ ] make tiles fly to their positions in video
-- [ ] make treesearch algorithm visualisation
-- [ ] навчання через покоління 
-- [ ] optimize neuronet shape 
+- [x] ~~speed up with CUDA (nvidia)~~
+- [x] ~~make treesearch algorithm visualisation~~
+- [x] ~~навчання через покоління ~~
+- [x] ~~optimize neuronet shape ~~
 - [x] use simulated annealing
 - [x] подобрать оптимальную температуру
 - [x] annealing video flashing
-- [ ] make competition between algorythmAnnealing and algorythmGreedy
+- [X] ~~make competition between algorythmAnnealing and algorythmGreedy~~
 - [x] написать алгоритм рандомного заполнения, запустить несколько раз, найти средний рандомный score чтоб было на что опираться при оценке хорошо у нас получилось или плохо
 - [x] запустить N рандомных заполнений на одной и той же игре и выбрать лучший, опять таки с той же целью
-- [ ] для одной и той же игры получить 3 оценки, лучший из N случайных заполнений, отжиг с помощью перебора N вариантов и MCTS и тут надо как то найти аналог N, чтоб сравнивать подобное с подобным, может просто подбирать N чтоб первые 2 алгоритма занимали такое же время
+- [x] ~~для одной и той же игры получить 3 оценки, лучший из N случайных заполнений, отжиг с помощью перебора N вариантов и MCTS и тут надо как то найти аналог N, чтоб сравнивать подобное с подобным, может просто подбирать N чтоб первые 2 алгоритма занимали такое же время~~
 - [x] реализовать жадный алгоритм заполнения, жадных алгоритмов может быть тоже много, можно выбирать рандомную последовательность тайлов а потом или жадно заполнять
 - [x] сделать константы TILES_COUNT и ACTIONS_COUNT вычисляемыми
 - [x] исправить алгоритм generateTiles()
-- [ ] try maxFlow algorythm
 - [x] запускать annealing algorythm в цикле с разной начальной температурой
-- [ ] 3SAT задача 
-- [ ] добавить параллельный запуск algorythmAnnealing + algorythmGreedy
 - [x] сделать гибрид algorythmGreedy и algorythmAnnealing
 - [x] шаблон проектирования witness
 - [x] сделать algorythmAnnealing независимым от решаемой задачи с помощью Dependency Injection (DI)
+
+- [ ] try maxFlow algorythm
+- [ ] 3SAT задача 
