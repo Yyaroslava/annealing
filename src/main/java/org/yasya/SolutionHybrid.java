@@ -1,14 +1,23 @@
 package org.yasya;
 
+import java.awt.Color;
 import java.util.Arrays;
 
 import org.yasya.Annealing.MarkovChain;
 
 public class SolutionHybrid implements Annealing.MarkovChain {
 	public Tile[] tiles;
+	public static Color[] colors;
 
 	public SolutionHybrid(Tile[] tiles) {
 		this.tiles = tiles;
+	}
+
+	public static void initColors(SolutionHybrid solution) {
+		colors = new Color[solution.tiles.length];
+		for(int i = 0; i < colors.length; i++) {
+			colors[i] = new Color(100 + App.random.nextInt(50), 100 + App.random.nextInt(50), 100 + App.random.nextInt(50));
+		}
 	}
 
 	public int intersect(int[][] area, Tile tile, int deltaX, int deltaY) {
@@ -23,14 +32,26 @@ public class SolutionHybrid implements Annealing.MarkovChain {
 
 	@Override
 	public int score() {
+		int[][] area = greedy(false);
+		int score = 0;
+		for(int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+			for(int x = 0; x < Constants.BOARD_WIDTH; x++) {
+				if(area[x][y] == 0) score++;
+			}
+		}
+		return score;
+	}
+
+	public int[][] greedy(boolean makeColor) {
 		int[][] area = new int[Constants.BOARD_WIDTH][Constants.BOARD_HEIGHT];
-		for(Tile tile : tiles) {
+		for(int i = 0; i < tiles.length; i++) {
+			Tile tile = tiles[i];
 			int bestX = -1;
 			int bestY = -1;
 			int bestIntersect = 999;
 			positionLoop:
-			for(int y = 0; y < Constants.BOARD_HEIGHT - tile.height; y++) {
-				for(int x = 0; x < Constants.BOARD_WIDTH - tile.width; x++) {
+			for(int y = 0; y <= Constants.BOARD_HEIGHT - tile.height; y++) {
+				for(int x = 0; x <= Constants.BOARD_WIDTH - tile.width; x++) {
 					int currentIntersect = intersect(area, tile, x, y);
 					if(currentIntersect == 0) {
 						bestX = x;
@@ -45,15 +66,14 @@ public class SolutionHybrid implements Annealing.MarkovChain {
 					}
 				}
 			}
-			tile.stamp(area, bestX, bestY);
-		}
-		int score = 0;
-		for(int y = 0; y < Constants.BOARD_HEIGHT; y++) {
-			for(int x = 0; x < Constants.BOARD_WIDTH; x++) {
-				if(area[x][y] == 0) score++;
+			if(makeColor) {
+				tile.stampColor(area, bestX, bestY, i + 1);
+			}
+			else {
+				tile.stamp(area, bestX, bestY);
 			}
 		}
-		return score;
+		return area;
 	}
 
 	@Override
@@ -86,10 +106,25 @@ public class SolutionHybrid implements Annealing.MarkovChain {
 		return s;
 	}
 
-
 	public static void algorythmHybrid() {
 		SolutionHybrid s = SolutionHybrid.startSolution();
-		int score = Annealing.fire(s, null, 0.5, 100000);
+		var witness = new Annealing.FireWitness() {
+
+			@Override
+			public void afterStart(Annealing.MarkovChain s) {
+				initColors((SolutionHybrid)s);
+			}
+
+			@Override
+			public void afterNewSolution(Annealing.MarkovChain s) {}
+
+			@Override
+			public void beforeFinish(Annealing.MarkovChain last, Annealing.MarkovChain best) {
+				int[][] area = ((SolutionHybrid)best).greedy(true);
+				PNGMaker.make(area, 20, "bestAnnealingGreedy.png", colors);
+			}	
+		};
+		int score = Annealing.fire(s, witness, 0.5, 500000);
 		System.out.printf("score: %d \n", score);
 	}
 	

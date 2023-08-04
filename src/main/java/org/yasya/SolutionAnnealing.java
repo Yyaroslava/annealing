@@ -18,6 +18,17 @@ public class SolutionAnnealing implements Annealing.MarkovChain {
 		this.posY = posY;
 	}
 
+	public int[][] coloredArea() {
+		int[][] area = new int[Constants.BOARD_WIDTH][Constants.BOARD_HEIGHT];
+
+		for(int i = 0; i < tiles.length; i++) {
+			Tile tile = tiles[i]; 
+			tile.stampColor(area, posX[i], posY[i], i + 1);
+		}
+
+		return area;
+	}
+
 	public static SolutionAnnealing startSolution() {
 		Tile[] tiles = Tile.randomSmash();
 		int[] posX = new int[tiles.length];

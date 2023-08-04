@@ -22,6 +22,17 @@ public class Tile {
 	public int height;
 	public int[][] area;
 
+	public static String areaToString(int[][] area) {
+		StringBuilder sb = new StringBuilder();
+		for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+			for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
+				sb.append(area[x][y]);
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+	
 	public static Tile[] randomSmash() {
 		Map<Integer, Integer> tileSize = new HashMap<>();
 		int[][] area = new int[Constants.BOARD_WIDTH][Constants.BOARD_HEIGHT];

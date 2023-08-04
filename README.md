@@ -23,8 +23,7 @@
 - [ ] try maxFlow algorythm
 - [x] запускать annealing algorythm в цикле с разной начальной температурой
 - [ ] 3SAT задача 
-- [ ] добавить параллельный запуск algorythmAnnealing
-- [ ] добавить параллельный запуск algorythmGreedy
-- [ ] сделать гибрид algorythmGreedy и algorythmAnnealing
+- [ ] добавить параллельный запуск algorythmAnnealing + algorythmGreedy
+- [x] сделать гибрид algorythmGreedy и algorythmAnnealing
 - [x] шаблон проектирования witness
 - [x] сделать algorythmAnnealing независимым от решаемой задачи с помощью Dependency Injection (DI)

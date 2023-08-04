@@ -17,6 +17,7 @@ public class Annealing {
 		int score = chain.score();
 		double t = initialT;
 		int bestScore = 9999;
+		MarkovChain bestChain = null;
 		for(int i = 0; i < STEP_COUNT; i++) {
 			MarkovChain newChain = chain.next();
 			int newScore = newChain.score();
@@ -25,6 +26,7 @@ public class Annealing {
 				chain = newChain;
 				if(bestScore > score) {
 					bestScore = score;
+					bestChain = chain;
 				}
 				if(witness != null) witness.afterNewSolution(chain);
 			}
@@ -38,6 +40,7 @@ public class Annealing {
 			}
 			t -= initialT / STEP_COUNT;
 		}
+		if(witness != null) witness.beforeFinish(chain, bestChain);
 		return bestScore;
 	}
 }

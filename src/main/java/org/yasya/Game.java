@@ -82,7 +82,6 @@ public class Game {
 					sb.append("" + k + ": " + tiles[k] + "\n");
 				}
 			}
-			//sb.append("valid actions: " + Arrays.toString(validActions));
 			return sb.toString();
 		}
 
