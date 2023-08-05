@@ -23,13 +23,18 @@ public class AnnealingVideo {
 			private int frameNumber;
 
 			@Override
+			public boolean stop() {
+				return false;
+			}
+
+			@Override
 			public void afterStart(Annealing.MarkovChain s) {
 				initColors((SolutionAnnealing)s);
 				frameNumber = 0;
 			}
 
 			@Override
-			public void afterNewSolution(Annealing.MarkovChain s) {
+			public void afterNewSolution(Annealing.MarkovChain s, int bestScore) {
 				saveToImg((SolutionAnnealing)s, 20, String.format("video/src/%06d.png", frameNumber++));
 			}
 

@@ -2,12 +2,15 @@ package org.yasya;
 
 import java.awt.Color;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.yasya.Annealing.MarkovChain;
 
-public class SolutionHybrid implements Annealing.MarkovChain {
+public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 	public Tile[] tiles;
 	public static Color[] colors;
+	public static Annealing.FireWitness witness = null;
+	public int id;
 
 	public SolutionHybrid(Tile[] tiles) {
 		this.tiles = tiles;
@@ -107,8 +110,12 @@ public class SolutionHybrid implements Annealing.MarkovChain {
 	}
 
 	public static void algorythmHybrid() {
-		SolutionHybrid s = SolutionHybrid.startSolution();
+		Tile[] initialTiles = Tile.randomSmash();
+
 		var witness = new Annealing.FireWitness() {
+			public SolutionHybrid bestSolution = null;
+			public int bestScore = 999;
+			public boolean stop = false;
 
 			@Override
 			public void afterStart(Annealing.MarkovChain s) {
@@ -116,16 +123,62 @@ public class SolutionHybrid implements Annealing.MarkovChain {
 			}
 
 			@Override
-			public void afterNewSolution(Annealing.MarkovChain s) {}
+			public void afterNewSolution(Annealing.MarkovChain s, int score) {
+				if(score < bestScore) {
+					setBest((SolutionHybrid)s, score);
+					System.out.printf("better solution found: %d \n", bestScore);
+				}
+			}
 
 			@Override
-			public void beforeFinish(Annealing.MarkovChain last, Annealing.MarkovChain best) {
-				int[][] area = ((SolutionHybrid)best).greedy(true);
+			public void beforeFinish(Annealing.MarkovChain last, Annealing.MarkovChain best) {}	
+
+			public void saveBestSolution() {
+				int[][] area = (bestSolution).greedy(true);
 				PNGMaker.make(area, 20, "bestAnnealingGreedy.png", colors);
-			}	
+			}
+
+			public synchronized void setBest(SolutionHybrid newSolution, int newScore) {
+				bestScore = newScore;
+				bestSolution = newSolution;
+				if(bestScore == 0) stop = true;
+			}
+
+			public synchronized boolean stop() {
+				return stop;
+			}
 		};
-		int score = Annealing.fire(s, witness, 0.5, 500000);
-		System.out.printf("score: %d \n", score);
+
+		SolutionHybrid.witness = witness;
+		
+		SolutionHybrid[] sh = Stream.generate(() -> new SolutionHybrid(initialTiles))
+			.limit(14)
+			.toArray(SolutionHybrid[]::new); 
+				
+		Arrays.stream(sh).forEach(SolutionHybrid::start);
+		
+		try {
+			Arrays.stream(sh).forEach(t -> {
+				try {
+					t.join();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		witness.saveBestSolution();
+	}
+
+	public void run() {
+		try {
+			Annealing.fire(this, witness, 0.5, 500000);
+		} 
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 }

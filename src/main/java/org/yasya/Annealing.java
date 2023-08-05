@@ -3,8 +3,9 @@ package org.yasya;
 public class Annealing {
 	interface FireWitness {
 		void afterStart(MarkovChain s);
-		void afterNewSolution(MarkovChain s);
+		void afterNewSolution(MarkovChain s, int score);
 		void beforeFinish(MarkovChain last, MarkovChain best);
+		boolean stop();
 	}
 
 	interface MarkovChain {
@@ -28,17 +29,25 @@ public class Annealing {
 					bestScore = score;
 					bestChain = chain;
 				}
-				if(witness != null) witness.afterNewSolution(chain);
+				if(witness != null) witness.afterNewSolution(chain, bestScore);
 			}
 			else {
 				double p = Math.exp(-(double)(newScore - score) / t);
 				if(App.random.nextDouble() < p) {
 					score = newScore;
 					chain = newChain;
-					if(witness != null) witness.afterNewSolution(chain);
+					if(witness != null) witness.afterNewSolution(chain, bestScore);
 				}
 			}
 			t -= initialT / STEP_COUNT;
+			if(i % 100 == 0) {
+				if(witness != null) {
+					if(witness.stop()) break;
+				} 
+			}
+			if(i % 100000 == 0) {
+				//System.out.printf("thread %d runs %d \n", chain.hashCode(), i);
+			}
 		}
 		if(witness != null) witness.beforeFinish(chain, bestChain);
 		return bestScore;
