@@ -1,15 +1,18 @@
 package org.yasya;
 
 public class Annealing {
+
 	interface FireWitness {
 		void afterStart(MarkovChain s);
-		void afterNewSolution(MarkovChain s, int score);
+		void afterNewSolution(MarkovChain s, int score, double t);
 		void beforeFinish(MarkovChain last, MarkovChain best);
-		boolean stop();
+		boolean checkStop();
+		boolean checkJump(MarkovChain chain, MarkovChain bestChain, int bestScore);
 	}
 
 	interface MarkovChain {
 		int score();
+		void jump(int bestScore, MarkovChain bestSolution);
 		MarkovChain next();
 	}
 	
@@ -29,25 +32,24 @@ public class Annealing {
 					bestScore = score;
 					bestChain = chain;
 				}
-				if(witness != null) witness.afterNewSolution(chain, bestScore);
+				if(witness != null) witness.afterNewSolution(chain, bestScore, t);
 			}
 			else {
 				double p = Math.exp(-(double)(newScore - score) / t);
 				if(App.random.nextDouble() < p) {
 					score = newScore;
 					chain = newChain;
-					if(witness != null) witness.afterNewSolution(chain, bestScore);
+					if(witness != null) witness.afterNewSolution(chain, bestScore, t);
 				}
 			}
 			t -= initialT / STEP_COUNT;
 			if(i % 100 == 0) {
 				if(witness != null) {
-					if(witness.stop()) break;
+					if(witness.checkStop()) break;
+					if(witness.checkJump(chain, bestChain, bestScore)) {}
 				} 
 			}
-			if(i % 100000 == 0) {
-				//System.out.printf("thread %d runs %d \n", chain.hashCode(), i);
-			}
+			//System.out.printf("chain.score: %8d %8d \n", chain.score(), ((SolutionHybrid)chain).score);
 		}
 		if(witness != null) witness.beforeFinish(chain, bestChain);
 		return bestScore;

@@ -69,6 +69,9 @@ public class App {
 				case "Hybrid":
 					SolutionHybrid.algorythmHybrid();
 					break;
+				case "UI":
+					UI.run();
+					break;
 				default:
 			}
 		}

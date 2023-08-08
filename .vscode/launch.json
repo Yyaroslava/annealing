@@ -91,6 +91,13 @@
 			"request": "launch",
 			"mainClass": "org.yasya.App",
 			"args": ["Hybrid"]
+		},
+		{
+			"type": "java",
+			"name": "UI",
+			"request": "launch",
+			"mainClass": "org.yasya.App",
+			"args": ["UI"]
 		}
 	]
 }

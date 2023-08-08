@@ -3,7 +3,6 @@ package org.yasya;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.stream.Stream;
-
 import org.yasya.Annealing.MarkovChain;
 
 public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
@@ -11,9 +10,18 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 	public static Color[] colors;
 	public static Annealing.FireWitness witness = null;
 	public int id;
+	public int score;
+	public int bestScore;
+
+	public SolutionHybrid(Tile[] tiles, int score, int bestScore) {
+		this.tiles = tiles;
+		this.score = score;
+		this.bestScore = bestScore;
+	}
 
 	public SolutionHybrid(Tile[] tiles) {
 		this.tiles = tiles;
+		this.calculateScore();
 	}
 
 	public static void initColors(SolutionHybrid solution) {
@@ -35,13 +43,6 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 
 	@Override
 	public int score() {
-		int[][] area = greedy(false);
-		int score = 0;
-		for(int y = 0; y < Constants.BOARD_HEIGHT; y++) {
-			for(int x = 0; x < Constants.BOARD_WIDTH; x++) {
-				if(area[x][y] == 0) score++;
-			}
-		}
 		return score;
 	}
 
@@ -92,7 +93,23 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 		s.tiles[i1] = s.tiles[i2];
 		s.tiles[i2] = t;
 
+		s.calculateScore();
+
 		return s;
+	}
+
+	public void calculateScore() {
+		int[][] area = greedy(false);
+		int score = 0;
+		for(int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+			for(int x = 0; x < Constants.BOARD_WIDTH; x++) {
+				if(area[x][y] == 0) score++;
+			}
+		}
+		this.score = score;
+		if(bestScore > score) {
+			bestScore = score;
+		}
 	}
 
 	public static SolutionHybrid startSolution() {
@@ -105,7 +122,7 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 		Tile[] tilesCopy = Arrays.stream(tiles)
 			.map(obj -> ((Tile)obj).copy())
 			.toArray(Tile[]::new);
-		SolutionHybrid s = new SolutionHybrid(tilesCopy);
+		SolutionHybrid s = new SolutionHybrid(tilesCopy, this.score, this.bestScore);
 		return s;
 	}
 
@@ -123,10 +140,10 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 			}
 
 			@Override
-			public void afterNewSolution(Annealing.MarkovChain s, int score) {
+			public void afterNewSolution(Annealing.MarkovChain s, int score, double t) {
 				if(score < bestScore) {
 					setBest((SolutionHybrid)s, score);
-					System.out.printf("better solution found: %d \n", bestScore);
+					System.out.printf("better solution found: %4d %8.5f \n", bestScore, t);
 				}
 			}
 
@@ -140,19 +157,28 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 
 			public synchronized void setBest(SolutionHybrid newSolution, int newScore) {
 				bestScore = newScore;
-				bestSolution = newSolution;
+				bestSolution = newSolution.copy();
 				if(bestScore == 0) stop = true;
 			}
 
-			public synchronized boolean stop() {
+			public synchronized boolean checkStop() {
 				return stop;
+			}
+
+			@Override
+			public boolean checkJump(Annealing.MarkovChain chain, Annealing.MarkovChain bestChain, int bestScore) {
+				if(bestScore > this.bestScore) {
+					chain.jump(bestScore, (SolutionHybrid)bestChain);
+				}
+				return false;
 			}
 		};
 
 		SolutionHybrid.witness = witness;
 		
-		SolutionHybrid[] sh = Stream.generate(() -> new SolutionHybrid(initialTiles))
-			.limit(14)
+		SolutionHybrid initialSolution = new SolutionHybrid(initialTiles);
+		SolutionHybrid[] sh = Stream.generate(() -> initialSolution.copy())
+			.limit(Constants.PARALLEL)
 			.toArray(SolutionHybrid[]::new); 
 				
 		Arrays.stream(sh).forEach(SolutionHybrid::start);
@@ -170,14 +196,25 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 		}
 
 		witness.saveBestSolution();
+		System.out.println("finished");
 	}
 
 	public void run() {
 		try {
-			Annealing.fire(this, witness, 0.5, 500000);
+			Annealing.fire(this, witness, 0.5, 10000);
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void jump(int bestScore, MarkovChain bestSolution) {
+		if(this.bestScore > bestScore) {
+			tiles = Arrays.stream(((SolutionHybrid)bestSolution).tiles)
+				.map(obj -> ((Tile)obj).copy())
+				.toArray(Tile[]::new);
+			this.bestScore = bestScore;
 		}
 	}
 	

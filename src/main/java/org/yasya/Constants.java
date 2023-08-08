@@ -13,4 +13,5 @@ public final class Constants {
 	public static final int GAMES_PER_PLAY = 10000;
 	public static final int FIGHTS_PER_COMPETITION = 20;
 	public static final int WINS_FOR_VICTORY = 12;
+	public static final int PARALLEL = 14;
 }

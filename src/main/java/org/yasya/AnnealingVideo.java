@@ -23,7 +23,7 @@ public class AnnealingVideo {
 			private int frameNumber;
 
 			@Override
-			public boolean stop() {
+			public boolean checkStop() {
 				return false;
 			}
 
@@ -34,13 +34,18 @@ public class AnnealingVideo {
 			}
 
 			@Override
-			public void afterNewSolution(Annealing.MarkovChain s, int bestScore) {
+			public void afterNewSolution(Annealing.MarkovChain s, int bestScore, double t) {
 				saveToImg((SolutionAnnealing)s, 20, String.format("video/src/%06d.png", frameNumber++));
 			}
 
 			@Override
 			public void beforeFinish(Annealing.MarkovChain last, Annealing.MarkovChain best) {
 				
+			}
+
+			@Override
+			public boolean checkJump(Annealing.MarkovChain chain, Annealing.MarkovChain bestChain, int bestScore) {
+				return false;
 			}	
 		};
 		SolutionAnnealing s = SolutionAnnealing.startSolution();
