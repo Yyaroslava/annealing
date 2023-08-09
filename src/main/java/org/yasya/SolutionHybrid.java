@@ -27,7 +27,8 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 	public static void initColors(SolutionHybrid solution) {
 		colors = new Color[solution.tiles.length];
 		for(int i = 0; i < colors.length; i++) {
-			colors[i] = new Color(100 + App.random.nextInt(50), 100 + App.random.nextInt(50), 100 + App.random.nextInt(50));
+			int[] c = Utils.smash(240);
+			colors[i] = new Color(c[0], c[1], c[2]);
 		}
 	}
 
@@ -171,6 +172,11 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 					chain.jump(bestScore, (SolutionHybrid)bestChain);
 				}
 				return false;
+			}
+
+			@Override
+			public void onProgress(int progress) {
+				//System.out.printf("%d %% \n", progress);
 			}
 		};
 

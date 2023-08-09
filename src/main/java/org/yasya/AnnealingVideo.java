@@ -46,7 +46,10 @@ public class AnnealingVideo {
 			@Override
 			public boolean checkJump(Annealing.MarkovChain chain, Annealing.MarkovChain bestChain, int bestScore) {
 				return false;
-			}	
+			}
+
+			@Override
+			public void onProgress(int progress) {}
 		};
 		SolutionAnnealing s = SolutionAnnealing.startSolution();
 		Annealing.fire(s, witness, 0.5, 100000);

@@ -8,6 +8,7 @@ public class Annealing {
 		void beforeFinish(MarkovChain last, MarkovChain best);
 		boolean checkStop();
 		boolean checkJump(MarkovChain chain, MarkovChain bestChain, int bestScore);
+		void onProgress(int progress);
 	}
 
 	interface MarkovChain {
@@ -49,7 +50,11 @@ public class Annealing {
 					if(witness.checkJump(chain, bestChain, bestScore)) {}
 				} 
 			}
-			//System.out.printf("chain.score: %8d %8d \n", chain.score(), ((SolutionHybrid)chain).score);
+			if(witness != null) {
+				if(i % (STEP_COUNT / 100) == 0) {
+					witness.onProgress(i * 100 / STEP_COUNT);
+				}
+			}
 		}
 		if(witness != null) witness.beforeFinish(chain, bestChain);
 		return bestScore;
