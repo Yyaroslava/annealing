@@ -32,11 +32,14 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 		}
 	}
 
-	public int intersect(int[][] area, Tile tile, int deltaX, int deltaY) {
+	public int intersect(int[][] area, Tile tile, int deltaX, int deltaY, int bestResult) {
 		int result = 0;
 		for(int y = 0; y < tile.height; y++) {
 			for(int x = 0; x < tile.width; x++) { 
-				if(tile.area[x][y] > 0 && area[x + deltaX][y + deltaY] > 0) result++;
+				if(tile.area[x][y] > 0 && area[x + deltaX][y + deltaY] > 0) {
+					result++;
+					if(result >= bestResult) return result;
+				}
 			}
 		}
 		return result;
@@ -57,7 +60,7 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 			positionLoop:
 			for(int y = 0; y <= Constants.BOARD_HEIGHT - tile.height; y++) {
 				for(int x = 0; x <= Constants.BOARD_WIDTH - tile.width; x++) {
-					int currentIntersect = intersect(area, tile, x, y);
+					int currentIntersect = intersect(area, tile, x, y, bestIntersect);
 					if(currentIntersect == 0) {
 						bestX = x;
 						bestY = y;

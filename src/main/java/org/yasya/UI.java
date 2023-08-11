@@ -41,6 +41,8 @@ public class UI {
 
 		launchHybridAnnealingItem.addActionListener(e -> {
 			SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
+				private long startTime = System.currentTimeMillis();
+
 				@Override
 				protected Void doInBackground() throws Exception {
 					publish(0);
@@ -112,7 +114,8 @@ public class UI {
 				protected void done() {
 					areaIcon.getImage().flush();
 					areaLabel.repaint();
-					
+					long duration = System.currentTimeMillis() - startTime;
+					System.out.printf("duration: %d ms", duration);
 				}
 			};
 
