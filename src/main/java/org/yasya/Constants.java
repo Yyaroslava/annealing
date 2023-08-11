@@ -14,4 +14,6 @@ public final class Constants {
 	public static final int FIGHTS_PER_COMPETITION = 20;
 	public static final int WINS_FOR_VICTORY = 12;
 	public static final int PARALLEL = 14;
+	public static final int HYBRID_STEP_COUNT = 100000;
+	public static final double HYBRID_INITIAL_T = 0.5;
 }

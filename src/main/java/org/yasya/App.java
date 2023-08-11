@@ -67,7 +67,7 @@ public class App {
 					AnnealingVideo.makeVideo();
 					break;
 				case "Hybrid":
-					SolutionHybrid.algorythmHybrid();
+					SolutionHybrid.algorythmHybrid(null);
 					break;
 				case "UI":
 					UI.run();

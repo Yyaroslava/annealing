@@ -15,6 +15,8 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 
+import org.yasya.Annealing.FireWitness;
+
 public class UI {
 	
 	public static void run() {
@@ -42,7 +44,60 @@ public class UI {
 				@Override
 				protected Void doInBackground() throws Exception {
 					publish(0);
-					SolutionHybrid.algorythmHybrid();
+					Annealing.FireWitness witness = new FireWitness() {
+						public Color[] colors;
+						public SolutionHybrid bestSolution = null;
+						public int bestScore = 999;
+						public boolean stop = false;
+
+						@Override
+						public void afterStart(Annealing.MarkovChain s) {
+							colors = Utils.getPalette(((SolutionHybrid)s).tiles.length);
+						}
+
+						@Override
+						public void afterNewSolution(Annealing.MarkovChain s, int score, double t) {
+							if(score < bestScore) {
+								setBest((SolutionHybrid)s, score);
+								System.out.printf("better solution found: %4d %8.5f \n", bestScore, t);
+								saveBestSolution();
+								areaIcon.getImage().flush();
+								areaLabel.repaint();
+							}
+						}
+
+						@Override
+						public void beforeFinish(Annealing.MarkovChain last, Annealing.MarkovChain best) {}	
+
+						public void saveBestSolution() {
+							int[][] area = (bestSolution).greedy(true);
+							PNGMaker.make(area, 20, "bestAnnealingGreedy.png", colors);
+						}
+
+						public synchronized void setBest(SolutionHybrid newSolution, int newScore) {
+							bestScore = newScore;
+							bestSolution = newSolution.copy();
+							if(bestScore == 0) stop = true;
+						}
+
+						public synchronized boolean checkStop() {
+							return stop;
+						}
+
+						@Override
+						public boolean checkJump(Annealing.MarkovChain chain, Annealing.MarkovChain bestChain, int bestScore) {
+							if(bestScore > this.bestScore) {
+								chain.jump(bestScore, (SolutionHybrid)bestChain);
+							}
+							return false;
+						}
+
+						@Override
+						public void onProgress(int progress) {
+							publish(progress);
+						}
+					};
+					SolutionHybrid.algorythmHybrid(witness);
 					publish(100);
 					return null;
 				}

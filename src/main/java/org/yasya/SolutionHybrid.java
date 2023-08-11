@@ -127,58 +127,61 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 		return s;
 	}
 
-	public static void algorythmHybrid() {
+	public static void algorythmHybrid(Annealing.FireWitness witness) {
 		Tile[] initialTiles = Tile.randomSmash();
+		if(witness == null) {
+			witness = new Annealing.FireWitness() {
+				public SolutionHybrid bestSolution = null;
+				public int bestScore = 999;
+				public boolean stop = false;
 
-		var witness = new Annealing.FireWitness() {
-			public SolutionHybrid bestSolution = null;
-			public int bestScore = 999;
-			public boolean stop = false;
-
-			@Override
-			public void afterStart(Annealing.MarkovChain s) {
-				initColors((SolutionHybrid)s);
-			}
-
-			@Override
-			public void afterNewSolution(Annealing.MarkovChain s, int score, double t) {
-				if(score < bestScore) {
-					setBest((SolutionHybrid)s, score);
-					System.out.printf("better solution found: %4d %8.5f \n", bestScore, t);
+				@Override
+				public void afterStart(Annealing.MarkovChain s) {
+					initColors((SolutionHybrid)s);
 				}
-			}
 
-			@Override
-			public void beforeFinish(Annealing.MarkovChain last, Annealing.MarkovChain best) {}	
+				@Override
+				public void afterNewSolution(Annealing.MarkovChain s, int score, double t) {
+					if(score < bestScore) {
+						setBest((SolutionHybrid)s, score);
+						System.out.printf("better solution found: %4d %8.5f \n", bestScore, t);
+						saveBestSolution();
 
-			public void saveBestSolution() {
-				int[][] area = (bestSolution).greedy(true);
-				PNGMaker.make(area, 20, "bestAnnealingGreedy.png", colors);
-			}
-
-			public synchronized void setBest(SolutionHybrid newSolution, int newScore) {
-				bestScore = newScore;
-				bestSolution = newSolution.copy();
-				if(bestScore == 0) stop = true;
-			}
-
-			public synchronized boolean checkStop() {
-				return stop;
-			}
-
-			@Override
-			public boolean checkJump(Annealing.MarkovChain chain, Annealing.MarkovChain bestChain, int bestScore) {
-				if(bestScore > this.bestScore) {
-					chain.jump(bestScore, (SolutionHybrid)bestChain);
+					}
 				}
-				return false;
-			}
 
-			@Override
-			public void onProgress(int progress) {
-				//System.out.printf("%d %% \n", progress);
-			}
-		};
+				@Override
+				public void beforeFinish(Annealing.MarkovChain last, Annealing.MarkovChain best) {}	
+
+				public void saveBestSolution() {
+					int[][] area = (bestSolution).greedy(true);
+					PNGMaker.make(area, 20, "bestAnnealingGreedy.png", colors);
+				}
+
+				public synchronized void setBest(SolutionHybrid newSolution, int newScore) {
+					bestScore = newScore;
+					bestSolution = newSolution.copy();
+					if(bestScore == 0) stop = true;
+				}
+
+				public synchronized boolean checkStop() {
+					return stop;
+				}
+
+				@Override
+				public boolean checkJump(Annealing.MarkovChain chain, Annealing.MarkovChain bestChain, int bestScore) {
+					if(bestScore > this.bestScore) {
+						chain.jump(bestScore, (SolutionHybrid)bestChain);
+					}
+					return false;
+				}
+
+				@Override
+				public void onProgress(int progress) {
+					//System.out.printf("%d %% \n", progress);
+				}
+			};
+		}
 
 		SolutionHybrid.witness = witness;
 		
@@ -189,25 +192,21 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 				
 		Arrays.stream(sh).forEach(SolutionHybrid::start);
 		
-		try {
-			Arrays.stream(sh).forEach(t -> {
-				try {
-					t.join();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}); 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		witness.saveBestSolution();
+		
+		Arrays.stream(sh).forEach(t -> {
+			try {
+				t.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}); 
+		
 		System.out.println("finished");
 	}
 
 	public void run() {
 		try {
-			Annealing.fire(this, witness, 0.5, 10000);
+			Annealing.fire(this, witness, Constants.HYBRID_INITIAL_T, Constants.HYBRID_STEP_COUNT);
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
