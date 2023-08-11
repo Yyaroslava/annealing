@@ -3,12 +3,13 @@ package org.yasya;
 public class Annealing {
 
 	interface FireWitness {
-		void afterStart(MarkovChain s);
-		void afterNewSolution(MarkovChain s, int score, double t);
-		void beforeFinish(MarkovChain last, MarkovChain best);
-		boolean checkStop();
-		boolean checkJump(MarkovChain chain, MarkovChain bestChain, int bestScore);
-		void onProgress(int progress);
+		default void afterStart(MarkovChain s) {};
+		default void afterNewSolution(MarkovChain s, int score, double t) {};
+		default void beforeFinish(MarkovChain last, MarkovChain best) {};
+		default boolean checkStop() { return false; };
+		default boolean checkJump(MarkovChain chain, MarkovChain bestChain, int bestScore) { return false; };
+		default void onProgress(int progress) {};
+		default void addStatistic(int oldScore, int newScore, boolean moved) {};
 	}
 
 	interface MarkovChain {
@@ -26,12 +27,15 @@ public class Annealing {
 		for(int i = 0; i < STEP_COUNT; i++) {
 			MarkovChain newChain = chain.next();
 			int newScore = newChain.score();
+			boolean moved = false;
+			int oldScore = score;
 			if(newScore <= score) {
 				score = newScore;
 				chain = newChain;
 				if(bestScore > score) {
 					bestScore = score;
 					bestChain = chain;
+					moved = true;
 				}
 				if(witness != null) witness.afterNewSolution(chain, bestScore, t);
 			}
@@ -40,8 +44,12 @@ public class Annealing {
 				if(App.random.nextDouble() < p) {
 					score = newScore;
 					chain = newChain;
+					moved = true;
 					if(witness != null) witness.afterNewSolution(chain, bestScore, t);
 				}
+			}
+			if(witness != null) {
+				witness.addStatistic(oldScore, newScore, moved);
 			}
 			t -= initialT / STEP_COUNT;
 			if(i % 100 == 0) {

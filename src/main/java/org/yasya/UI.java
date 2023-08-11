@@ -2,7 +2,8 @@ package org.yasya;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -14,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
+import java.util.TreeMap;
 
 import org.yasya.Annealing.FireWitness;
 
@@ -51,7 +53,8 @@ public class UI {
 						public SolutionHybrid bestSolution = null;
 						public int bestScore = 999;
 						public boolean stop = false;
-
+						public TreeMap<Integer, TreeMap<Integer, int[]>> statistic = new TreeMap<>();
+						
 						@Override
 						public void afterStart(Annealing.MarkovChain s) {
 							colors = Utils.getPalette(((SolutionHybrid)s).tiles.length);
@@ -97,6 +100,26 @@ public class UI {
 						@Override
 						public void onProgress(int progress) {
 							publish(progress);
+						}
+
+						@Override
+						public void addStatistic(int oldScore, int newScore, boolean moved) {
+							if(!statistic.containsKey(oldScore)) {
+								statistic.put(oldScore, new TreeMap<>());
+							}
+							var oldScoreStatistic = statistic.get(oldScore);
+							if(!oldScoreStatistic.containsKey(newScore)) {
+								oldScoreStatistic.put(newScore, new int[3]);
+							}
+							var moveStatistic = oldScoreStatistic.get(newScore);
+							if(moved) {
+								moveStatistic[0]++;
+								moveStatistic[2]++;
+							}
+							else {
+								moveStatistic[1]++;
+								moveStatistic[2]++;
+							}
 						}
 					};
 					SolutionHybrid.algorythmHybrid(witness);
