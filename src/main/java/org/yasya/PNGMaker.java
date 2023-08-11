@@ -8,7 +8,7 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 public class PNGMaker {
-	public static void make(int[][] area, int squareWidth, String fileName, Color[] colors) {
+	synchronized public static void make(int[][] area, int squareWidth, String fileName, Color[] colors) {
 		int imgWidth = (Constants.BOARD_WIDTH + 2) * squareWidth;
 		int imgHeight = (Constants.BOARD_HEIGHT + 2) * squareWidth;
 		

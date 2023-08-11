@@ -92,11 +92,10 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 		do {
 			i1 = App.random.nextInt(s.tiles.length);
 			i2 = App.random.nextInt(s.tiles.length);
-		} while(i1 == i2);
+		} while(i1 == i2 || s.tiles[i1].code == s.tiles[i2].code);
 		Tile t = s.tiles[i1];
 		s.tiles[i1] = s.tiles[i2];
 		s.tiles[i2] = t;
-
 		s.calculateScore();
 
 		return s;

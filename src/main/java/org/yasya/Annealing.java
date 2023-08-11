@@ -32,10 +32,10 @@ public class Annealing {
 			if(newScore <= score) {
 				score = newScore;
 				chain = newChain;
+				moved = true;
 				if(bestScore > score) {
 					bestScore = score;
 					bestChain = chain;
-					moved = true;
 				}
 				if(witness != null) witness.afterNewSolution(chain, bestScore, t);
 			}
@@ -51,7 +51,32 @@ public class Annealing {
 			if(witness != null) {
 				witness.addStatistic(oldScore, newScore, moved);
 			}
-			t -= initialT / STEP_COUNT;
+			switch (score) {
+				case 1:
+					t = 0.2;
+					break;
+				case 2:
+					t = 0.2;
+					break;
+				case 3:
+					t = 0.2;
+					break;
+				case 4:
+					t = 0.2;
+					break;
+				case 5:
+					t = 0.2;
+					break;
+				case 6:
+					t = 0.2;
+					break;
+				case 7:
+					t = 0.2;
+					break;
+				default:
+					t = initialT * ((double)(STEP_COUNT - i)) / ((double)STEP_COUNT);
+			} 
+			
 			if(i % 100 == 0) {
 				if(witness != null) {
 					if(witness.checkStop()) break;

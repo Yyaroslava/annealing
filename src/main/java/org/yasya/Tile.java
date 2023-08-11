@@ -21,6 +21,7 @@ public class Tile {
 	public int width;
 	public int height;
 	public int[][] area;
+	public String code;
 
 	public static String areaToString(int[][] area) {
 		StringBuilder sb = new StringBuilder();
@@ -201,6 +202,7 @@ public class Tile {
 		this.width = width;
 		this.height = height;
 		this.area = new int [width][height];
+		this.code = toString();
 	};
 
 	public Tile(int width, int height, int size, int[][] area) {
@@ -210,6 +212,7 @@ public class Tile {
 		this.area = Arrays.stream(area)
 			.map(obj -> Arrays.copyOf((int[])obj, ((int[]) obj).length))
 			.toArray(int[][]::new);
+		this.code = toString();
 	}
 
 	public Tile(int[][] area, int deltaX, int deltaY, int width, int height) {
@@ -224,6 +227,7 @@ public class Tile {
 			}
 		}
 		this.size = size;
+		this.code = toString();
 	}
 
 	public void stamp(int[][] area, int deltaX, int deltaY) {
@@ -297,8 +301,6 @@ public class Tile {
 					if (allTilesMap.containsKey(newTileCode)) continue;
 					allTilesMap.put(newTileCode, newTile);
 					queue.offer(newTile);
-					//System.out.println(newTile);
-
 				}
 			}
 		}
@@ -318,13 +320,10 @@ public class Tile {
 		int rows = allTiles.length / tilesInARow + (allTiles.length % tilesInARow == 0 ? 0 : 1);
 		int imgHeight = squareWidth * ((Constants.MAX_FIGURE_SIZE + 1) * rows + 1);
 
-		// Создание объекта BufferedImage
 		BufferedImage image = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
 
-		// Получение контекста графики
 		Graphics graphics = image.getGraphics();
 
-		// Рисование на изображении
 		graphics.setColor(Color.WHITE);
 		graphics.fillRect(0, 0, imgWidth, imgHeight);
 
@@ -344,7 +343,6 @@ public class Tile {
 			}
 		}
 
-		// Сохранение изображения в файл
 		try {
 			File outputFile = new File("tiles.png");
 			ImageIO.write(image, "png", outputFile);
@@ -352,7 +350,6 @@ public class Tile {
 			System.out.println("Ошибка при сохранении изображения: " + e.getMessage());
 		}
 
-		// Освобождение ресурсов
 		graphics.dispose();
 	}
 }

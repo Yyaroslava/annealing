@@ -2,8 +2,6 @@ package org.yasya;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.util.HashMap;
-import java.util.Map;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -44,6 +42,7 @@ public class UI {
 		launchHybridAnnealingItem.addActionListener(e -> {
 			SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
 				private long startTime = System.currentTimeMillis();
+				public TreeMap<Integer, TreeMap<Integer, int[]>> statistic = new TreeMap<>();
 
 				@Override
 				protected Void doInBackground() throws Exception {
@@ -53,7 +52,6 @@ public class UI {
 						public SolutionHybrid bestSolution = null;
 						public int bestScore = 999;
 						public boolean stop = false;
-						public TreeMap<Integer, TreeMap<Integer, int[]>> statistic = new TreeMap<>();
 						
 						@Override
 						public void afterStart(Annealing.MarkovChain s) {
@@ -91,9 +89,9 @@ public class UI {
 
 						@Override
 						public boolean checkJump(Annealing.MarkovChain chain, Annealing.MarkovChain bestChain, int bestScore) {
-							if(bestScore > this.bestScore) {
-								chain.jump(bestScore, (SolutionHybrid)bestChain);
-							}
+							//if(bestScore > this.bestScore) {
+							//	chain.jump(bestScore, (SolutionHybrid)bestChain);
+							//}
 							return false;
 						}
 
@@ -137,6 +135,24 @@ public class UI {
 				protected void done() {
 					areaIcon.getImage().flush();
 					areaLabel.repaint();
+					for(Integer oldScore : statistic.keySet()) {
+						var oldScoreStatistic = statistic.get(oldScore);
+						System.out.printf("%3d <- ", oldScore);
+						for(Integer from : statistic.keySet()) {
+							var fromStatistic = statistic.get(from);
+							if(fromStatistic.containsKey(oldScore)) {
+								var fromToStatistic = fromStatistic.get(oldScore);
+								System.out.printf("%d:%d, ", from, fromToStatistic[0], fromToStatistic[1]);
+							}
+						}
+						System.out.println();
+
+						for(Integer newScore : oldScoreStatistic.keySet()) {
+							var moveStatistic = oldScoreStatistic.get(newScore);
+							System.out.printf("%3d -> %3d %8d %8d %8d \n", oldScore, newScore, moveStatistic[0], moveStatistic[1], moveStatistic[2]);
+						}
+						
+					}
 					long duration = System.currentTimeMillis() - startTime;
 					System.out.printf("duration: %d ms", duration);
 				}
