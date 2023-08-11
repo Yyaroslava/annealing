@@ -288,7 +288,7 @@ public class Game {
 				if(tileIndex == null) {
 					System.out.println(Tile.toString(tileArea, tileWidth, tileHeight));
 				}
-				tiles[tileIndex]++;
+				else tiles[tileIndex]++;
 			}
 		}
 
