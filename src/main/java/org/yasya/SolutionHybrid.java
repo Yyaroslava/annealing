@@ -171,14 +171,6 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 				}
 
 				@Override
-				public boolean checkJump(Annealing.MarkovChain chain, Annealing.MarkovChain bestChain, int bestScore) {
-					if(bestScore > this.bestScore) {
-						chain.jump(bestScore, (SolutionHybrid)bestChain);
-					}
-					return false;
-				}
-
-				@Override
 				public void onProgress(int progress) {
 					//System.out.printf("%d %% \n", progress);
 				}

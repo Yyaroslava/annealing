@@ -42,12 +42,7 @@ public class AnnealingVideo {
 			public void beforeFinish(Annealing.MarkovChain last, Annealing.MarkovChain best) {
 				
 			}
-
-			@Override
-			public boolean checkJump(Annealing.MarkovChain chain, Annealing.MarkovChain bestChain, int bestScore) {
-				return false;
-			}
-
+			
 			@Override
 			public void onProgress(int progress) {}
 		};

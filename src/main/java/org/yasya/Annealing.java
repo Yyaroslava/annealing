@@ -7,7 +7,6 @@ public class Annealing {
 		default void afterNewSolution(MarkovChain s, int score, double t) {};
 		default void beforeFinish(MarkovChain last, MarkovChain best) {};
 		default boolean checkStop() { return false; };
-		default boolean checkJump(MarkovChain chain, MarkovChain bestChain, int bestScore) { return false; };
 		default void onProgress(int progress) {};
 		default void addStatistic(int oldScore, int newScore, boolean moved) {};
 	}
@@ -51,36 +50,12 @@ public class Annealing {
 			if(witness != null) {
 				witness.addStatistic(oldScore, newScore, moved);
 			}
-			switch (score) {
-				case 1:
-					t = 0.2;
-					break;
-				case 2:
-					t = 0.2;
-					break;
-				case 3:
-					t = 0.2;
-					break;
-				case 4:
-					t = 0.2;
-					break;
-				case 5:
-					t = 0.2;
-					break;
-				case 6:
-					t = 0.2;
-					break;
-				case 7:
-					t = 0.2;
-					break;
-				default:
-					t = initialT * ((double)(STEP_COUNT - i)) / ((double)STEP_COUNT);
-			} 
+			
+			t = initialT * ((double)(STEP_COUNT - i)) / ((double)STEP_COUNT);
 			
 			if(i % 100 == 0) {
 				if(witness != null) {
 					if(witness.checkStop()) break;
-					if(witness.checkJump(chain, bestChain, bestScore)) {}
 				} 
 			}
 			if(witness != null) {
