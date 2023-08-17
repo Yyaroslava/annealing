@@ -66,9 +66,6 @@ public class App {
 				case "AnnealingVideo":
 					//AnnealingVideo.makeVideo();
 					break;
-				case "Hybrid":
-					SolutionHybrid.algorythmHybrid();
-					break;
 				case "UI":
 					UI.run();
 					break;

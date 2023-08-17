@@ -43,7 +43,7 @@ public class UI {
 		JMenuItem launchHybridAnnealingItem = new JMenuItem("Hybrid Annealing");
 
 		launchHybridAnnealingItem.addActionListener(e -> {
-			SolutionHybrid worker = new SolutionHybrid(null);
+			SolutionHybrid worker = new SolutionHybrid();
 			worker.execute();
 		});
 

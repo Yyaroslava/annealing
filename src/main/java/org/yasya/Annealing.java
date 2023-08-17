@@ -6,14 +6,15 @@ public class Annealing {
 		int score();
 		MarkovChain next();
 		default void afterStart(MarkovChain s) {};
+		default void afterNewSolution(MarkovChain s, int score, double t) {};
+		default void addStatistic(int oldScore, int newScore, boolean moved) {};
+		default boolean checkStop() { return false; };
+		default void beforeFinish(MarkovChain last, MarkovChain best) {};
+		default void onProgress(int progress) {};
 	}
 
 	interface Witness {
-		default void afterNewSolution(MarkovChain s, int score, double t) {};
-		default void beforeFinish(MarkovChain last, MarkovChain best) {};
-		default boolean checkStop() { return false; };
-		default void onProgress(int progress) {};
-		default void addStatistic(int oldScore, int newScore, boolean moved) {};
+		
 	}
 	
 	public static int fire(MarkovChain chain, double initialT, int STEP_COUNT) {

@@ -79,7 +79,4 @@ public class SolutionAnnealing implements Annealing.MarkovChain {
 		return s;
 	}
 
-	@Override
-	public void jump(int bestScore, MarkovChain bestSolution) {}
-	
 }

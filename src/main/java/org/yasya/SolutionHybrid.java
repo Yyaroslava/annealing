@@ -18,6 +18,11 @@ public class SolutionHybrid extends SwingWorker<Void, Integer> {
 
 	public SolutionHybrid() {
 		startTiles = Tile.randomSmash();
+		colors = new Color[startTiles.length];
+		for(int i = 0; i < colors.length; i++) {
+			int[] c = Utils.smash(240);
+			colors[i] = new Color(c[0], c[1], c[2]);
+		}
 	}
 
 	public class Solution implements Annealing.MarkovChain, Runnable {
@@ -37,6 +42,11 @@ public class SolutionHybrid extends SwingWorker<Void, Integer> {
 		@Override
 		public void afterStart(Annealing.MarkovChain s) {
 			colors = Utils.getPalette(((Solution)s).tiles.length);
+		}
+
+		@Override
+		public void afterNewSolution(Annealing.MarkovChain s, int score, double t) {
+			setBest((Solution)s, score, t);
 		}
 
 		public SolutionHybrid getWitness() {
@@ -142,25 +152,36 @@ public class SolutionHybrid extends SwingWorker<Void, Integer> {
 				e.printStackTrace();
 			}
 		}
-	}
 
-	public static void initColors(Solution solution) {
-		colors = new Color[solution.tiles.length];
-		for(int i = 0; i < colors.length; i++) {
-			int[] c = Utils.smash(240);
-			colors[i] = new Color(c[0], c[1], c[2]);
+		@Override
+		public void addStatistic(int oldScore, int newScore, boolean moved) {
+			if(!statistic.containsKey(oldScore)) {
+				statistic.put(oldScore, new TreeMap<>());
+			}
+			var oldScoreStatistic = statistic.get(oldScore);
+			if(!oldScoreStatistic.containsKey(newScore)) {
+				oldScoreStatistic.put(newScore, new int[3]);
+			}
+			var moveStatistic = oldScoreStatistic.get(newScore);
+			if(moved) {
+				moveStatistic[0]++;
+				moveStatistic[2]++;
+			}
+			else {
+				moveStatistic[1]++;
+				moveStatistic[2]++;
+			}
 		}
-	}
 
-	@Override
-	public void afterNewSolution(Annealing.MarkovChain s, int score, double t) {
-		if(score < bestScore) {
-			setBest((SolutionHybrid)s, score);
-			System.out.printf("better solution found: %4d %8.5f \n", bestScore, t);
-			saveBestSolution();
-			UI.areaIcon.getImage().flush();
-			UI.areaLabel.repaint();
+		public synchronized boolean checkStop() {
+			return stop;
 		}
+
+		@Override
+		public synchronized void onProgress(int progress) {
+			publish(progress);
+		}
+
 	}
 	
 	public void saveBestSolution() {
@@ -168,47 +189,22 @@ public class SolutionHybrid extends SwingWorker<Void, Integer> {
 		PNGMaker.make(area, 20, "bestAnnealingGreedy.png", colors);
 	}
 
-	public synchronized void setBest(SolutionHybrid newSolution, int newScore) {
-		bestScore = newScore;
-		bestSolution = newSolution.copy();
-		if(bestScore == 0) stop = true;
-	}
-
-	public synchronized boolean checkStop() {
-		return stop;
-	}
-
-	@Override
-	public void onProgress(int progress) {
-		publish(progress);
-	}
-
-	@Override
-	public void addStatistic(int oldScore, int newScore, boolean moved) {
-		if(!statistic.containsKey(oldScore)) {
-			statistic.put(oldScore, new TreeMap<>());
-		}
-		var oldScoreStatistic = statistic.get(oldScore);
-		if(!oldScoreStatistic.containsKey(newScore)) {
-			oldScoreStatistic.put(newScore, new int[3]);
-		}
-		var moveStatistic = oldScoreStatistic.get(newScore);
-		if(moved) {
-			moveStatistic[0]++;
-			moveStatistic[2]++;
-		}
-		else {
-			moveStatistic[1]++;
-			moveStatistic[2]++;
+	public synchronized void setBest(Solution newSolution, int newScore, double t) {
+		if(newScore < bestScore) {
+			bestScore = newScore;
+			bestSolution = newSolution.copy();
+			if(bestScore == 0) stop = true;
+			System.out.printf("better solution found: %4d %8.5f \n", bestScore, t);
+			saveBestSolution();
+			UI.areaIcon.getImage().flush();
+			UI.areaLabel.repaint();
 		}
 	}
 
 	@Override
 	protected Void doInBackground() throws Exception {
 		publish(0);
-		Tile[] initialTiles = Tile.randomSmash();
-
-		Solution initialSolution = new Solution(initialTiles);
+		Solution initialSolution = new Solution();
 		Thread[] sh = Stream.generate(() -> new Thread(initialSolution.copy()))
 			.limit(Constants.PARALLEL)
 			.toArray(Thread[]::new);
