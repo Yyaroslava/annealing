@@ -3,7 +3,6 @@ package org.yasya;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import org.yasya.Annealing.MarkovChain;
 
 public class SolutionAnnealing implements Annealing.MarkovChain {
 	public Tile[] tiles;
