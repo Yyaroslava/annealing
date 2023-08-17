@@ -2,7 +2,10 @@ package org.yasya;
 
 public class Annealing {
 
-	interface FireWitness {
+	interface MarkovChain {
+		int score();
+		void jump(int bestScore, MarkovChain bestSolution);
+		MarkovChain next();
 		default void afterStart(MarkovChain s) {};
 		default void afterNewSolution(MarkovChain s, int score, double t) {};
 		default void beforeFinish(MarkovChain last, MarkovChain best) {};
@@ -10,15 +13,9 @@ public class Annealing {
 		default void onProgress(int progress) {};
 		default void addStatistic(int oldScore, int newScore, boolean moved) {};
 	}
-
-	interface MarkovChain {
-		int score();
-		void jump(int bestScore, MarkovChain bestSolution);
-		MarkovChain next();
-	}
 	
-	public static int fire(MarkovChain chain, FireWitness witness, double initialT, int STEP_COUNT) {
-		if(witness != null) witness.afterStart(chain);
+	public static int fire(MarkovChain chain, double initialT, int STEP_COUNT) {
+		chain.afterStart(chain);
 		int score = chain.score();
 		double t = initialT;
 		int bestScore = 9999;
@@ -36,7 +33,7 @@ public class Annealing {
 					bestScore = score;
 					bestChain = chain;
 				}
-				if(witness != null) witness.afterNewSolution(chain, bestScore, t);
+				chain.afterNewSolution(chain, bestScore, t);
 			}
 			else {
 				double p = Math.exp(-(double)(newScore - score) / t);
@@ -44,27 +41,22 @@ public class Annealing {
 					score = newScore;
 					chain = newChain;
 					moved = true;
-					if(witness != null) witness.afterNewSolution(chain, bestScore, t);
+					chain.afterNewSolution(chain, bestScore, t);
 				}
 			}
-			if(witness != null) {
-				witness.addStatistic(oldScore, newScore, moved);
-			}
+		
+			chain.addStatistic(oldScore, newScore, moved);
 			
 			t = initialT * ((double)(STEP_COUNT - i)) / ((double)STEP_COUNT);
 			
 			if(i % 100 == 0) {
-				if(witness != null) {
-					if(witness.checkStop()) break;
-				} 
+				if(chain.checkStop()) break;
 			}
-			if(witness != null) {
-				if(i % (STEP_COUNT / 100) == 0) {
-					witness.onProgress(i * 100 / STEP_COUNT);
-				}
+			if(i % (STEP_COUNT / 100) == 0) {
+				chain.onProgress(i * 100 / STEP_COUNT);
 			}
 		}
-		if(witness != null) witness.beforeFinish(chain, bestChain);
+		chain.beforeFinish(chain, bestChain);
 		return bestScore;
 	}
 }

@@ -64,10 +64,10 @@ public class App {
 					algorythmAnnealing();
 					break;
 				case "AnnealingVideo":
-					AnnealingVideo.makeVideo();
+					//AnnealingVideo.makeVideo();
 					break;
 				case "Hybrid":
-					SolutionHybrid.algorythmHybrid(null);
+					SolutionHybrid.algorythmHybrid();
 					break;
 				case "UI":
 					UI.run();
@@ -86,7 +86,7 @@ public class App {
 			double t = START_T + i * (END_T - START_T) / STEPS;
 			double score = 0;
 			for(int k = 0; k < 50; k++) {
-				score += Annealing.fire(SolutionAnnealing.startSolution(), null, t, 100000);
+				score += Annealing.fire(SolutionAnnealing.startSolution(), t, 100000);
 			}
 			score = score / 50;
 			System.out.printf("%8.2f %4.2f \n", t, score);

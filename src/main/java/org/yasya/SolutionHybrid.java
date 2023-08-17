@@ -1,17 +1,22 @@
 package org.yasya;
 
+import org.yasya.Annealing.MarkovChain;
 import java.awt.Color;
 import java.util.Arrays;
+import java.util.TreeMap;
 import java.util.stream.Stream;
-import org.yasya.Annealing.MarkovChain;
+import javax.swing.SwingWorker;
 
-public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
-	public Tile[] tiles;
+public class SolutionHybrid extends SwingWorker<Void, Integer> implements Annealing.MarkovChain {
 	public static Color[] colors;
-	public static Annealing.FireWitness witness = null;
+	public Tile[] tiles;
 	public int id;
 	public int score;
-	public int bestScore;
+	public int bestScore = 999;
+	public SolutionHybrid bestSolution = null;
+	public boolean stop = false;
+	private long startTime = System.currentTimeMillis();
+	public TreeMap<Integer, TreeMap<Integer, int[]>> statistic = new TreeMap<>();
 
 	public SolutionHybrid(Tile[] tiles, int score, int bestScore) {
 		this.tiles = tiles;
@@ -129,62 +134,15 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 		return s;
 	}
 
-	public static void algorythmHybrid(Annealing.FireWitness witness) {
+	public static void algorythmHybrid() {
 		Tile[] initialTiles = Tile.randomSmash();
-		if(witness == null) {
-			witness = new Annealing.FireWitness() {
-				public SolutionHybrid bestSolution = null;
-				public int bestScore = 999;
-				public boolean stop = false;
 
-				@Override
-				public void afterStart(Annealing.MarkovChain s) {
-					initColors((SolutionHybrid)s);
-				}
-
-				@Override
-				public void afterNewSolution(Annealing.MarkovChain s, int score, double t) {
-					if(score < bestScore) {
-						setBest((SolutionHybrid)s, score);
-						System.out.printf("better solution found: %4d %8.5f \n", bestScore, t);
-						saveBestSolution();
-
-					}
-				}
-
-				@Override
-				public void beforeFinish(Annealing.MarkovChain last, Annealing.MarkovChain best) {}	
-
-				public void saveBestSolution() {
-					int[][] area = (bestSolution).greedy(true);
-					PNGMaker.make(area, 20, "bestAnnealingGreedy.png", colors);
-				}
-
-				public synchronized void setBest(SolutionHybrid newSolution, int newScore) {
-					bestScore = newScore;
-					bestSolution = newSolution.copy();
-					if(bestScore == 0) stop = true;
-				}
-
-				public synchronized boolean checkStop() {
-					return stop;
-				}
-
-				@Override
-				public void onProgress(int progress) {
-					//System.out.printf("%d %% \n", progress);
-				}
-			};
-		}
-
-		SolutionHybrid.witness = witness;
-		
 		SolutionHybrid initialSolution = new SolutionHybrid(initialTiles);
-		SolutionHybrid[] sh = Stream.generate(() -> initialSolution.copy())
+		Thread[] sh = Stream.generate(() -> new Thread(initialSolution.copy()))
 			.limit(Constants.PARALLEL)
-			.toArray(SolutionHybrid[]::new); 
+			.toArray(Thread[]::new);
 				
-		Arrays.stream(sh).forEach(SolutionHybrid::start);
+		Arrays.stream(sh).forEach(Thread::start);
 		
 		
 		Arrays.stream(sh).forEach(t -> {
@@ -198,9 +156,9 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 		System.out.println("finished");
 	}
 
-	public void run() {
+	public void start() {
 		try {
-			Annealing.fire(this, witness, Constants.HYBRID_INITIAL_T, Constants.HYBRID_STEP_COUNT);
+			Annealing.fire(this, Constants.HYBRID_INITIAL_T, Constants.HYBRID_STEP_COUNT);
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
@@ -216,5 +174,101 @@ public class SolutionHybrid extends Thread implements Annealing.MarkovChain {
 			this.bestScore = bestScore;
 		}
 	}
+
+	@Override
+	public void afterStart(Annealing.MarkovChain s) {
+		colors = Utils.getPalette(((SolutionHybrid)s).tiles.length);
+	}
+
+	@Override
+	public void afterNewSolution(Annealing.MarkovChain s, int score, double t) {
+		if(score < bestScore) {
+			setBest((SolutionHybrid)s, score);
+			System.out.printf("better solution found: %4d %8.5f \n", bestScore, t);
+			saveBestSolution();
+			UI.areaIcon.getImage().flush();
+			UI.areaLabel.repaint();
+		}
+	}
 	
+	public void saveBestSolution() {
+		int[][] area = (bestSolution).greedy(true);
+		PNGMaker.make(area, 20, "bestAnnealingGreedy.png", colors);
+	}
+
+	public synchronized void setBest(SolutionHybrid newSolution, int newScore) {
+		bestScore = newScore;
+		bestSolution = newSolution.copy();
+		if(bestScore == 0) stop = true;
+	}
+
+	public synchronized boolean checkStop() {
+		return stop;
+	}
+
+	@Override
+	public void onProgress(int progress) {
+		publish(progress);
+	}
+
+	@Override
+	public void addStatistic(int oldScore, int newScore, boolean moved) {
+		if(!statistic.containsKey(oldScore)) {
+			statistic.put(oldScore, new TreeMap<>());
+		}
+		var oldScoreStatistic = statistic.get(oldScore);
+		if(!oldScoreStatistic.containsKey(newScore)) {
+			oldScoreStatistic.put(newScore, new int[3]);
+		}
+		var moveStatistic = oldScoreStatistic.get(newScore);
+		if(moved) {
+			moveStatistic[0]++;
+			moveStatistic[2]++;
+		}
+		else {
+			moveStatistic[1]++;
+			moveStatistic[2]++;
+		}
+	}
+
+	@Override
+	protected Void doInBackground() throws Exception {
+		publish(0);
+		SolutionHybrid.algorythmHybrid();
+		publish(100);
+
+		return null;
+	}
+
+	@Override
+	protected void process(java.util.List<Integer> chunks) {
+		int latestProgress = chunks.get(chunks.size() - 1);
+		UI.progressBar.setValue(latestProgress);
+	}
+
+	@Override
+	protected void done() {
+		UI.areaIcon.getImage().flush();
+		UI.areaLabel.repaint();
+		for(Integer oldScore : statistic.keySet()) {
+			var oldScoreStatistic = statistic.get(oldScore);
+			System.out.printf("%3d <- ", oldScore);
+			for(Integer from : statistic.keySet()) {
+				var fromStatistic = statistic.get(from);
+				if(fromStatistic.containsKey(oldScore)) {
+					var fromToStatistic = fromStatistic.get(oldScore);
+					System.out.printf("%d:%d, ", from, fromToStatistic[0], fromToStatistic[1]);
+				}
+			}
+			System.out.println();
+
+			for(Integer newScore : oldScoreStatistic.keySet()) {
+				var moveStatistic = oldScoreStatistic.get(newScore);
+				System.out.printf("%3d -> %3d %8d %8d %8d \n", oldScore, newScore, moveStatistic[0], moveStatistic[1], moveStatistic[2]);
+			}
+		}
+		long duration = System.currentTimeMillis() - startTime;
+		System.out.printf("duration: %d ms", duration);
+	}
+
 }
