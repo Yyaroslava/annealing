@@ -4,9 +4,11 @@ public class Annealing {
 
 	interface MarkovChain {
 		int score();
-		void jump(int bestScore, MarkovChain bestSolution);
 		MarkovChain next();
 		default void afterStart(MarkovChain s) {};
+	}
+
+	interface Witness {
 		default void afterNewSolution(MarkovChain s, int score, double t) {};
 		default void beforeFinish(MarkovChain last, MarkovChain best) {};
 		default boolean checkStop() { return false; };
