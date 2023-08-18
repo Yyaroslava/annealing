@@ -1,34 +1,34 @@
 package org.yasya;
 
-import java.awt.Color;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import javax.swing.SwingWorker;
 
 public class Salesman extends SwingWorker<Void, Integer> {
-	public Tile[] startTiles;
-	public Color[] colors;
-	public double bestScore = 999;
+	public double[][] towns;
+	public double bestScore = 9999999;
 	public Solution bestSolution = null;
-	public boolean stop = false;
 	private long startTime = System.currentTimeMillis();
 
 	public Salesman() {
-		startTiles = Tile.randomSmash();
-		colors = Utils.getPalette(startTiles.length);
+		towns = new double[Constants.SALESMAN_TOWNS_COUNT][2];
+		for(int i = 0; i < Constants.SALESMAN_TOWNS_COUNT; i++) {
+			towns[i][0] = Utils.random.nextDouble() * 300;
+			towns[i][1] = Utils.random.nextDouble() * 300;
+		}
 	}
-
+	
 	public class Solution implements Chainable, Runnable {
-		public Tile[] tiles;
+		public int[] path;
 		public double score;
 
-		public Solution(Tile[] tiles, double score) {
-			this.tiles = tiles;
+		public Solution(int[] path, double score) {
+			this.path = path;
 			this.score = score;
 		}
 
 		public Solution() {
-			this.tiles = startTiles;
+			this.path = Utils.randomPermutation(Constants.SALESMAN_TOWNS_COUNT);
 			this.calculateScore();
 		}
 
@@ -38,61 +38,11 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		}
 
 		public void calculateScore() {
-			int[][] area = greedy(false);
-			double score = 0;
-			for(int y = 0; y < Constants.TETRIS_BOARD_HEIGHT; y++) {
-				for(int x = 0; x < Constants.TETRIS_BOARD_WIDTH; x++) {
-					if(area[x][y] == 0) score++;
-				}
+			double score = Utils.distance(towns[0][0], towns[0][1], towns[Constants.SALESMAN_TOWNS_COUNT - 1][0], towns[Constants.SALESMAN_TOWNS_COUNT - 1][1]);
+			for(int i = 0; i < Constants.SALESMAN_TOWNS_COUNT - 1; i++) {
+				score += Utils.distance(towns[i][0], towns[i][1], towns[i + 1][0], towns[i + 1][1]);
 			}
 			this.score = score;
-		}
-
-		public int[][] greedy(boolean makeColor) {
-			int[][] area = new int[Constants.TETRIS_BOARD_WIDTH][Constants.TETRIS_BOARD_HEIGHT];
-			for(int i = 0; i < tiles.length; i++) {
-				Tile tile = tiles[i];
-				int bestX = -1;
-				int bestY = -1;
-				int bestIntersect = 999;
-				positionLoop:
-				for(int y = 0; y <= Constants.TETRIS_BOARD_HEIGHT - tile.height; y++) {
-					for(int x = 0; x <= Constants.TETRIS_BOARD_WIDTH - tile.width; x++) {
-						int currentIntersect = intersect(area, tile, x, y, bestIntersect);
-						if(currentIntersect == 0) {
-							bestX = x;
-							bestY = y;
-							bestIntersect = 0;
-							break positionLoop;
-						}
-						if(currentIntersect < bestIntersect) {
-							bestX = x;
-							bestY = y;
-							bestIntersect = currentIntersect;
-						}
-					}
-				}
-				if(makeColor) {
-					tile.stampColor(area, bestX, bestY, i + 1);
-				}
-				else {
-					tile.stamp(area, bestX, bestY);
-				}
-			}
-			return area;
-		}
-
-		public int intersect(int[][] area, Tile tile, int deltaX, int deltaY, int bestResult) {
-			int result = 0;
-			for(int y = 0; y < tile.height; y++) {
-				for(int x = 0; x < tile.width; x++) { 
-					if(tile.area[x][y] > 0 && area[x + deltaX][y + deltaY] > 0) {
-						result++;
-						if(result >= bestResult) return result;
-					}
-				}
-			}
-			return result;
 		}
 
 		@Override
@@ -106,36 +56,34 @@ public class Salesman extends SwingWorker<Void, Integer> {
 			int i1;
 			int i2;
 			do {
-				i1 = Utils.random.nextInt(s.tiles.length);
-				i2 = Utils.random.nextInt(s.tiles.length);
-			} while(i1 == i2 || s.tiles[i1].code == s.tiles[i2].code);
-			Tile t = s.tiles[i1];
-			s.tiles[i1] = s.tiles[i2];
-			s.tiles[i2] = t;
+				i1 = Utils.random.nextInt(Constants.SALESMAN_TOWNS_COUNT);
+				i2 = Utils.random.nextInt(Constants.SALESMAN_TOWNS_COUNT);
+			} while(i1 == i2);
+
+			int temp = s.path[(i1 + 1) % Constants.SALESMAN_TOWNS_COUNT];
+			s.path[(i1 + 1) % Constants.SALESMAN_TOWNS_COUNT] = s.path[(i2 + 1) % Constants.SALESMAN_TOWNS_COUNT];
+			s.path[(i2 + 1) % Constants.SALESMAN_TOWNS_COUNT] = s.path[i2];
+			s.path[i2] = temp;
+			
 			s.calculateScore();
 
 			return s;
 		}
 
 		public Solution copy() {
-			Tile[] tilesCopy = Arrays.stream(tiles)
-				.map(obj -> ((Tile)obj).copy())
-				.toArray(Tile[]::new);
-			Solution s = new Solution(tilesCopy, this.score);
+			int[] pathCopy = Arrays.copyOf(path, path.length);
+			Solution s = new Solution(pathCopy, this.score);
 			return s;
 		}
 
 		public void run() {
 			try {
-				Utils.fire(this, Constants.TETRIS_INITIAL_T, Constants.TETRIS_STEP_COUNT);
+				System.out.println("Salesman fire");
+				Utils.fire(this, Constants.SALESMAN_INITIAL_T, Constants.SALESMAN_STEP_COUNT);
 			} 
 			catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-
-		public synchronized boolean checkStop() {
-			return stop;
 		}
 
 		@Override
@@ -146,16 +94,14 @@ public class Salesman extends SwingWorker<Void, Integer> {
 	}
 	
 	public void saveBestSolution() {
-		int[][] area = (bestSolution).greedy(true);
-		TetrisPNG.saveArea(area, 20, "TetrisArea.png", colors);
+		SalesmanPNG.saveArea(towns, bestSolution.path, "area.png");
 	}
 
 	public synchronized void setBest(Solution newSolution, double newScore, double t) {
 		if(newScore < bestScore) {
 			bestScore = newScore;
 			bestSolution = newSolution.copy();
-			if(bestScore == 0) stop = true;
-			System.out.printf("better solution found: %6.1f %8.5f \n", bestScore, t);
+			System.out.printf("better solution found: %8.1f %8.5f \n", bestScore, t);
 			saveBestSolution();
 			UI.areaIcon.getImage().flush();
 			UI.areaLabel.repaint();
@@ -167,7 +113,7 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		publish(0);
 		Solution initialSolution = new Solution();
 		Thread[] sh = Stream.generate(() -> new Thread(initialSolution.copy()))
-			.limit(Constants.TETRIS_PARALLEL)
+			.limit(Constants.SALESMAN_PARALLEL)
 			.toArray(Thread[]::new);
 
 		Arrays.stream(sh).forEach(Thread::start);
@@ -179,7 +125,6 @@ public class Salesman extends SwingWorker<Void, Integer> {
 			}
 		}); 
 		
-		System.out.println("finished");
 		publish(100);
 
 		return null;

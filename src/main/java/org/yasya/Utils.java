@@ -67,4 +67,23 @@ public class Utils {
 		chain.beforeFinish(chain, bestChain);
 		return bestScore;
 	}
+
+	public static int[] randomPermutation(int length) {
+		int[] permutation = new int[length];
+		for (int i = 0; i < length; i++) {
+			permutation[i] = i;
+		}
+		for (int i = length - 1; i > 0; i--) {
+			int j = random.nextInt(i + 1);
+			int temp = permutation[i];
+			permutation[i] = permutation[j];
+			permutation[j] = temp;
+		}
+
+		return permutation;
+	}
+
+	public static double distance(double x1, double y1, double x2, double y2) {
+		return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+	} 
 }

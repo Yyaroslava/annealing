@@ -147,7 +147,7 @@ public class Tetris extends SwingWorker<Void, Integer> {
 	
 	public void saveBestSolution() {
 		int[][] area = (bestSolution).greedy(true);
-		TetrisPNG.saveArea(area, 20, "TetrisArea.png", colors);
+		TetrisPNG.saveArea(area, 20, "area.png", colors);
 	}
 
 	public synchronized void setBest(Solution newSolution, double newScore, double t) {
@@ -179,7 +179,6 @@ public class Tetris extends SwingWorker<Void, Integer> {
 			}
 		}); 
 		
-		System.out.println("finished");
 		publish(100);
 
 		return null;

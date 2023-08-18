@@ -18,7 +18,7 @@ public class UI {
 	public static JProgressBar progressBar = null;
 
 	public static void run() {
-		areaIcon = new ImageIcon("TetrisArea.png");
+		areaIcon = new ImageIcon("area.png");
 
 		progressBar = new JProgressBar(0, 100);
 		progressBar.setForeground(Color.GREEN);
