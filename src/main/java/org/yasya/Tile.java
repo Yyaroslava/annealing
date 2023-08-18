@@ -23,10 +23,14 @@ public class Tile {
 	public int[][] area;
 	public String code;
 
+	static {
+		init();
+	}
+
 	public static String areaToString(int[][] area) {
 		StringBuilder sb = new StringBuilder();
-		for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
-			for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
+		for (int y = 0; y < Constants.TETRIS_BOARD_HEIGHT; y++) {
+			for (int x = 0; x < Constants.TETRIS_BOARD_WIDTH; x++) {
 				sb.append(area[x][y]);
 			}
 			sb.append("\n");
@@ -36,21 +40,21 @@ public class Tile {
 	
 	public static Tile[] randomSmash() {
 		Map<Integer, Integer> tileSize = new HashMap<>();
-		int[][] area = new int[Constants.BOARD_WIDTH][Constants.BOARD_HEIGHT];
+		int[][] area = new int[Constants.TETRIS_BOARD_WIDTH][Constants.TETRIS_BOARD_HEIGHT];
 		List<Tile> tilesList = new ArrayList<>();
 		int k = 0;
-		for(int x = 0; x < Constants.BOARD_WIDTH; x++) {
-			for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+		for(int x = 0; x < Constants.TETRIS_BOARD_WIDTH; x++) {
+			for (int y = 0; y < Constants.TETRIS_BOARD_HEIGHT; y++) {
 				area[x][y] = k;
 				tileSize.put(k, 1);
 				k++;
 			}
 		}
-		int bordersCount = (Constants.BOARD_HEIGHT - 1) * Constants.BOARD_WIDTH + Constants.BOARD_HEIGHT * (Constants.BOARD_WIDTH - 1);
+		int bordersCount = (Constants.TETRIS_BOARD_HEIGHT - 1) * Constants.TETRIS_BOARD_WIDTH + Constants.TETRIS_BOARD_HEIGHT * (Constants.TETRIS_BOARD_WIDTH - 1);
 		int[][] borders = new int[bordersCount][4];
 		k = 0; 
-		for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
-			for (int y = 0; y < Constants.BOARD_HEIGHT - 1; y++) {
+		for (int x = 0; x < Constants.TETRIS_BOARD_WIDTH; x++) {
+			for (int y = 0; y < Constants.TETRIS_BOARD_HEIGHT - 1; y++) {
 				borders[k][0] = x;
 				borders[k][1] = y;
 				borders[k][2] = x;
@@ -58,8 +62,8 @@ public class Tile {
 				k++;
 			}
 		}
-		for (int x = 0; x < Constants.BOARD_WIDTH - 1; x++) {
-			for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+		for (int x = 0; x < Constants.TETRIS_BOARD_WIDTH - 1; x++) {
+			for (int y = 0; y < Constants.TETRIS_BOARD_HEIGHT; y++) {
 				borders[k][0] = x;
 				borders[k][1] = y;
 				borders[k][2] = x + 1;
@@ -68,7 +72,7 @@ public class Tile {
 			}
 		}
 		for (k = bordersCount - 1; k >= 0; k--) {
-			int randomBorder = App.random.nextInt(k + 1);
+			int randomBorder = Utils.random.nextInt(k + 1);
 			int x1 = borders[randomBorder][0];
 			int y1 = borders[randomBorder][1];
 			int x2 = borders[randomBorder][2];
@@ -77,9 +81,9 @@ public class Tile {
 			int n2 = area[x2][y2];
 			int size1 = tileSize.get(n1);
 			int size2 = tileSize.get(n2);
-			if(n1 != n2 && size1 + size2 <= Constants.MAX_FIGURE_SIZE) {
-				for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
-					for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+			if(n1 != n2 && size1 + size2 <= Constants.TETRIS_MAX_TILE_SIZE) {
+				for (int x = 0; x < Constants.TETRIS_BOARD_WIDTH; x++) {
+					for (int y = 0; y < Constants.TETRIS_BOARD_HEIGHT; y++) {
 						if (area[x][y] == n2) {
 							area[x][y] = n1;
 						}
@@ -94,18 +98,18 @@ public class Tile {
 			borders[randomBorder][3] = borders[k][3];
 		}
 
-		int[] up = new int[Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT];
-		int[] down = new int[Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT];
-		int[] left = new int[Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT];
-		int[] right = new int[Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT];
+		int[] up = new int[Constants.TETRIS_BOARD_WIDTH * Constants.TETRIS_BOARD_HEIGHT];
+		int[] down = new int[Constants.TETRIS_BOARD_WIDTH * Constants.TETRIS_BOARD_HEIGHT];
+		int[] left = new int[Constants.TETRIS_BOARD_WIDTH * Constants.TETRIS_BOARD_HEIGHT];
+		int[] right = new int[Constants.TETRIS_BOARD_WIDTH * Constants.TETRIS_BOARD_HEIGHT];
 
-		Arrays.fill(up, Constants.BOARD_HEIGHT - 1);
+		Arrays.fill(up, Constants.TETRIS_BOARD_HEIGHT - 1);
 		Arrays.fill(down, 0);
-		Arrays.fill(left, Constants.BOARD_WIDTH - 1);
+		Arrays.fill(left, Constants.TETRIS_BOARD_WIDTH - 1);
 		Arrays.fill(right, 0);
 
-		for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
-			for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+		for (int x = 0; x < Constants.TETRIS_BOARD_WIDTH; x++) {
+			for (int y = 0; y < Constants.TETRIS_BOARD_HEIGHT; y++) {
 				int n = area[x][y];
 				up[n] = Math.min(up[n], y);
 				down[n] = Math.max(down[n], y);
@@ -113,7 +117,7 @@ public class Tile {
 				right[n] = Math.max(right[n], x);
 			}
 		}
-		for (int n = 0; n < Constants.BOARD_WIDTH * Constants.BOARD_HEIGHT; n++) {
+		for (int n = 0; n < Constants.TETRIS_BOARD_WIDTH * Constants.TETRIS_BOARD_HEIGHT; n++) {
 			if (up[n] <= down[n] && left[n] <= right[n]) {
 				int tileWidth = right[n] - left[n] + 1;
 				int tileHeight = down[n] - up[n] + 1;
@@ -259,7 +263,7 @@ public class Tile {
 		while (!queue.isEmpty()) {
 			Tile base = queue.poll();
 			allTilesList.add(base);
-			if (base.size == Constants.MAX_FIGURE_SIZE) continue;
+			if (base.size == Constants.TETRIS_MAX_TILE_SIZE) continue;
 			int[][] area = new int[base.width + 2][base.height + 2];
 			base.stamp(area, 1, 1);
 
@@ -311,14 +315,14 @@ public class Tile {
 		for (int i = 0; i < allTiles.length; i++) {
 			tileIndexMap.put(allTiles[i].toString(), i);
 		}
-		Constants.TILES_COUNT = allTiles.length;
+		Constants.TETRIS_TILES_COUNT = allTiles.length;
 		System.out.printf("all tiles: %d\n", allTiles.length);
 	}
 
 	public static void drawTiles (int squareWidth, int tilesInARow) {
-		int imgWidth = squareWidth * ((Constants.MAX_FIGURE_SIZE + 1) * tilesInARow + 1);
+		int imgWidth = squareWidth * ((Constants.TETRIS_MAX_TILE_SIZE + 1) * tilesInARow + 1);
 		int rows = allTiles.length / tilesInARow + (allTiles.length % tilesInARow == 0 ? 0 : 1);
-		int imgHeight = squareWidth * ((Constants.MAX_FIGURE_SIZE + 1) * rows + 1);
+		int imgHeight = squareWidth * ((Constants.TETRIS_MAX_TILE_SIZE + 1) * rows + 1);
 
 		BufferedImage image = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
 
@@ -330,8 +334,8 @@ public class Tile {
 		for (int i = 0; i < allTiles.length; i++) {
 			int row = i / tilesInARow;
 			int column = i % tilesInARow;
-			int x0 = squareWidth + column * (Constants.MAX_FIGURE_SIZE + 1) * squareWidth;
-			int y0 = squareWidth + row * (Constants.MAX_FIGURE_SIZE + 1) * squareWidth;
+			int x0 = squareWidth + column * (Constants.TETRIS_MAX_TILE_SIZE + 1) * squareWidth;
+			int y0 = squareWidth + row * (Constants.TETRIS_MAX_TILE_SIZE + 1) * squareWidth;
 			Tile tile = allTiles[i];
 			for (int sx = 0; sx < tile.width; sx++) {
 				for (int sy = 0; sy < tile.height; sy++) {
