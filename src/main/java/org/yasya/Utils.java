@@ -16,7 +16,6 @@ public class Utils {
 		}
 		int n2 = random.nextInt(sum - n1 + 1);
 		int n3 = sum - n1 - n2;
-		System.out.printf("%4d %4d %4d \n", n1, n2, n3);
 		return new int[] {n1, n2, n3};
 	}
 

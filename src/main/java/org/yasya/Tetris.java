@@ -50,9 +50,6 @@ public class Tetris extends SwingWorker<Void, Integer> {
 				}
 			}
 			this.score = score;
-			if(bestScore > score) {
-				bestScore = score;
-			}
 		}
 
 		public int[][] greedy(boolean makeColor) {
@@ -154,7 +151,7 @@ public class Tetris extends SwingWorker<Void, Integer> {
 	
 	public void saveBestSolution() {
 		int[][] area = (bestSolution).greedy(true);
-		TetrisPNG.saveArea(area, 20, "bestAnnealingGreedy.png", colors);
+		TetrisPNG.saveArea(area, 20, "TetrisArea.png", colors);
 	}
 
 	public synchronized void setBest(Solution newSolution, double newScore, double t) {
@@ -203,7 +200,7 @@ public class Tetris extends SwingWorker<Void, Integer> {
 		UI.areaIcon.getImage().flush();
 		UI.areaLabel.repaint();
 		long duration = System.currentTimeMillis() - startTime;
-		System.out.printf("duration: %6.1f ms", duration);
+		System.out.printf("best score: %f, duration: %d ms", bestScore, duration);
 	}
 
 }

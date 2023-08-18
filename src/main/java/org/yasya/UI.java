@@ -6,7 +6,6 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -19,7 +18,7 @@ public class UI {
 	public static JProgressBar progressBar = null;
 
 	public static void run() {
-		areaIcon = new ImageIcon("bestAnnealingGreedy.png");
+		areaIcon = new ImageIcon("TetrisArea.png");
 
 		progressBar = new JProgressBar(0, 100);
 		progressBar.setForeground(Color.GREEN);
@@ -38,24 +37,14 @@ public class UI {
 
 		JMenuBar menuBar = new JMenuBar();
 
-		JMenu fileMenu = new JMenu("Launch");
+		JMenuItem launchTetrisItem = new JMenuItem("Tetris");
 
-		JMenuItem launchHybridAnnealingItem = new JMenuItem("Hybrid Annealing");
-
-		launchHybridAnnealingItem.addActionListener(e -> {
+		launchTetrisItem.addActionListener(e -> {
 			Tetris worker = new Tetris();
 			worker.execute();
 		});
-
-		JMenuItem saveItem = new JMenuItem("Сохранить");
-		JMenuItem exitItem = new JMenuItem("Выход");
-
-		fileMenu.add(saveItem);
-		fileMenu.addSeparator();
-		fileMenu.add(exitItem);
-
-		menuBar.add(fileMenu);
-		menuBar.add(launchHybridAnnealingItem);
+		
+		menuBar.add(launchTetrisItem);
 		
 		panel.add(areaLabel, BorderLayout.CENTER);
 		panel.add(panel2);
