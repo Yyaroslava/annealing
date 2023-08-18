@@ -8,4 +8,13 @@ public final class Constants {
 	public static final int TETRIS_PARALLEL = 14;
 	public static final int TETRIS_STEP_COUNT = 100000;
 	public static final double TETRIS_INITIAL_T = 0.5;
+	public static final int[][] TETRIS_PALETTE = new int[][] {
+		{255, 0, 0},
+		{255, 165, 0},
+		{255, 255, 0},
+		{0, 128, 0},
+		{0, 0, 255},
+		{75, 0, 130},
+		{238, 130, 238}
+	};
 }

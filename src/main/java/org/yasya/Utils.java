@@ -22,8 +22,8 @@ public class Utils {
 	public static Color[] getPalette(int size) {
 		Color[] colors = new Color[size];
 		for(int i = 0; i < colors.length; i++) {
-			int[] c = Utils.smash(240);
-			colors[i] = new Color(c[0], c[1], c[2]);
+			int index = i % Constants.TETRIS_PALETTE.length;
+			colors[i] = new Color(Constants.TETRIS_PALETTE[index][0], Constants.TETRIS_PALETTE[index][1], Constants.TETRIS_PALETTE[index][2]);
 		}
 		return colors;
 	}

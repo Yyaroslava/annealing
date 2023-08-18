@@ -17,7 +17,7 @@ public class TetrisPNG {
 		
 		BufferedImage image = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
 		Graphics graphics = image.getGraphics();
-		graphics.setColor(Color.LIGHT_GRAY);
+		graphics.setColor(Color.GRAY);
 		graphics.fillRect(0, 0, imgWidth, imgHeight);
 
 		for (int x = 0; x < Constants.TETRIS_BOARD_WIDTH; x++) {
@@ -38,7 +38,7 @@ public class TetrisPNG {
 			}
 		}
 
-		graphics.setColor(Color.LIGHT_GRAY);
+		graphics.setColor(Color.GRAY);
 		for (int x = 0; x < Constants.TETRIS_BOARD_WIDTH - 1; x++) {
 			for (int y = 0; y < Constants.TETRIS_BOARD_HEIGHT; y++) {
 				if(area[x][y] != area[x + 1][y]) {

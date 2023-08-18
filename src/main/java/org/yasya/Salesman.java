@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 import javax.swing.SwingWorker;
 
-public class Tetris extends SwingWorker<Void, Integer> {
+public class Salesman extends SwingWorker<Void, Integer> {
 	public Tile[] startTiles;
 	public Color[] colors;
 	public double bestScore = 999;
@@ -13,7 +13,7 @@ public class Tetris extends SwingWorker<Void, Integer> {
 	public boolean stop = false;
 	private long startTime = System.currentTimeMillis();
 
-	public Tetris() {
+	public Salesman() {
 		startTiles = Tile.randomSmash();
 		colors = Utils.getPalette(startTiles.length);
 	}
@@ -200,3 +200,4 @@ public class Tetris extends SwingWorker<Void, Integer> {
 	}
 
 }
+

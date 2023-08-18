@@ -37,15 +37,25 @@ public class UI {
 
 		JMenuBar menuBar = new JMenuBar();
 
+		//TETRIS
 		JMenuItem launchTetrisItem = new JMenuItem("Tetris");
-
 		launchTetrisItem.addActionListener(e -> {
 			Tetris worker = new Tetris();
 			worker.execute();
 		});
-		
 		menuBar.add(launchTetrisItem);
-		
+
+		//SALESMAN
+		JMenuItem launchSalesmanItem = new JMenuItem("Salesman");
+		launchSalesmanItem.addActionListener(e -> {
+			Salesman worker = new Salesman();
+			worker.execute();
+		});
+		menuBar.add(launchSalesmanItem);
+
+
+
+
 		panel.add(areaLabel, BorderLayout.CENTER);
 		panel.add(panel2);
 		panel.add(progressBar, BorderLayout.PAGE_END);
