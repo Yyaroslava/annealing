@@ -11,7 +11,7 @@ import java.nio.file.StandardCopyOption;
 
 public class SalesmanPNG {
 
-	synchronized public static void saveArea(double[][] towns, int[] path, String fileName) {
+	synchronized public static void saveArea(double[][] towns, int[] path, int[] secondPath, String fileName) {
 		int imgWidth = 340;
 		int imgHeight = 340;
 		
@@ -20,13 +20,27 @@ public class SalesmanPNG {
 		graphics.setColor(Color.GRAY);
 		graphics.fillRect(0, 0, imgWidth, imgHeight);
 
+		graphics.setColor(Color.RED);
+		for (int i = 0; i < Constants.SALESMAN_TOWNS_COUNT; i++) {
+			int start = secondPath[i];
+			int end = secondPath[(i + 1) % Constants.SALESMAN_TOWNS_COUNT];
+			graphics.drawLine(
+				20 + (int)Math.round(towns[start][0]),
+				20 + (int)Math.round(towns[start][1]),
+				20 + (int)Math.round(towns[end][0]),
+				20 + (int)Math.round(towns[end][1])
+			);
+		}
+
 		graphics.setColor(Color.GREEN);
 		for (int i = 0; i < Constants.SALESMAN_TOWNS_COUNT; i++) {
+			int start = path[i];
+			int end = path[(i + 1) % Constants.SALESMAN_TOWNS_COUNT];
 			graphics.drawLine(
-				20 + (int)Math.round(towns[i][0]),
-				20 + (int)Math.round(towns[i][1]),
-				20 + (int)Math.round(towns[(i + 1) % Constants.SALESMAN_TOWNS_COUNT][0]),
-				20 + (int)Math.round(towns[(i + 1) % Constants.SALESMAN_TOWNS_COUNT][1])
+				20 + (int)Math.round(towns[start][0]),
+				20 + (int)Math.round(towns[start][1]),
+				20 + (int)Math.round(towns[end][0]),
+				20 + (int)Math.round(towns[end][1])
 			);
 		}
 		

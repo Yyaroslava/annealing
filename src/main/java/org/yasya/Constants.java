@@ -6,7 +6,7 @@ public final class Constants {
 	public static final int TETRIS_MAX_TILE_SIZE = 7;
 	public static int TETRIS_TILES_COUNT;
 	public static final int TETRIS_PARALLEL = 14;
-	public static final int TETRIS_STEP_COUNT = 100000;
+	public static final long TETRIS_STEP_COUNT = 100000;
 	public static final double TETRIS_INITIAL_T = 0.5;
 	public static final int[][] TETRIS_PALETTE = new int[][] {
 		{255, 0, 0},
@@ -18,8 +18,8 @@ public final class Constants {
 		{238, 130, 238}
 	};
 
-	public static final int SALESMAN_TOWNS_COUNT = 10;
+	public static final int SALESMAN_TOWNS_COUNT = 1000;
 	public static final int SALESMAN_PARALLEL = 14;
-	public static final int SALESMAN_STEP_COUNT = 1000000;
-	public static final double SALESMAN_INITIAL_T = 1000;
+	public static final long SALESMAN_STEP_COUNT = 10000000;
+	public static final double SALESMAN_INITIAL_T = 10;
 }

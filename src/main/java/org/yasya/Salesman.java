@@ -1,13 +1,16 @@
 package org.yasya;
 
 import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 import javax.swing.SwingWorker;
 
 public class Salesman extends SwingWorker<Void, Integer> {
 	public double[][] towns;
-	public double bestScore = 9999999;
+	public double bestScore = 9999998;
 	public Solution bestSolution = null;
+	public Solution secondSolution = null;
+	public double secondScore = 9999999;
 	private long startTime = System.currentTimeMillis();
 
 	public Salesman() {
@@ -21,10 +24,12 @@ public class Salesman extends SwingWorker<Void, Integer> {
 	public class Solution implements Chainable, Runnable {
 		public int[] path;
 		public double score;
+		public ThreadLocalRandom localRandom;
 
 		public Solution(int[] path, double score) {
 			this.path = path;
 			this.score = score;
+			this.localRandom = ThreadLocalRandom.current();
 		}
 
 		public Solution() {
@@ -38,36 +43,43 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		}
 
 		public void calculateScore() {
-			double score = Utils.distance(towns[0][0], towns[0][1], towns[Constants.SALESMAN_TOWNS_COUNT - 1][0], towns[Constants.SALESMAN_TOWNS_COUNT - 1][1]);
+			int start = path[0];
+			int end = path[Constants.SALESMAN_TOWNS_COUNT - 1];
+			double score = Utils.distance(towns[start][0], towns[start][1], towns[end][0], towns[end][1]);
 			for(int i = 0; i < Constants.SALESMAN_TOWNS_COUNT - 1; i++) {
-				score += Utils.distance(towns[i][0], towns[i][1], towns[i + 1][0], towns[i + 1][1]);
+				start = path[i];
+				end = path[(i + 1) % Constants.SALESMAN_TOWNS_COUNT];
+				score += Utils.distance(towns[start][0], towns[start][1], towns[end][0], towns[end][1]);
 			}
 			this.score = score;
 		}
 
 		@Override
-		public double score() {
-			return score;
-		}
-
-		@Override
 		public Chainable next() {
 			Solution s = copy();
-			int i1;
-			int i2;
-			do {
-				i1 = Utils.random.nextInt(Constants.SALESMAN_TOWNS_COUNT);
-				i2 = Utils.random.nextInt(Constants.SALESMAN_TOWNS_COUNT);
-			} while(i1 == i2);
-
-			int temp = s.path[(i1 + 1) % Constants.SALESMAN_TOWNS_COUNT];
-			s.path[(i1 + 1) % Constants.SALESMAN_TOWNS_COUNT] = s.path[(i2 + 1) % Constants.SALESMAN_TOWNS_COUNT];
-			s.path[(i2 + 1) % Constants.SALESMAN_TOWNS_COUNT] = s.path[i2];
-			s.path[i2] = temp;
-			
+			int i1 = localRandom.nextInt(Constants.SALESMAN_TOWNS_COUNT);
+			int i2 = (i1 + localRandom.nextInt(Constants.SALESMAN_TOWNS_COUNT - 2)) % Constants.SALESMAN_TOWNS_COUNT;
+			s.reflect(i1, i2);
 			s.calculateScore();
 
 			return s;
+		}
+
+	public void reflect(int start, int finish) {
+		int left = 0;
+		int right = (finish - start + Constants.SALESMAN_TOWNS_COUNT) % Constants.SALESMAN_TOWNS_COUNT;
+		for (;left < right; left++, right--) {
+		int i1 = (left + start) % Constants.SALESMAN_TOWNS_COUNT;
+		int i2 = (right + start) % Constants.SALESMAN_TOWNS_COUNT;
+		int t = path[i1];
+		path[i1] = path[i2];
+		path[i2] = t;
+		}
+	}
+
+		@Override
+		public double score() {
+			return score;
 		}
 
 		public Solution copy() {
@@ -94,14 +106,24 @@ public class Salesman extends SwingWorker<Void, Integer> {
 	}
 	
 	public void saveBestSolution() {
-		SalesmanPNG.saveArea(towns, bestSolution.path, "area.png");
+		SalesmanPNG.saveArea(towns, bestSolution.path, secondSolution.path, "area.png");
 	}
 
 	public synchronized void setBest(Solution newSolution, double newScore, double t) {
 		if(newScore < bestScore) {
+			secondScore = bestScore;
+			secondSolution = bestSolution;
 			bestScore = newScore;
 			bestSolution = newSolution.copy();
 			System.out.printf("better solution found: %8.1f %8.5f \n", bestScore, t);
+			saveBestSolution();
+			UI.areaIcon.getImage().flush();
+			UI.areaLabel.repaint();
+		}
+		else if(newScore < secondScore) {
+			secondScore = newScore;
+			secondSolution = newSolution.copy();
+			System.out.printf("better second solution found: %8.1f %8.5f \n", secondScore, t);
 			saveBestSolution();
 			UI.areaIcon.getImage().flush();
 			UI.areaLabel.repaint();

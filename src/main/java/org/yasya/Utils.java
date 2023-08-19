@@ -2,6 +2,7 @@ package org.yasya;
 
 import java.awt.Color;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Utils {
 	public static Random random = new Random();
@@ -28,13 +29,14 @@ public class Utils {
 		return colors;
 	}
 
-	public static double fire(Chainable chain, double initialT, int STEP_COUNT) {
+	public static double fire(Chainable chain, double initialT, long STEP_COUNT) {
+		ThreadLocalRandom localRandom = ThreadLocalRandom.current();
 		chain.afterStart(chain);
 		double score = chain.score();
 		double t = initialT;
-		double bestScore = 9999;
+		double bestScore = score + 1;
 		Chainable bestChain = null;
-		for(int i = 0; i < STEP_COUNT; i++) {
+		for(long i = 0; i < STEP_COUNT; i++) {
 			Chainable newChain = chain.next();
 			double newScore = newChain.score();
 			if(newScore <= score) {
@@ -46,9 +48,9 @@ public class Utils {
 				}
 				chain.afterBetterSolutionFound(chain, bestScore, t);
 			}
-			else {
+			else{
 				double p = Math.exp(-(double)(newScore - score) / t);
-				if(random.nextDouble() < p) {
+				if(localRandom.nextDouble() < p) {
 					score = newScore;
 					chain = newChain;
 					chain.afterBetterSolutionFound(chain, bestScore, t);
@@ -61,7 +63,7 @@ public class Utils {
 				if(chain.checkStop()) break;
 			}
 			if(i % (STEP_COUNT / 100) == 0) {
-				chain.onProgress(i * 100 / STEP_COUNT);
+				chain.onProgress((int)(i * 100 / STEP_COUNT));
 			}
 		}
 		chain.beforeFinish(chain, bestChain);
