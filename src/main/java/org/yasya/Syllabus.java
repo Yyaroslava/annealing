@@ -12,7 +12,7 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 
 	public record Row(String group, String course, String teacher){}
 
-	public Syllabus() {}
+	public Syllabus(){}
 	
 	public class Solution implements Chainable, Runnable {
 		public Row[][][] rows;
@@ -54,10 +54,8 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 			Solution s = copy();
 			//TODO
 			s.calculateScore();
-
 			return s;
 		}
-	}
 
 		@Override
 		public double score() {
@@ -65,15 +63,13 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 		}
 
 		public Solution copy() {
-			int[] pathCopy = Arrays.copyOf(path, path.length);
-			Solution s = new Solution(pathCopy, this.score);
-			return s;
+			//TODO
+			//return s;
 		}
 
 		public void run() {
 			try {
-				System.out.println("Salesman fire");
-				Utils.fire(this, Constants.SALESMAN_INITIAL_T, Constants.SALESMAN_STEP_COUNT);
+				Utils.fire(this, Constants.SYLLABUS_INITIAL_T, Constants.SYLLABUS_STEP_COUNT);
 			} 
 			catch (Exception e) {
 				e.printStackTrace();
@@ -88,25 +84,14 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 	}
 	
 	public void saveBestSolution() {
-		SalesmanPNG.saveArea(towns, bestSolution.path, secondSolution.path, "area.png");
+		SyllabusPNG.saveArea(bestSolution.rows, "area.png");
 	}
 
 	public synchronized void setBest(Solution newSolution, double newScore, double t) {
 		if(newScore < bestScore) {
-			secondScore = bestScore;
-			secondSolution = bestSolution;
 			bestScore = newScore;
 			bestSolution = newSolution.copy();
 			System.out.printf("better solution found: %8.1f %8.5f \n", bestScore, t);
-			saveBestSolution();
-			UI.areaIcon.getImage().flush();
-			UI.areaLabel.repaint();
-		}
-		else if(newScore == bestScore) {}
-		else if(newScore < secondScore) {
-			secondScore = newScore;
-			secondSolution = newSolution.copy();
-			System.out.printf("better second solution found: %8.1f %8.5f \n", secondScore, t);
 			saveBestSolution();
 			UI.areaIcon.getImage().flush();
 			UI.areaLabel.repaint();

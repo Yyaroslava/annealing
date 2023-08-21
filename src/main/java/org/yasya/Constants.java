@@ -106,5 +106,7 @@ public final class Constants {
 		}
 	""".replace("'", "\"");
 	public static final JSONObject SYLLABUS_TEACHER_SKILLS_JSON = new JSONObject(SYLLABUS_TEACHER_SKILLS_STR);
+	public static final long SYLLABUS_STEP_COUNT = 100000;
+	public static final double SYLLABUS_INITIAL_T = 10;
 
 }
