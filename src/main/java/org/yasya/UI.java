@@ -53,8 +53,13 @@ public class UI {
 		});
 		menuBar.add(launchSalesmanItem);
 
-
-
+		//SYLLABUS
+		JMenuItem launchSyllabusItem = new JMenuItem("Syllabus");
+		launchSyllabusItem.addActionListener(e -> {
+			Syllabus worker = new Syllabus();
+			worker.execute();
+		});
+		menuBar.add(launchSyllabusItem);
 
 		panel.add(areaLabel, BorderLayout.CENTER);
 		panel.add(panel2);

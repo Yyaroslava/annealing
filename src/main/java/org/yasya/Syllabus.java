@@ -5,35 +5,37 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 import javax.swing.SwingWorker;
 
-public class Salesman extends SwingWorker<Void, Integer> {
-	public double[][] towns;
+public class Syllabus extends SwingWorker<Void, Integer> {
 	public double bestScore = 9999998;
 	public Solution bestSolution = null;
-	public Solution secondSolution = null;
-	public double secondScore = 9999999;
 	private long startTime = System.currentTimeMillis();
 
-	public Salesman() {
-		towns = new double[Constants.SALESMAN_TOWNS_COUNT][2];
-		for(int i = 0; i < Constants.SALESMAN_TOWNS_COUNT; i++) {
-			towns[i][0] = Utils.random.nextDouble() * 300;
-			towns[i][1] = Utils.random.nextDouble() * 300;
-		}
-	}
+	public record Row(String group, String course, String teacher){}
+
+	public Syllabus() {}
 	
 	public class Solution implements Chainable, Runnable {
-		public int[] path;
+		public Row[][][] rows;
 		public double score;
 		public ThreadLocalRandom localRandom;
 
-		public Solution(int[] path, double score) {
-			this.path = path;
+		public Solution(Row[][][] rows, double score) {
+			this.rows = new Row[Constants.SYLLABUS_DAYS.length][Constants.SYLLABUS_MAX_LESSONS_COUNT][Constants.SYLLABUS_ROOMS.length];
+			for(int day = 0; day < Constants.SYLLABUS_DAYS.length; day++) {
+				for(int time = 0; time < Constants.SYLLABUS_MAX_LESSONS_COUNT; time++) {
+					for(int room = 0; room < Constants.SYLLABUS_ROOMS.length; room++) {
+						this.rows[day][time][room] = rows[day][time][room];
+					}
+				}
+			}
 			this.score = score;
 			this.localRandom = ThreadLocalRandom.current();
 		}
 
 		public Solution() {
-			this.path = Utils.randomPermutation(Constants.SALESMAN_TOWNS_COUNT);
+			this.rows = new Row[Constants.SYLLABUS_DAYS.length][Constants.SYLLABUS_MAX_LESSONS_COUNT][Constants.SYLLABUS_ROOMS.length];
+			//TODO fiil random syllabus
+
 			this.calculateScore();
 		}
 
@@ -43,39 +45,19 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		}
 
 		public void calculateScore() {
-			int start = path[0];
-			int end = path[Constants.SALESMAN_TOWNS_COUNT - 1];
-			double score = Utils.distance(towns[start][0], towns[start][1], towns[end][0], towns[end][1]);
-			for(int i = 0; i < Constants.SALESMAN_TOWNS_COUNT - 1; i++) {
-				start = path[i];
-				end = path[(i + 1) % Constants.SALESMAN_TOWNS_COUNT];
-				score += Utils.distance(towns[start][0], towns[start][1], towns[end][0], towns[end][1]);
-			}
-			this.score = score;
+			//TODO
+			//this.score = score;
 		}
 
 		@Override
 		public Chainable next() {
 			Solution s = copy();
-			int i1 = localRandom.nextInt(Constants.SALESMAN_TOWNS_COUNT);
-			int i2 = (i1 + localRandom.nextInt(Constants.SALESMAN_TOWNS_COUNT - 2)) % Constants.SALESMAN_TOWNS_COUNT;
-			s.reflect(i1, i2);
+			//TODO
 			s.calculateScore();
 
 			return s;
 		}
-
-		public void reflect(int start, int finish) {
-			int left = 0;
-			int right = (finish - start + Constants.SALESMAN_TOWNS_COUNT) % Constants.SALESMAN_TOWNS_COUNT;
-			for (;left < right; left++, right--) {
-				int i1 = (left + start) % Constants.SALESMAN_TOWNS_COUNT;
-				int i2 = (right + start) % Constants.SALESMAN_TOWNS_COUNT;
-				int t = path[i1];
-				path[i1] = path[i2];
-				path[i2] = t;
-			}
-		}
+	}
 
 		@Override
 		public double score() {
