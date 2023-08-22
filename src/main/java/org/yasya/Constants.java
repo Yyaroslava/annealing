@@ -27,11 +27,12 @@ public final class Constants {
 
 	public static final String[] SYLLABUS_DAYS = new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
 	public static final int SYLLABUS_MAX_LESSONS_COUNT = 5;
+	public static final int SYLLABUS_PARALLEL = 5;
 	public static final String[] SYLLABUS_BUILDINGS = new String[] {"Tech", "Hum", "Phy"};
-	public static final String[] SYLLABUS_ROOMS = new String[] {"108", "217", "305","1", "2", "3", "Gym", "Pool"};
+	public static final String[] SYLLABUS_ROOMS = new String[] {"108", "217", "305", "404", "1408","1", "2", "3", "4", "5", "Gym", "Pool"};
 	public static final String[] SYLLABUS_GROUPS = new String[] {"it12", "it22", "tk32", "tk42", "ap12", "ap22", "sp32"};
 	public static final String[] SYLLABUS_COURSES = new String[] {"Math", "English", "Java", "Art", "Volleyball", "Swimming"};
-	public static final String[] SYLLABUS_TEACHERS = new String[] {"Doppo", "Poe", "Gosling", "Klimt", "Ukai", "Madeleine"};
+	public static final String[] SYLLABUS_TEACHERS = new String[] {"Satoru", "Suguru", "Nakahara", "Osamu", "Doppo", "Poe","Euler", "Gosling", "Klimt", "Ukai", "Madeleine"};
 	public static final String SYLLABUS_CONTENT_STR = 
 	"""
 		{
@@ -97,16 +98,15 @@ public final class Constants {
 	public static final String SYLLABUS_TEACHER_SKILLS_STR = 
 	"""
 		{
-			'Math':['Doppo','Gosling'],
-			'Java':['Doppo','Gosling'],
-			'English':['Poe'],
-			'Art':['Klimt'],
-			'Volleyball':['Ukai'],
-			'Swimming':['Madeleine']
+			'Math':['Doppo','Gosling', 'Nakahara', 'Osamu', 'Euler'],
+			'Java':['Doppo','Gosling', 'Nakahara', 'Osamu', 'Satoru'],
+			'English':['Poe', 'Nakahara', 'Osamu', 'Suguru'],
+			'Art':['Klimt', 'Nakahara', 'Osamu'],
+			'Volleyball':['Ukai', 'Nakahara', 'Osamu'],
+			'Swimming':['Madeleine', 'Nakahara', 'Osamu']
 		}
 	""".replace("'", "\"");
 	public static final JSONObject SYLLABUS_TEACHER_SKILLS_JSON = new JSONObject(SYLLABUS_TEACHER_SKILLS_STR);
-	public static final long SYLLABUS_STEP_COUNT = 100000;
-	public static final double SYLLABUS_INITIAL_T = 10;
-
+	public static final long SYLLABUS_STEP_COUNT = 10000000;
+	public static final double SYLLABUS_INITIAL_T = 2;
 }

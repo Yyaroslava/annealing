@@ -1,7 +1,9 @@
 package org.yasya;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 import javax.swing.SwingWorker;
@@ -82,7 +84,6 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 						else {
 							sb.append(String.format("%4s %2d %6s %10s %10s \n", Constants.SYLLABUS_ROOMS[room], time + 1, row.group, row.course, row.teacher));
 						}
-						
 					}
 				}
 			}
@@ -95,14 +96,73 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 		}
 
 		public void calculateScore() {
-			//TODO
-			//this.score = score;
+			int score = 0;
+			for(int day = 0; day < Constants.SYLLABUS_DAYS.length; day++){
+				for(int time = 0; time < Constants.SYLLABUS_MAX_LESSONS_COUNT; time++){
+					Map<String, Integer> groups = new HashMap<>();
+					Map<String, Integer> teachers = new HashMap<>();
+					for(int room = 0; room < Constants.SYLLABUS_ROOMS.length; room++){
+						Row row = rows[day][time][room];
+						if(row == null) continue;
+						if(!groups.containsKey(row.group)){
+							groups.put(row.group, 0);
+						}
+						groups.put(row.group, groups.get(row.group) + 1);
+
+						if(!teachers.containsKey(row.teacher)){
+							teachers.put(row.teacher, 0);
+						}
+						teachers.put(row.teacher, teachers.get(row.teacher) + 1);
+					}
+					for (Integer value : groups.values()){
+						score += (value - 1);
+					}
+					for (Integer value : teachers.values()){
+						score += (value - 1);
+					}
+				}
+			}
+			this.score = score;
 		}
 
 		@Override
 		public Chainable next() {
 			Solution s = copy();
-			//TODO
+			if(localRandom.nextInt(5) > 0) {
+				int day1;
+				int time1;
+				int room1;
+
+				int day2;
+				int time2;
+				int room2;
+
+				do{
+					day1 = localRandom.nextInt(Constants.SYLLABUS_DAYS.length);
+					time1 = localRandom.nextInt(Constants.SYLLABUS_MAX_LESSONS_COUNT);
+					room1 = localRandom.nextInt(Constants.SYLLABUS_ROOMS.length);
+
+					day2 = localRandom.nextInt(Constants.SYLLABUS_DAYS.length);
+					time2 = localRandom.nextInt(Constants.SYLLABUS_MAX_LESSONS_COUNT);
+					room2 = localRandom.nextInt(Constants.SYLLABUS_ROOMS.length);
+				} while(s.rows[day1][time1][room1] == s.rows[day2][time2][room2]);
+
+				var temp = s.rows[day1][time1][room1];
+				s.rows[day1][time1][room1] = rows[day2][time2][room2];
+				s.rows[day2][time2][room2] = temp;
+			}
+			else {
+				int day;
+				int time;
+				int room;
+
+				do{
+					day = localRandom.nextInt(Constants.SYLLABUS_DAYS.length);
+					time = localRandom.nextInt(Constants.SYLLABUS_MAX_LESSONS_COUNT);
+					room = localRandom.nextInt(Constants.SYLLABUS_ROOMS.length);
+				} while(s.rows[day][time][room] == null);
+			}
+			
 			s.calculateScore();
 			return s;
 		}
@@ -161,7 +221,7 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 		publish(0);
 		Solution initialSolution = new Solution();
 		Thread[] sh = Stream.generate(() -> new Thread(initialSolution.copy()))
-			.limit(Constants.SALESMAN_PARALLEL)
+			.limit(Constants.SYLLABUS_PARALLEL)
 			.toArray(Thread[]::new);
 
 		Arrays.stream(sh).forEach(Thread::start);
