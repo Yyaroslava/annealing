@@ -28,7 +28,7 @@ public final class Constants {
 	public static final String[] SYLLABUS_DAYS = new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
 	public static final int SYLLABUS_MAX_LESSONS_COUNT = 5;
 	public static final String[] SYLLABUS_BUILDINGS = new String[] {"Tech", "Hum", "Phy"};
-	public static final String[][] SYLLABUS_ROOMS = new String[][] {{"108", "217", "305"}, {"1", "2", "3"}, {"Gym", "Pool"}};
+	public static final String[] SYLLABUS_ROOMS = new String[] {"108", "217", "305","1", "2", "3", "Gym", "Pool"};
 	public static final String[] SYLLABUS_GROUPS = new String[] {"it12", "it22", "tk32", "tk42", "ap12", "ap22", "sp32"};
 	public static final String[] SYLLABUS_COURSES = new String[] {"Math", "English", "Java", "Art", "Volleyball", "Swimming"};
 	public static final String[] SYLLABUS_TEACHERS = new String[] {"Doppo", "Poe", "Gosling", "Klimt", "Ukai", "Madeleine"};
@@ -97,12 +97,12 @@ public final class Constants {
 	public static final String SYLLABUS_TEACHER_SKILLS_STR = 
 	"""
 		{
-			'Doppo':['Math', 'Java'],
-			'Poe':['English'],
-			'Gosling':['Math', 'Java'],
-			'Klimt':['Art'],
-			'Ukai:['Volleyball'],
-			'Madeleine':['Swimming']
+			'Math':['Doppo','Gosling'],
+			'Java':['Doppo','Gosling'],
+			'English':['Poe'],
+			'Art':['Klimt'],
+			'Volleyball':['Ukai'],
+			'Swimming':['Madeleine']
 		}
 	""".replace("'", "\"");
 	public static final JSONObject SYLLABUS_TEACHER_SKILLS_JSON = new JSONObject(SYLLABUS_TEACHER_SKILLS_STR);
