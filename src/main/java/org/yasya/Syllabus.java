@@ -8,6 +8,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 import javax.swing.SwingWorker;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -15,6 +19,9 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 	public double bestScore = 9999998;
 	public Solution bestSolution = null;
 	private long startTime = System.currentTimeMillis();
+	public double[] history = new double[10000];
+	public int historyIndex = 0;
+	public int counter = 0;
 
 	public record Row(String group, String course, String teacher){}
 
@@ -49,7 +56,6 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 				while(coursesKeys.hasNext()) {
 					String course = coursesKeys.next();
 					int number = courses.getInt(course);
-					//System.out.printf("%s %s %d \n", group, course, number);
 					
 					JSONArray teachers = Constants.SYLLABUS_TEACHER_SKILLS_JSON.getJSONArray(course);
 					int teacherNumber = localRandom.nextInt(teachers.length());
@@ -64,7 +70,6 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 							room = localRandom.nextInt(Constants.SYLLABUS_ROOMS.length);
 						} while(rows[day][time][room] != null);
 						this.rows[day][time][room] = new Row(group, course, teacher);
-						//System.out.printf("%d %d %d %s %s %s \n", day, time, room, group, course, teacher);
 					}
 				}
 			}
@@ -88,6 +93,40 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 				}
 			}
 			return sb.toString();
+		}
+
+		@Override
+		public void afterJump(boolean jumped, double newScore) {
+			history[historyIndex] = newScore;
+			historyIndex = (historyIndex + 1) % 10000;
+			counter = (counter + 1) % 10000;
+			if(counter == 0) {
+				updateChart();
+			}
+		}
+
+		public void updateChart() {
+			DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+			int[] statistic = new int[100];
+			for(int i = 0; i < history.length; i++) {
+				if(Math.round(history[i]) < 100) {
+					statistic[(int)Math.round(history[i])]++;
+				}
+			}
+			for(int i = 0; i < 100; i++){
+				dataset.addValue(statistic[i], "x", "" + i);
+			}
+			JFreeChart chart = ChartFactory.createBarChart(
+				"history",
+				"score",
+				"frequency",
+				dataset,
+				PlotOrientation.VERTICAL,
+				false,
+				true,
+				false
+			);
+			UI.chartPanel.setChart(chart);
 		}
 
 		@Override
@@ -187,7 +226,7 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 
 		public void run() {
 			try {
-				Utils.fire(this, Constants.SYLLABUS_INITIAL_T, Constants.SYLLABUS_STEP_COUNT);
+				Utils.fire(this, Constants.SYLLABUS_STEP_COUNT);
 			} 
 			catch (Exception e) {
 				e.printStackTrace();

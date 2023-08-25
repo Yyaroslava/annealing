@@ -5,6 +5,11 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 import javax.swing.SwingWorker;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+
 public class Tetris extends SwingWorker<Void, Integer> {
 	public Tile[] startTiles;
 	public Color[] colors;
@@ -12,10 +17,49 @@ public class Tetris extends SwingWorker<Void, Integer> {
 	public Solution bestSolution = null;
 	public boolean stop = false;
 	private long startTime = System.currentTimeMillis();
+	public double[] history = new double[10000];
+	public int historyIndex = 0;
 
 	public Tetris() {
 		startTiles = Tile.randomSmash();
 		colors = Utils.getPalette(startTiles.length);
+	}
+
+	synchronized public void addHistory(boolean jumped, double newScore) {
+		if(jumped){
+			history[historyIndex] = newScore;
+		}
+		else{
+			history[historyIndex] = 0;
+		}
+		historyIndex = (historyIndex + 1) % 10000;
+		if(historyIndex == 0) {
+			updateChart();
+		}
+	}
+
+	public void updateChart() {
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		int[] statistic = new int[20];
+		for(int i = 0; i < history.length; i++) {
+			if(Math.round(history[i]) < 20) {
+				statistic[(int)Math.round(history[i])]++;
+			}
+		}
+		for(int i = 1; i < 20; i++){
+			dataset.addValue(statistic[i], "x", "" + i);
+		}
+		JFreeChart chart = ChartFactory.createBarChart(
+			"history",
+			"score",
+			"frequency",
+			dataset,
+			PlotOrientation.VERTICAL,
+			false,
+			true,
+			false
+		);
+		UI.chartPanel.setChart(chart);
 	}
 
 	public class Solution implements Chainable, Runnable {
@@ -35,6 +79,11 @@ public class Tetris extends SwingWorker<Void, Integer> {
 		@Override
 		public void afterBetterSolutionFound(Chainable s, double score, double t) {
 			setBest((Solution)s, score, t);
+		}
+
+		@Override
+		public void afterJump(boolean jumped, double newScore) {
+			addHistory(jumped, newScore);
 		}
 
 		public void calculateScore() {
@@ -127,7 +176,7 @@ public class Tetris extends SwingWorker<Void, Integer> {
 
 		public void run() {
 			try {
-				Utils.fire(this, Constants.TETRIS_INITIAL_T, Constants.TETRIS_STEP_COUNT);
+				Utils.fire(this, Constants.TETRIS_STEP_COUNT);
 			} 
 			catch (Exception e) {
 				e.printStackTrace();

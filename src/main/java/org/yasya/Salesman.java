@@ -91,7 +91,7 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		public void run() {
 			try {
 				System.out.println("Salesman fire");
-				Utils.fire(this, Constants.SALESMAN_INITIAL_T, Constants.SALESMAN_STEP_COUNT);
+				Utils.fire(this, Constants.SALESMAN_STEP_COUNT);
 			} 
 			catch (Exception e) {
 				e.printStackTrace();

@@ -29,17 +29,19 @@ public class Utils {
 		return colors;
 	}
 
-	public static double fire(Chainable chain, double initialT, long STEP_COUNT) {
+	public static double fire(Chainable chain, long STEP_COUNT) {
+		double t = UI.currentTemperature;
 		ThreadLocalRandom localRandom = ThreadLocalRandom.current();
 		chain.afterStart(chain);
 		double score = chain.score();
-		double t = initialT;
 		double bestScore = score + 1;
 		Chainable bestChain = null;
-		for(long i = 0; i < STEP_COUNT; i++) {
+		int i = 0;
+		do{
 			Chainable newChain = chain.next();
 			double newScore = newChain.score();
 			if(newScore <= score) {
+				chain.afterJump(true, newScore);
 				score = newScore;
 				chain = newChain;
 				if(bestScore > score) {
@@ -51,21 +53,25 @@ public class Utils {
 			else{
 				double p = Math.exp(-(double)(newScore - score) / t);
 				if(localRandom.nextDouble() < p) {
+					chain.afterJump(true, newScore);
 					score = newScore;
 					chain = newChain;
 					chain.afterBetterSolutionFound(chain, bestScore, t);
 				}
+				else{
+					chain.afterJump(false, newScore);
+				}
 			}
-		
-			t = initialT * ((double)(STEP_COUNT - i)) / ((double)STEP_COUNT);
 			
-			if(i % 100 == 0) {
+			if(i++ % 100 == 0) {
 				if(chain.checkStop()) break;
+				if(UI.stop) break;
+				t = UI.currentTemperature;
 			}
-			if(i % (STEP_COUNT / 100) == 0) {
-				chain.onProgress((int)(i * 100 / STEP_COUNT));
-			}
-		}
+			//if(i % (STEP_COUNT / 100) == 0) {
+			//	chain.onProgress((int)(i * 100 / STEP_COUNT));
+			//}
+		}while(true);
 		chain.beforeFinish(chain, bestChain);
 		return bestScore;
 	}
