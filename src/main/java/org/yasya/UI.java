@@ -21,6 +21,7 @@ import org.jfree.chart.JFreeChart;
 public class UI {
 	public static ImageIcon areaIcon = null;
 	public static JLabel areaLabel = null;
+	public static JLabel scoreLabel = null;
 	public static JProgressBar progressBar = null;
 	public static double currentTemperature = 1;
 	public static boolean stop = false;
@@ -48,6 +49,11 @@ public class UI {
 		areaLabel = new JLabel(areaIcon);
 		areaLabel.setBorder(new EmptyBorder(20, 20, 20, 20));
 		areaLabel.setName("area");
+
+		scoreLabel = new JLabel("-");
+		scoreLabel.setBorder(new EmptyBorder(20, 20, 20, 20));
+		scoreLabel.setForeground(Color.WHITE);
+		scoreLabel.setFont(new Font(null, 0, 36));
 
 		JMenuBar menuBar = new JMenuBar();
 
@@ -108,6 +114,7 @@ public class UI {
 
 		panel2.add(stopButton);
 		panel2.add(temperatureLabel);
+		panel2.add(scoreLabel);
 		panel2.setBackground(Color.BLACK);
 		
 		frame.setJMenuBar(menuBar);

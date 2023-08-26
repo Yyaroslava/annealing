@@ -3,17 +3,16 @@ package org.yasya;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import javax.imageio.ImageIO;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 public class TetrisPNG {
 
-	synchronized public static void saveArea(int[][] area, int squareWidth, String fileName, Color[] colors) {
-		int imgWidth = squareWidth * 2 + Constants.TETRIS_BOARD_WIDTH * (squareWidth + 1) + 1;
-		int imgHeight = squareWidth * 2 + Constants.TETRIS_BOARD_HEIGHT * (squareWidth + 1) + 1;
+	synchronized public static BufferedImage getAreaImage(int imgWidth, int imgHeight, int[][] area, Color[] colors) {
+		int boardMaxSize = Math.max(Constants.TETRIS_BOARD_WIDTH, Constants.TETRIS_BOARD_HEIGHT);
+		int min = Math.min(imgWidth, imgHeight);
+		int squareWidth = (min - 40) / boardMaxSize - 1; 
+
+		int shiftX = (imgWidth - ((squareWidth + 1) * Constants.TETRIS_BOARD_WIDTH + 1)) / 2;
+		int shiftY = (imgHeight - ((squareWidth + 1) * Constants.TETRIS_BOARD_HEIGHT + 1)) / 2;
 		
 		BufferedImage image = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
 		Graphics graphics = image.getGraphics();
@@ -34,7 +33,12 @@ public class TetrisPNG {
 						c = colors[area[x][y] - 1];
 				}
 				graphics.setColor(c);
-				graphics.fillRect(squareWidth + x * (squareWidth + 1), squareWidth + y * (squareWidth + 1), squareWidth + 2, squareWidth + 2);
+				graphics.fillRect(
+					shiftX + x * (squareWidth + 1),
+					shiftY + y * (squareWidth + 1),
+					squareWidth + 2,
+					squareWidth + 2
+				);
 			}
 		}
 
@@ -43,10 +47,10 @@ public class TetrisPNG {
 			for (int y = 0; y < Constants.TETRIS_BOARD_HEIGHT; y++) {
 				if(area[x][y] != area[x + 1][y]) {
 					graphics.drawLine(
-						squareWidth + (squareWidth + 1) * (x + 1),
-						squareWidth + (squareWidth + 1) * y,
-						squareWidth + (squareWidth + 1) * (x + 1),
-						squareWidth + (squareWidth + 1) * y + squareWidth + 1
+						shiftX + (squareWidth + 1) * (x + 1),
+						shiftY + (squareWidth + 1) * y,
+						shiftX + (squareWidth + 1) * (x + 1),
+						shiftY + (squareWidth + 1) * y + squareWidth + 1
 					);
 				}
 			}
@@ -56,48 +60,42 @@ public class TetrisPNG {
 			for (int y = 0; y < Constants.TETRIS_BOARD_HEIGHT - 1; y++) {
 				if(area[x][y] != area[x][y + 1]) {
 					graphics.drawLine(
-						squareWidth + (squareWidth + 1) * x,
-						squareWidth + (squareWidth + 1) * (y + 1),
-						squareWidth + (squareWidth + 1) * x + squareWidth + 1,
-						squareWidth + (squareWidth + 1) * (y + 1)
+						shiftX + (squareWidth + 1) * x,
+						shiftY + (squareWidth + 1) * (y + 1),
+						shiftX + (squareWidth + 1) * x + squareWidth + 1,
+						shiftY + (squareWidth + 1) * (y + 1)
 					);
 				}
 			}
 		}
 
 		graphics.drawLine(
-			squareWidth,
-			squareWidth + 1,
-			squareWidth,
-			(squareWidth + 1) * (Constants.TETRIS_BOARD_HEIGHT + 1)
+			shiftX,
+			shiftY + 1,
+			shiftX,
+			shiftY + (squareWidth + 1) * Constants.TETRIS_BOARD_HEIGHT
 		);
 		graphics.drawLine(
-			(squareWidth + 1) * (Constants.TETRIS_BOARD_WIDTH + 1),
-			squareWidth + 1,
-			(squareWidth + 1) * (Constants.TETRIS_BOARD_WIDTH + 1),
-			(squareWidth + 1) * (Constants.TETRIS_BOARD_HEIGHT + 1)
+			shiftX + (squareWidth + 1) * Constants.TETRIS_BOARD_WIDTH,
+			shiftY + 1,
+			shiftX + (squareWidth + 1) * Constants.TETRIS_BOARD_WIDTH,
+			shiftY + (squareWidth + 1) * Constants.TETRIS_BOARD_HEIGHT
 		);
 		graphics.drawLine(
-			squareWidth,
-			squareWidth,
-			(squareWidth + 1) * (Constants.TETRIS_BOARD_WIDTH + 1),
-			squareWidth
+			shiftX,
+			shiftY,
+			shiftX + (squareWidth + 1) * Constants.TETRIS_BOARD_WIDTH,
+			shiftY
 		);
 		graphics.drawLine(
-			squareWidth,
-			(squareWidth + 1) * (Constants.TETRIS_BOARD_HEIGHT + 1),
-			(squareWidth + 1) * (Constants.TETRIS_BOARD_WIDTH + 1),
-			(squareWidth + 1) * (Constants.TETRIS_BOARD_HEIGHT + 1)
+			shiftX,
+			shiftY + (squareWidth + 1) * Constants.TETRIS_BOARD_HEIGHT,
+			shiftX + (squareWidth + 1) * Constants.TETRIS_BOARD_WIDTH,
+			shiftY + (squareWidth + 1) * Constants.TETRIS_BOARD_HEIGHT
 		);
-
-		try {
-			File outputFile = new File(fileName + "_");
-			ImageIO.write(image, "png", outputFile);
-			Files.move(Paths.get(fileName+"_"), Paths.get(fileName), StandardCopyOption.ATOMIC_MOVE);
-		} catch (Exception e) {
-			System.out.println("error when saving image: " + e.getMessage());
-		}
 
 		graphics.dispose();
+
+		return image;
 	}
 }

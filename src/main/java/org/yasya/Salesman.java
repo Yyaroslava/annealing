@@ -1,5 +1,7 @@
 package org.yasya;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
@@ -122,13 +124,8 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		public synchronized void onProgress(int progress) {
 			publish(progress);
 		}
-
 	}
 	
-	public void saveBestSolution() {
-		SalesmanPNG.saveArea(towns, bestSolution.path, secondSolution.path, "area.png");
-	}
-
 	public synchronized void setBest(Solution newSolution, double newScore, double t) {
 		if(newScore < bestScore) {
 			secondScore = bestScore;
@@ -136,8 +133,9 @@ public class Salesman extends SwingWorker<Void, Integer> {
 			bestScore = newScore;
 			bestSolution = newSolution.copy();
 			System.out.printf("better solution found: %8.1f %8.5f \n", bestScore, t);
-			saveBestSolution();
-			UI.areaIcon.getImage().flush();
+			BufferedImage image = SalesmanPNG.getAreaImage(340, 400, towns, bestSolution.path, secondSolution.path);
+			UI.areaIcon.setImage(image);
+			UI.scoreLabel.setText(String.format("better solution found: %6.1f", bestScore));
 			UI.areaLabel.repaint();
 		}
 		else if(newScore == bestScore) {}
@@ -145,8 +143,8 @@ public class Salesman extends SwingWorker<Void, Integer> {
 			secondScore = newScore;
 			secondSolution = newSolution.copy();
 			System.out.printf("better second solution found: %8.1f %8.5f \n", secondScore, t);
-			saveBestSolution();
-			UI.areaIcon.getImage().flush();
+			BufferedImage image = SalesmanPNG.getAreaImage(340, 400, towns, bestSolution.path, secondSolution.path);
+			UI.areaIcon.setImage(image);
 			UI.areaLabel.repaint();
 		}
 	}

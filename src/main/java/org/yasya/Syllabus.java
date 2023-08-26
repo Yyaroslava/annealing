@@ -101,32 +101,8 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 			historyIndex = (historyIndex + 1) % 10000;
 			counter = (counter + 1) % 10000;
 			if(counter == 0) {
-				updateChart();
+				Utils.updateChart(history);
 			}
-		}
-
-		public void updateChart() {
-			DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-			int[] statistic = new int[100];
-			for(int i = 0; i < history.length; i++) {
-				if(Math.round(history[i]) < 100) {
-					statistic[(int)Math.round(history[i])]++;
-				}
-			}
-			for(int i = 0; i < 100; i++){
-				dataset.addValue(statistic[i], "x", "" + i);
-			}
-			JFreeChart chart = ChartFactory.createBarChart(
-				"history",
-				"score",
-				"frequency",
-				dataset,
-				PlotOrientation.VERTICAL,
-				false,
-				true,
-				false
-			);
-			UI.chartPanel.setChart(chart);
 		}
 
 		@Override
@@ -250,6 +226,7 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 			bestSolution = newSolution.copy();
 			System.out.printf("better solution found: %8.1f %8.5f \n", bestScore, t);
 			saveBestSolution();
+			UI.scoreLabel.setText(String.format("better solution found: %6.1f", bestScore));
 			UI.areaIcon.getImage().flush();
 			UI.areaLabel.repaint();
 		}

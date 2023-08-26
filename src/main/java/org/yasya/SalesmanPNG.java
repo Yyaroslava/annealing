@@ -3,18 +3,25 @@ package org.yasya;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import javax.imageio.ImageIO;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 public class SalesmanPNG {
 
-	synchronized public static void saveArea(double[][] towns, int[] path, int[] secondPath, String fileName) {
-		int imgWidth = 340;
-		int imgHeight = 340;
-		
+	synchronized public static BufferedImage getAreaImage(int imgWidth, int imgHeight, double[][] towns, int[] path, int[] secondPath) {
+		int min = Math.min(imgWidth, imgHeight);
+		int shiftX = (imgWidth - min) / 2 + 20;
+		int shiftY = (imgHeight - min) / 2 + 20;
+		int squareWidth = min - 40;
+		double townMinX = towns[0][0];
+		double townMaxX = towns[0][0];
+		double townMinY = towns[0][1];
+		double townMaxY = towns[0][1];
+		for(int i = 0; i < towns.length; i++){
+			if(towns[i][0] < townMinX) townMinX = towns[i][0];
+			if(towns[i][0] > townMaxX) townMaxX = towns[i][0];
+			if(towns[i][1] < townMinY) townMinY = towns[i][1];
+			if(towns[i][1] > townMaxY) townMaxY = towns[i][1];
+		}
+
 		BufferedImage image = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
 		Graphics graphics = image.getGraphics();
 		graphics.setColor(Color.GRAY);
@@ -25,10 +32,10 @@ public class SalesmanPNG {
 			int start = secondPath[i];
 			int end = secondPath[(i + 1) % Constants.SALESMAN_TOWNS_COUNT];
 			graphics.drawLine(
-				20 + (int)Math.round(towns[start][0]),
-				20 + (int)Math.round(towns[start][1]),
-				20 + (int)Math.round(towns[end][0]),
-				20 + (int)Math.round(towns[end][1])
+				shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[start][0]) / (townMaxX - townMinX)),
+				shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[start][1]) / (townMaxY - townMinY)),
+				shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[end][0]) / (townMaxX - townMinX)),
+				shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[end][1]) / (townMaxY - townMinY))
 			);
 		}
 
@@ -37,21 +44,23 @@ public class SalesmanPNG {
 			int start = path[i];
 			int end = path[(i + 1) % Constants.SALESMAN_TOWNS_COUNT];
 			graphics.drawLine(
-				20 + (int)Math.round(towns[start][0]),
-				20 + (int)Math.round(towns[start][1]),
-				20 + (int)Math.round(towns[end][0]),
-				20 + (int)Math.round(towns[end][1])
+				shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[start][0]) / (townMaxX - townMinX)),
+				shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[start][1]) / (townMaxY - townMinY)),
+				shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[end][0]) / (townMaxX - townMinX)),
+				shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[end][1]) / (townMaxY - townMinY))
 			);
 		}
 		
-		try {
-			File outputFile = new File(fileName + "_");
-			ImageIO.write(image, "png", outputFile);
-			Files.move(Paths.get(fileName+"_"), Paths.get(fileName), StandardCopyOption.ATOMIC_MOVE);
-		} catch (Exception e) {
-			System.out.println("error when saving image: " + e.getMessage());
-		}
+		//try {
+		//	File outputFile = new File(fileName + "_");
+		//	ImageIO.write(image, "png", outputFile);
+		//	Files.move(Paths.get(fileName+"_"), Paths.get(fileName), StandardCopyOption.ATOMIC_MOVE);
+		//} catch (Exception e) {
+		//	System.out.println("error when saving image: " + e.getMessage());
+		//}
 
 		graphics.dispose();
+
+		return image;
 	}
 }

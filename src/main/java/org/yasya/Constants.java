@@ -22,7 +22,7 @@ public final class Constants {
 		{238, 130, 238}
 	};
 
-	public static final int SALESMAN_TOWNS_COUNT = 100;
+	public static final int SALESMAN_TOWNS_COUNT = 500;
 	public static final int SALESMAN_PARALLEL = 14;
 	public static final long SALESMAN_STEP_COUNT = 100000000;
 	public static final double SALESMAN_INITIAL_T = 10;

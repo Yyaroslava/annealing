@@ -1,6 +1,7 @@
 package org.yasya;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import javax.swing.SwingWorker;
@@ -164,11 +165,6 @@ public class Tetris extends SwingWorker<Void, Integer> {
 		}
 
 	}
-	
-	public void saveBestSolution() {
-		int[][] area = (bestSolution).greedy(true);
-		TetrisPNG.saveArea(area, 20, "area.png", colors);
-	}
 
 	public synchronized void setBest(Solution newSolution, double newScore, double t) {
 		if(newScore < bestScore) {
@@ -176,8 +172,10 @@ public class Tetris extends SwingWorker<Void, Integer> {
 			bestSolution = newSolution.copy();
 			if(bestScore == 0) stop = true;
 			System.out.printf("better solution found: %6.1f %8.5f \n", bestScore, t);
-			saveBestSolution();
-			UI.areaIcon.getImage().flush();
+			int[][] area = (bestSolution).greedy(true);
+			BufferedImage image = TetrisPNG.getAreaImage(340, 400, area, colors);
+			UI.areaIcon.setImage(image);
+			UI.scoreLabel.setText(String.format("better solution found: %6.1f", bestScore));
 			UI.areaLabel.repaint();
 		}
 	}
