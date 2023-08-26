@@ -3,6 +3,8 @@ package org.yasya;
 import org.json.JSONObject;
 
 public final class Constants {
+	public static final int CHART_COLUMNS_COUNT = 10;
+
 	public static final int TETRIS_BOARD_WIDTH = 16;
 	public static final int TETRIS_BOARD_HEIGHT = 16;
 	public static final int TETRIS_MAX_TILE_SIZE = 6;

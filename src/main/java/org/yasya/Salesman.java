@@ -12,12 +12,27 @@ public class Salesman extends SwingWorker<Void, Integer> {
 	public Solution secondSolution = null;
 	public double secondScore = 9999999;
 	private long startTime = System.currentTimeMillis();
+	public double[] history = new double[10000];
+	public int historyIndex = 0;
 
 	public Salesman() {
 		towns = new double[Constants.SALESMAN_TOWNS_COUNT][2];
 		for(int i = 0; i < Constants.SALESMAN_TOWNS_COUNT; i++) {
 			towns[i][0] = Utils.random.nextDouble() * 300;
 			towns[i][1] = Utils.random.nextDouble() * 300;
+		}
+	}
+
+	synchronized public void addHistory(boolean jumped, double newScore) {
+		if(jumped){
+			history[historyIndex] = newScore;
+		}
+		else{
+			history[historyIndex] = 0;
+		}
+		historyIndex = (historyIndex + 1) % 10000;
+		if(historyIndex == 0) {
+			Utils.updateChart(history);
 		}
 	}
 	
@@ -40,6 +55,11 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		@Override
 		public void afterBetterSolutionFound(Chainable s, double score, double t) {
 			setBest((Solution)s, score, t);
+		}
+
+		@Override
+		public void afterJump(boolean jumped, double newScore) {
+			addHistory(jumped, newScore);
 		}
 
 		public void calculateScore() {

@@ -4,8 +4,45 @@ import java.awt.Color;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+
 public class Utils {
 	public static Random random = new Random();
+
+	public static void updateChart(double[] history) {
+		double min = 9999999;
+		double max = -1;
+		for(int i = 0; i < history.length; i++) {
+			if(history[i] == 0) continue;
+			if(history[i] < min) min = history[i];
+			if(history[i] > max) max = history[i] + 0.0001;
+		}
+		int[] statistic = new int[Constants.CHART_COLUMNS_COUNT];
+		for(int i = 0; i < history.length; i++) {
+			if(history[i] == 0) continue;
+			int index = (int)((history[i] - min) / (max - min) * Constants.CHART_COLUMNS_COUNT);
+			statistic[index]++;
+		}
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		for(int i = 0; i < Constants.CHART_COLUMNS_COUNT; i++){
+			double value = min + ((max - min) / Constants.CHART_COLUMNS_COUNT) * (i + 0.5);
+			dataset.addValue(statistic[i], "x", String.format("%.1f", value));
+		}
+		JFreeChart chart = ChartFactory.createBarChart(
+			"history",
+			"score",
+			"frequency",
+			dataset,
+			PlotOrientation.VERTICAL,
+			false,
+			true,
+			false
+		);
+		UI.chartPanel.setChart(chart);
+	}
 	
 	public static int[] smash(int sum) {
 		int n1 = -1;
