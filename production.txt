@@ -1,0 +1,45 @@
+monday
+tuesday
+wednesday
+thursday
+friday
+
+materials, halffabrikat, product:
+hlyna kg
+paint kg
+glasur kf
+raw mug item
+dried mug item
+painted mugs item
+mug item
+
+workers:
+mykola
+fyodor
+slava
+
+workplace:
+lepilnitsa 1
+lepilnitsa 2 
+krasilnitsa 1
+dryilnitsa 1
+dryilnitsa 2
+dryilnitsa 3
+dryilnitsa 4
+glasirovalnitsa 1
+
+lepyatt: [mykola, fyodor]
+krasyatt: [fyodor]
+glasiryovatt: [slava]
+
+per one mug : 0.2kg hlyna
+drying one mug: 8hour
+
+oven capacity 4 mugs
+
+leftover mugs since last friday: 5 shtuk
+
+mykola per one mug 0.5hour
+fyodor per one mug 1hour
+fyodor krasitt one mug 0.75hour
+slava glaziuet one mug 1hour
