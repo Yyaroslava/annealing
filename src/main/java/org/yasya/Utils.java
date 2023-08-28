@@ -1,7 +1,6 @@
 package org.yasya;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
