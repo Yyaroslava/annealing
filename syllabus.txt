@@ -1,78 +1,305 @@
-tuesday		1.	building A 	aula 305	it12	math 1					ivan
-tuesday		2.	building A	aula 108	it12	language 1				slava
-tuesday		3.	building B	aula 55		it12	programming 1 			alex
-tuesday		4.
-tuesday		5.	building C	aula 1		it12	physycal education 1	michael
-
-
-ivan 		math 1	math 2	math 3	math 4
-slava		language 1	language 2	math 1
-liam		programming 2	programming 3	programming 4
-alex		programming 1
-michael		physycal education 1	physycal education 2	physycal education 3	physycal education 4
-
-
-it12	math 1 * 3	language 1 * 2	programming 1 * 5(no more than once a day)	physycal education 1 * 1
-
-
-			course content
-group			course			lessons
-it12			math 1			3
-it22			math 2			4
-it32			math 3			2
-it42			math 4			1
-
-
-			teacher skills
-teacher			course
-ivan			math 1
-ivan			math 2
-ivan			math 3
-ivan			math 4
-slava			language 1
-slava			language 2
-slava			math 1
-
-
-			teacher
-teacher
-ivan
-slava
-liam
-alex
-michael
-
-
-			location
-building			aula
-building A			aula 305
-building A			aula 108
-building B			aula 55
-building C			aula 1
-
-
-			groups
-group
-it12
-it22
-it32
-it42
-
-
-			location-course
-building			aula			course
-building A			aula 305		math 1
-building A			aula 305		math 2
-building A			aula 305		math 3
-building A			aula 305		math 4
-building A			aula 108		language 1
-building A			aula 108		language 2
-building A			aula 108		math 1
-building B			aula 55			programming 1
-building B			aula 55			programming 2
-building B			aula 55			programming 3
-building B			aula 55			programming 4
-building C			aula 1			physycal education 1
-building C			aula 1			physycal education 2
-building C			aula 1			physycal education 3
-building C			aula 1			physycal education 4
+Monday
+ 108  1   sp32   Swimming  Madeleine 
+ 108  2 
+ 108  3 
+ 108  4   ap12    English     Suguru 
+ 108  5   sp32    English   Nakahara 
+ 217  1 
+ 217  2   ap22        Art      Klimt 
+ 217  3 
+ 217  4 
+ 217  5 
+ 305  1 
+ 305  2   sp32        Art      Osamu 
+ 305  3   ap12        Art   Nakahara 
+ 305  4 
+ 305  5   tk42       Java    Gosling 
+ 404  1   tk32       Java     Satoru 
+ 404  2 
+ 404  3 
+ 404  4   it22       Math      Euler 
+ 404  5 
+1408  1   ap12        Art   Nakahara 
+1408  2 
+1408  3   tk42       Math    Gosling 
+1408  4   it12       Java   Nakahara 
+1408  5 
+   1  1   it12 Volleyball      Osamu 
+   1  2 
+   1  3 
+   1  4   tk42       Math    Gosling 
+   1  5   it12       Math      Euler 
+   2  1   tk42       Java    Gosling 
+   2  2 
+   2  3   it22        Art      Osamu 
+   2  4   sp32 Volleyball   Nakahara 
+   2  5   ap12    English     Suguru 
+   3  1 
+   3  2   tk42       Math    Gosling 
+   3  3   ap22    English   Nakahara 
+   3  4   tk32    English        Poe 
+   3  5 
+   4  1 
+   4  2   ap12        Art   Nakahara 
+   4  3 
+   4  4 
+   4  5 
+   5  1 
+   5  2   tk32       Java     Satoru 
+   5  3   it12       Java   Nakahara 
+   5  4 
+   5  5   it22   Swimming   Nakahara 
+ Gym  1 
+ Gym  2 
+ Gym  3   sp32   Swimming  Madeleine 
+ Gym  4   ap22       Math      Osamu 
+ Gym  5   ap22   Swimming  Madeleine 
+Pool  1   ap22    English   Nakahara 
+Pool  2   it22       Math      Euler 
+Pool  3 
+Pool  4 
+Pool  5 
+Tuesday
+ 108  1 
+ 108  2 
+ 108  3   it22       Java     Satoru 
+ 108  4   it22       Java     Satoru 
+ 108  5   it22        Art      Osamu 
+ 217  1   it12       Java   Nakahara 
+ 217  2 
+ 217  3 
+ 217  4   tk42       Math    Gosling 
+ 217  5   tk32       Java     Satoru 
+ 305  1   ap22    English   Nakahara 
+ 305  2   tk32       Java     Satoru 
+ 305  3   ap12   Swimming   Nakahara 
+ 305  4   it12       Java   Nakahara 
+ 305  5 
+ 404  1   sp32   Swimming  Madeleine 
+ 404  2 
+ 404  3 
+ 404  4 
+ 404  5   ap22        Art      Klimt 
+1408  1   tk42       Math    Gosling 
+1408  2   it12       Math      Euler 
+1408  3   tk42        Art      Klimt 
+1408  4 
+1408  5 
+   1  1 
+   1  2   it22    English      Osamu 
+   1  3   it12       Math      Euler 
+   1  4   sp32   Swimming  Madeleine 
+   1  5 
+   2  1 
+   2  2   sp32   Swimming  Madeleine 
+   2  3 
+   2  4 
+   2  5   ap12        Art   Nakahara 
+   3  1   it22       Math      Euler 
+   3  2 
+   3  3   ap22    English   Nakahara 
+   3  4 
+   3  5   tk42       Math    Gosling 
+   4  1 
+   4  2   ap12       Math   Nakahara 
+   4  3 
+   4  4   ap22    English   Nakahara 
+   4  5 
+   5  1   tk32        Art   Nakahara 
+   5  2   ap22        Art      Klimt 
+   5  3 
+   5  4 
+   5  5 
+ Gym  1 
+ Gym  2 
+ Gym  3   tk32       Math    Gosling 
+ Gym  4 
+ Gym  5   it12       Java   Nakahara 
+Pool  1 
+Pool  2 
+Pool  3 
+Pool  4   tk32 Volleyball      Osamu 
+Pool  5   sp32 Volleyball   Nakahara 
+Wednesday
+ 108  1 
+ 108  2   tk32       Math    Gosling 
+ 108  3   ap12        Art   Nakahara 
+ 108  4 
+ 108  5 
+ 217  1 
+ 217  2   tk42   Swimming   Nakahara 
+ 217  3 
+ 217  4 
+ 217  5 
+ 305  1   it22       Java     Satoru 
+ 305  2 
+ 305  3 
+ 305  4   ap12    English     Suguru 
+ 305  5 
+ 404  1 
+ 404  2   it22       Java     Satoru 
+ 404  3 
+ 404  4   ap22 Volleyball       Ukai 
+ 404  5   tk42       Math    Gosling 
+1408  1 
+1408  2 
+1408  3   tk32       Java     Satoru 
+1408  4 
+1408  5 
+   1  1   tk32   Swimming   Nakahara 
+   1  2 
+   1  3 
+   1  4 
+   1  5   tk32       Java     Satoru 
+   2  1   ap22   Swimming  Madeleine 
+   2  2 
+   2  3   tk42       Java    Gosling 
+   2  4   tk42       Math    Gosling 
+   2  5 
+   3  1   tk42    English        Poe 
+   3  2 
+   3  3   it12       Java   Nakahara 
+   3  4 
+   3  5 
+   4  1   sp32    English   Nakahara 
+   4  2   it12       Java   Nakahara 
+   4  3 
+   4  4 
+   4  5 
+   5  1 
+   5  2 
+   5  3   ap22       Java   Nakahara 
+   5  4 
+   5  5   sp32 Volleyball   Nakahara 
+ Gym  1   ap12    English     Suguru 
+ Gym  2 
+ Gym  3   sp32 Volleyball   Nakahara 
+ Gym  4   sp32   Swimming  Madeleine 
+ Gym  5   ap12        Art   Nakahara 
+Pool  1 
+Pool  2 
+Pool  3   it22    English      Osamu 
+Pool  4   it12    English   Nakahara 
+Pool  5   it22    English      Osamu 
+Thursday
+ 108  1   it12       Java   Nakahara 
+ 108  2   tk32    English        Poe 
+ 108  3   ap22       Math      Osamu 
+ 108  4 
+ 108  5   it22       Java     Satoru 
+ 217  1 
+ 217  2   sp32 Volleyball   Nakahara 
+ 217  3   tk32       Math    Gosling 
+ 217  4   ap22        Art      Klimt 
+ 217  5 
+ 305  1   ap12       Math   Nakahara 
+ 305  2 
+ 305  3 
+ 305  4   ap12       Java   Nakahara 
+ 305  5 
+ 404  1   sp32 Volleyball   Nakahara 
+ 404  2   ap12        Art   Nakahara 
+ 404  3 
+ 404  4 
+ 404  5 
+1408  1   tk42    English        Poe 
+1408  2   it12   Swimming      Osamu 
+1408  3   it12        Art   Nakahara 
+1408  4   it12       Math      Euler 
+1408  5 
+   1  1 
+   1  2 
+   1  3 
+   1  4   sp32   Swimming  Madeleine 
+   1  5   sp32 Volleyball   Nakahara 
+   2  1   it22       Math      Euler 
+   2  2   tk42       Math    Gosling 
+   2  3   ap12 Volleyball       Ukai 
+   2  4   tk32       Math    Gosling 
+   2  5   tk32    English        Poe 
+   3  1 
+   3  2 
+   3  3 
+   3  4 
+   3  5   it12 Volleyball      Osamu 
+   4  1   tk32       Math    Gosling 
+   4  2 
+   4  3   sp32       Math   Nakahara 
+   4  4 
+   4  5   tk42       Java    Gosling 
+   5  1   ap22    English   Nakahara 
+   5  2 
+   5  3 
+   5  4 
+   5  5   ap22    English   Nakahara 
+ Gym  1 
+ Gym  2 
+ Gym  3   it22       Java     Satoru 
+ Gym  4 
+ Gym  5   ap12        Art   Nakahara 
+Pool  1 
+Pool  2   ap22        Art      Klimt 
+Pool  3 
+Pool  4   it22 Volleyball      Osamu 
+Pool  5 
+Friday
+ 108  1 
+ 108  2   ap22    English   Nakahara 
+ 108  3   it22       Math      Euler 
+ 108  4 
+ 108  5 
+ 217  1   ap22    English   Nakahara 
+ 217  2   sp32   Swimming  Madeleine 
+ 217  3   tk42       Java    Gosling 
+ 217  4   it22       Java     Satoru 
+ 217  5   it12       Math      Euler 
+ 305  1   tk32       Math    Gosling 
+ 305  2 
+ 305  3 
+ 305  4 
+ 305  5   sp32       Math   Nakahara 
+ 404  1 
+ 404  2   ap12   Swimming   Nakahara 
+ 404  3   sp32 Volleyball   Nakahara 
+ 404  4   ap12    English     Suguru 
+ 404  5 
+1408  1   ap12        Art   Nakahara 
+1408  2   tk32 Volleyball      Osamu 
+1408  3 
+1408  4   tk32       Math    Gosling 
+1408  5 
+   1  1   sp32   Swimming  Madeleine 
+   1  2 
+   1  3   it12    English   Nakahara 
+   1  4 
+   1  5   tk42 Volleyball       Ukai 
+   2  1 
+   2  2 
+   2  3 
+   2  4 
+   2  5 
+   3  1   tk42    English        Poe 
+   3  2 
+   3  3   ap22        Art      Klimt 
+   3  4   tk42 Volleyball       Ukai 
+   3  5   ap12    English     Suguru 
+   4  1   it12       Math      Euler 
+   4  2   it12       Java   Nakahara 
+   4  3 
+   4  4   sp32   Swimming  Madeleine 
+   4  5   it22       Java     Satoru 
+   5  1 
+   5  2 
+   5  3 
+   5  4   ap22    English   Nakahara 
+   5  5   tk32       Math    Gosling 
+ Gym  1 
+ Gym  2   it22       Math      Euler 
+ Gym  3 
+ Gym  4   it12       Java   Nakahara 
+ Gym  5 
+Pool  1   it22 Volleyball      Osamu 
+Pool  2   tk42       Math    Gosling 
+Pool  3   ap12        Art   Nakahara 
+Pool  4 
+Pool  5 

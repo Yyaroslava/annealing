@@ -2,9 +2,12 @@ package org.yasya;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.InputStream;
+import java.util.Scanner;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -17,6 +20,7 @@ import javax.swing.JProgressBar;
 import javax.swing.border.EmptyBorder;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.json.JSONObject;
 
 public class UI {
 	public static ImageIcon areaIcon = null;
@@ -27,8 +31,21 @@ public class UI {
 	public static boolean stop = false;
 	public static JFreeChart chart = null;
 	public static ChartPanel chartPanel = null;
+	public static JLabel temperatureLabel = null;
 
 	public static void run() {
+
+		InputStream uiStream = UI.class.getResourceAsStream("/UI.json");
+		if (uiStream == null) {
+			System.out.println("resource not found: UI.json");
+			return;
+		}
+		Scanner scanner = new Scanner(uiStream).useDelimiter("\\A");
+		String ui_txt = scanner.hasNext() ? scanner.next() : "";
+		scanner.close();
+		JSONObject ui_json = new JSONObject(ui_txt);
+		System.out.println(ui_json);
+
 		areaIcon = new ImageIcon("area.png");
 
 		progressBar = new JProgressBar(0, 100);
@@ -63,7 +80,7 @@ public class UI {
 			stop = true;
 		});
 
-		JLabel temperatureLabel = new JLabel("t = " + Double.toString(currentTemperature));
+		temperatureLabel = new JLabel("t = " + Double.toString(currentTemperature));
 		temperatureLabel.setBorder(new EmptyBorder(20, 20, 20, 20));
 		temperatureLabel.setForeground(Color.WHITE);
 		temperatureLabel.setFont(new Font(null, 0, 36));
@@ -77,7 +94,12 @@ public class UI {
 		});
 
 		chartPanel = new ChartPanel(null);
-
+		chartPanel.setSize(600, 400);
+		chartPanel.setDoubleBuffered(true);
+		chartPanel.setFillZoomRectangle(false);
+		//chartPanel.setMaximumSize(new Dimension(600, 400));
+		chartPanel.setChart(null);
+		
 		//TETRIS
 		JMenuItem launchTetrisItem = new JMenuItem("Tetris");
 		launchTetrisItem.addActionListener(e -> {
@@ -119,8 +141,8 @@ public class UI {
 		
 		frame.setJMenuBar(menuBar);
 		frame.getContentPane().add(mainPanel);
-		//frame.getContentPane().add(panel2);
-		frame.setSize(800, 650);
+		frame.setSize(1200, 800);
+		frame.setResizable(false);
 		frame.setVisible(true);
 	}
 }

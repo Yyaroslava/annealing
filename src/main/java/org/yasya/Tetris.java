@@ -2,8 +2,12 @@ package org.yasya;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Stream;
+
+import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 
 public class Tetris extends SwingWorker<Void, Integer> {
@@ -13,7 +17,7 @@ public class Tetris extends SwingWorker<Void, Integer> {
 	public Solution bestSolution = null;
 	public boolean stop = false;
 	private long startTime = System.currentTimeMillis();
-	public double[] history = new double[10000];
+	public double[] history = new double[Constants.TETRIS_HISTORY_COUNT];
 	public int historyIndex = 0;
 
 	public Tetris() {
@@ -28,7 +32,7 @@ public class Tetris extends SwingWorker<Void, Integer> {
 		else{
 			history[historyIndex] = 0;
 		}
-		historyIndex = (historyIndex + 1) % 10000;
+		historyIndex = (historyIndex + 1) % history.length;
 		if(historyIndex == 0) {
 			Utils.updateChart(history);
 		}
@@ -148,7 +152,7 @@ public class Tetris extends SwingWorker<Void, Integer> {
 
 		public void run() {
 			try {
-				Utils.fire(this, Constants.TETRIS_STEP_COUNT);
+				Utils.fire(this);
 			} 
 			catch (Exception e) {
 				e.printStackTrace();
@@ -182,6 +186,8 @@ public class Tetris extends SwingWorker<Void, Integer> {
 
 	@Override
 	protected Void doInBackground() throws Exception {
+		UI.currentTemperature = Constants.TETRIS_INITIAL_T;
+		UI.temperatureLabel.setText("t = " + Double.toString(Constants.TETRIS_INITIAL_T));
 		publish(0);
 		Solution initialSolution = new Solution();
 		Thread[] sh = Stream.generate(() -> new Thread(initialSolution.copy()))
@@ -210,10 +216,16 @@ public class Tetris extends SwingWorker<Void, Integer> {
 
 	@Override
 	protected void done() {
-		UI.areaIcon.getImage().flush();
-		UI.areaLabel.repaint();
 		long duration = System.currentTimeMillis() - startTime;
 		System.out.printf("best score: %f, duration: %d ms", bestScore, duration);
+		int[][] area = (bestSolution).greedy(true);
+		BufferedImage image = TetrisPNG.getAreaImage(800, 800, area, colors);
+		File outputFile = new File("Tetris.png");
+		try {
+			ImageIO.write(image, "png", outputFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

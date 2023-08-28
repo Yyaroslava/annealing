@@ -1,6 +1,7 @@
 package org.yasya;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -32,7 +33,7 @@ public class Utils {
 			dataset.addValue(statistic[i], "x", String.format("%.1f", value));
 		}
 		JFreeChart chart = ChartFactory.createBarChart(
-			"history",
+			"score distribution",
 			"score",
 			"frequency",
 			dataset,
@@ -41,6 +42,7 @@ public class Utils {
 			true,
 			false
 		);
+		UI.chartPanel.setSize(600, 400);
 		UI.chartPanel.setChart(chart);
 	}
 	
@@ -66,7 +68,7 @@ public class Utils {
 		return colors;
 	}
 
-	public static double fire(Chainable chain, long STEP_COUNT) {
+	public static double fire(Chainable chain) {
 		double t = UI.currentTemperature;
 		ThreadLocalRandom localRandom = ThreadLocalRandom.current();
 		chain.afterStart(chain);
@@ -105,9 +107,7 @@ public class Utils {
 				if(UI.stop) break;
 				t = UI.currentTemperature;
 			}
-			//if(i % (STEP_COUNT / 100) == 0) {
-			//	chain.onProgress((int)(i * 100 / STEP_COUNT));
-			//}
+
 		}while(true);
 		chain.beforeFinish(chain, bestChain);
 		return bestScore;

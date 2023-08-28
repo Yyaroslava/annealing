@@ -9,18 +9,35 @@ import java.util.stream.Stream;
 import javax.swing.SwingWorker;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Syllabus extends SwingWorker<Void, Integer> {
 	public double bestScore = 9999998;
 	public Solution bestSolution = null;
 	private long startTime = System.currentTimeMillis();
-	public double[] history = new double[10000];
+	public double[] history = new double[Constants.SYLLABUS_HISTORY_COUNT];
 	public int historyIndex = 0;
 	public int counter = 0;
 
 	public record Row(String group, String course, String teacher){}
 
 	public Syllabus(){}
+
+	synchronized public void addHistory(boolean jumped, double newScore) {
+		if(jumped){
+			history[historyIndex] = newScore;
+		}
+		else{
+			history[historyIndex] = 0;
+		}
+		historyIndex = (historyIndex + 1) % history.length;
+		if(historyIndex == 0) {
+			Utils.updateChart(history);
+		}
+	}
 	
 	public class Solution implements Chainable, Runnable {
 		public Row[][][] rows;
@@ -92,12 +109,7 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 
 		@Override
 		public void afterJump(boolean jumped, double newScore) {
-			history[historyIndex] = newScore;
-			historyIndex = (historyIndex + 1) % 10000;
-			counter = (counter + 1) % 10000;
-			if(counter == 0) {
-				Utils.updateChart(history);
-			}
+			addHistory(jumped, newScore);
 		}
 
 		@Override
@@ -197,7 +209,7 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 
 		public void run() {
 			try {
-				Utils.fire(this, Constants.SYLLABUS_STEP_COUNT);
+				Utils.fire(this);
 			} 
 			catch (Exception e) {
 				e.printStackTrace();
@@ -211,24 +223,22 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 
 	}
 	
-	public void saveBestSolution() {
-		SyllabusPNG.saveArea(bestSolution.rows, "area.png");
-	}
-
 	public synchronized void setBest(Solution newSolution, double newScore, double t) {
 		if(newScore < bestScore) {
 			bestScore = newScore;
 			bestSolution = newSolution.copy();
 			System.out.printf("better solution found: %8.1f %8.5f \n", bestScore, t);
-			saveBestSolution();
+			BufferedImage image = SyllabusPNG.getAreaImage(340, 400, bestSolution.rows);
+			UI.areaIcon.setImage(image);
 			UI.scoreLabel.setText(String.format("better solution found: %6.1f", bestScore));
-			UI.areaIcon.getImage().flush();
 			UI.areaLabel.repaint();
 		}
 	}
 
 	@Override
 	protected Void doInBackground() throws Exception {
+		UI.currentTemperature = Constants.SYLLABUS_INITIAL_T;
+		UI.temperatureLabel.setText("t = " + Double.toString(Constants.SYLLABUS_INITIAL_T));
 		publish(0);
 		Solution initialSolution = new Solution();
 		Thread[] sh = Stream.generate(() -> new Thread(initialSolution.copy()))
@@ -257,10 +267,13 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 
 	@Override
 	protected void done() {
-		UI.areaIcon.getImage().flush();
-		UI.areaLabel.repaint();
 		long duration = System.currentTimeMillis() - startTime;
 		System.out.printf("best score: %f, duration: %d ms", bestScore, duration);
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter("Syllabus.txt"))) {
+			writer.write(bestSolution.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

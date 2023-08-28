@@ -10,8 +10,9 @@ public final class Constants {
 	public static final int TETRIS_MAX_TILE_SIZE = 6;
 	public static int TETRIS_TILES_COUNT;
 	public static final int TETRIS_PARALLEL = 14;
-	public static final long TETRIS_STEP_COUNT = 100000;
-	public static final double TETRIS_INITIAL_T = 0.5;
+	public static final double TETRIS_INITIAL_T = 0.27;
+	public static final int TETRIS_HISTORY_COUNT = 100000;
+
 	public static final int[][] TETRIS_PALETTE = new int[][] {
 		{255, 0, 0},
 		{255, 165, 0},
@@ -24,8 +25,8 @@ public final class Constants {
 
 	public static final int SALESMAN_TOWNS_COUNT = 500;
 	public static final int SALESMAN_PARALLEL = 14;
-	public static final long SALESMAN_STEP_COUNT = 100000000;
-	public static final double SALESMAN_INITIAL_T = 10;
+	public static final double SALESMAN_INITIAL_T = 2;
+	public static final int SALESMAN_HISTORY_COUNT = 1000000;
 
 	public static final String[] SYLLABUS_DAYS = new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
 	public static final int SYLLABUS_MAX_LESSONS_COUNT = 5;
@@ -109,6 +110,6 @@ public final class Constants {
 		}
 	""".replace("'", "\"");
 	public static final JSONObject SYLLABUS_TEACHER_SKILLS_JSON = new JSONObject(SYLLABUS_TEACHER_SKILLS_STR);
-	public static final long SYLLABUS_STEP_COUNT = 10000000;
-	public static final double SYLLABUS_INITIAL_T = 2;
+	public static final double SYLLABUS_INITIAL_T = 0.27;
+	public static final int SYLLABUS_HISTORY_COUNT = 100000;
 }

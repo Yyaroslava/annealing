@@ -1,9 +1,15 @@
 package org.yasya;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
+
+import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 
 public class Salesman extends SwingWorker<Void, Integer> {
@@ -13,7 +19,7 @@ public class Salesman extends SwingWorker<Void, Integer> {
 	public Solution secondSolution = null;
 	public double secondScore = 9999999;
 	private long startTime = System.currentTimeMillis();
-	public double[] history = new double[10000];
+	public double[] history = new double[Constants.SALESMAN_HISTORY_COUNT];
 	public int historyIndex = 0;
 
 	public Salesman() {
@@ -31,7 +37,7 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		else{
 			history[historyIndex] = 0;
 		}
-		historyIndex = (historyIndex + 1) % 10000;
+		historyIndex = (historyIndex + 1) % history.length;
 		if(historyIndex == 0) {
 			Utils.updateChart(history);
 		}
@@ -112,7 +118,7 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		public void run() {
 			try {
 				System.out.println("Salesman fire");
-				Utils.fire(this, Constants.SALESMAN_STEP_COUNT);
+				Utils.fire(this);
 			} 
 			catch (Exception e) {
 				e.printStackTrace();
@@ -123,6 +129,11 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		public synchronized void onProgress(int progress) {
 			publish(progress);
 		}
+
+		public String toString() {
+			return Arrays.toString(path);
+		}
+
 	}
 	
 	public synchronized void setBest(Solution newSolution, double newScore, double t) {
@@ -132,7 +143,13 @@ public class Salesman extends SwingWorker<Void, Integer> {
 			bestScore = newScore;
 			bestSolution = newSolution.copy();
 			System.out.printf("better solution found: %8.1f %8.5f \n", bestScore, t);
-			BufferedImage image = SalesmanPNG.getAreaImage(340, 400, towns, bestSolution.path, secondSolution.path);
+			BufferedImage image;
+			if(secondSolution == null){
+				image = SalesmanPNG.getAreaImage(340, 400, towns, bestSolution.path, null);
+			}
+			else{
+				image = SalesmanPNG.getAreaImage(340, 400, towns, bestSolution.path, secondSolution.path);
+			}
 			UI.areaIcon.setImage(image);
 			UI.scoreLabel.setText(String.format("better solution found: %6.1f", bestScore));
 			UI.areaLabel.repaint();
@@ -151,6 +168,8 @@ public class Salesman extends SwingWorker<Void, Integer> {
 	@Override
 	protected Void doInBackground() throws Exception {
 		publish(0);
+		UI.currentTemperature = Constants.SALESMAN_INITIAL_T;
+		UI.temperatureLabel.setText("t = " + Double.toString(Constants.SALESMAN_INITIAL_T));
 		Solution initialSolution = new Solution();
 		Thread[] sh = Stream.generate(() -> new Thread(initialSolution.copy()))
 			.limit(Constants.SALESMAN_PARALLEL)
@@ -178,10 +197,21 @@ public class Salesman extends SwingWorker<Void, Integer> {
 
 	@Override
 	protected void done() {
-		UI.areaIcon.getImage().flush();
-		UI.areaLabel.repaint();
 		long duration = System.currentTimeMillis() - startTime;
 		System.out.printf("best score: %f, duration: %d ms", bestScore, duration);
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter("Salesman.txt"))) {
+			writer.write(bestSolution.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		BufferedImage image = SalesmanPNG.getAreaImage(800, 800, towns, bestSolution.path, secondSolution.path);
+		File outputFile = new File("Salesman.png");
+		try {
+			ImageIO.write(image, "png", outputFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
