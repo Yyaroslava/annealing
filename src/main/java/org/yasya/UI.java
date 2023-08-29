@@ -32,6 +32,10 @@ public class UI {
 	public static ChartPanel chartPanel = null;
 	public static JLabel temperatureLabel = null;
 
+	public class Config {
+		public static final int CHART_COLUMNS_COUNT = 10;
+	}
+
 	public static void run() {
 
 		InputStream uiStream = UI.class.getResourceAsStream("/UI.json");

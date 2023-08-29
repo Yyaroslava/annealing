@@ -19,12 +19,12 @@ public class Salesman extends SwingWorker<Void, Integer> {
 	public Solution secondSolution = null;
 	public double secondScore = 9999999;
 	private long startTime = System.currentTimeMillis();
-	public double[] history = new double[Constants.SALESMAN_HISTORY_COUNT];
+	public double[] history = new double[Config.HISTORY_COUNT];
 	public int historyIndex = 0;
 
 	public Salesman() {
-		towns = new double[Constants.SALESMAN_TOWNS_COUNT][2];
-		for(int i = 0; i < Constants.SALESMAN_TOWNS_COUNT; i++) {
+		towns = new double[Config.TOWNS_COUNT][2];
+		for(int i = 0; i < Config.TOWNS_COUNT; i++) {
 			towns[i][0] = Utils.random.nextDouble() * 300;
 			towns[i][1] = Utils.random.nextDouble() * 300;
 		}
@@ -42,6 +42,13 @@ public class Salesman extends SwingWorker<Void, Integer> {
 			Utils.updateChart(history);
 		}
 	}
+
+	public class Config {
+		public static final int TOWNS_COUNT = 500;
+		public static final int PARALLEL = 14;
+		public static final double INITIAL_T = 2;
+		public static final int HISTORY_COUNT = 1000000;
+	}
 	
 	public class Solution implements Chainable, Runnable {
 		public int[] path;
@@ -55,7 +62,7 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		}
 
 		public Solution() {
-			this.path = Utils.randomPermutation(Constants.SALESMAN_TOWNS_COUNT);
+			this.path = Utils.randomPermutation(Config.TOWNS_COUNT);
 			this.calculateScore();
 		}
 
@@ -71,11 +78,11 @@ public class Salesman extends SwingWorker<Void, Integer> {
 
 		public void calculateScore() {
 			int start = path[0];
-			int end = path[Constants.SALESMAN_TOWNS_COUNT - 1];
+			int end = path[Config.TOWNS_COUNT - 1];
 			double score = Utils.distance(towns[start][0], towns[start][1], towns[end][0], towns[end][1]);
-			for(int i = 0; i < Constants.SALESMAN_TOWNS_COUNT - 1; i++) {
+			for(int i = 0; i < Config.TOWNS_COUNT - 1; i++) {
 				start = path[i];
-				end = path[(i + 1) % Constants.SALESMAN_TOWNS_COUNT];
+				end = path[(i + 1) % Config.TOWNS_COUNT];
 				score += Utils.distance(towns[start][0], towns[start][1], towns[end][0], towns[end][1]);
 			}
 			this.score = score;
@@ -84,8 +91,8 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		@Override
 		public Chainable next() {
 			Solution s = copy();
-			int i1 = localRandom.nextInt(Constants.SALESMAN_TOWNS_COUNT);
-			int i2 = (i1 + localRandom.nextInt(Constants.SALESMAN_TOWNS_COUNT - 2)) % Constants.SALESMAN_TOWNS_COUNT;
+			int i1 = localRandom.nextInt(Config.TOWNS_COUNT);
+			int i2 = (i1 + localRandom.nextInt(Config.TOWNS_COUNT - 2)) % Config.TOWNS_COUNT;
 			s.reflect(i1, i2);
 			s.calculateScore();
 
@@ -94,10 +101,10 @@ public class Salesman extends SwingWorker<Void, Integer> {
 
 		public void reflect(int start, int finish) {
 			int left = 0;
-			int right = (finish - start + Constants.SALESMAN_TOWNS_COUNT) % Constants.SALESMAN_TOWNS_COUNT;
+			int right = (finish - start + Config.TOWNS_COUNT) % Config.TOWNS_COUNT;
 			for (;left < right; left++, right--) {
-				int i1 = (left + start) % Constants.SALESMAN_TOWNS_COUNT;
-				int i2 = (right + start) % Constants.SALESMAN_TOWNS_COUNT;
+				int i1 = (left + start) % Config.TOWNS_COUNT;
+				int i2 = (right + start) % Config.TOWNS_COUNT;
 				int t = path[i1];
 				path[i1] = path[i2];
 				path[i2] = t;
@@ -168,11 +175,11 @@ public class Salesman extends SwingWorker<Void, Integer> {
 	@Override
 	protected Void doInBackground() throws Exception {
 		publish(0);
-		UI.currentTemperature = Constants.SALESMAN_INITIAL_T;
-		UI.temperatureLabel.setText("t = " + Double.toString(Constants.SALESMAN_INITIAL_T));
+		UI.currentTemperature = Config.INITIAL_T;
+		UI.temperatureLabel.setText("t = " + Double.toString(Config.INITIAL_T));
 		Solution initialSolution = new Solution();
 		Thread[] sh = Stream.generate(() -> new Thread(initialSolution.copy()))
-			.limit(Constants.SALESMAN_PARALLEL)
+			.limit(Config.PARALLEL)
 			.toArray(Thread[]::new);
 
 		Arrays.stream(sh).forEach(Thread::start);

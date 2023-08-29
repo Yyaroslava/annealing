@@ -15,7 +15,7 @@ public class SyllabusPNG {
 		int lineHeight = (imgHeight - 40) / (2 * roomsCount - 1);
 		int shiftY = (imgHeight - lineHeight * (2 * roomsCount - 1)) / 2;
 
-		int lessonsCount = Constants.SYLLABUS_MAX_LESSONS_COUNT * Constants.SYLLABUS_DAYS.length;
+		int lessonsCount = Syllabus.Config.MAX_LESSONS_COUNT * Syllabus.Config.DAYS.length;
 
 		int part = (imgWidth - 40) / lessonsCount;
 		int shiftX = (imgWidth - part * lessonsCount) / 2;
@@ -25,11 +25,11 @@ public class SyllabusPNG {
 		graphics.setColor(Color.GRAY);
 		graphics.fillRect(0, 0, imgWidth, imgHeight);
 
-		for(int day = 0; day < Constants.SYLLABUS_DAYS.length; day++){
-			for(int time = 0; time < Constants.SYLLABUS_MAX_LESSONS_COUNT; time++){
+		for(int day = 0; day < Syllabus.Config.DAYS.length; day++) {
+			for(int time = 0; time < Syllabus.Config.MAX_LESSONS_COUNT; time++) {
 				Map<String, Integer> groups = new HashMap<>();
 				Map<String, Integer> teachers = new HashMap<>();
-				for(int room = 0; room < Constants.SYLLABUS_ROOMS.length; room++){
+				for(int room = 0; room <Syllabus.Config.ROOMS.length; room++){
 					Row row = rows[day][time][room];
 					if(row == null) continue;
 					if(!groups.containsKey(row.group())){
@@ -42,33 +42,7 @@ public class SyllabusPNG {
 					}
 					teachers.put(row.teacher(), teachers.get(row.teacher()) + 1);
 				}
-				for (Integer value : groups.values()){
-
-				}
-				for (Integer value : teachers.values()){
-
-				}
-			}
-		}
-
-		for(int day = 0; day < Constants.SYLLABUS_DAYS.length; day++) {
-			for(int time = 0; time < Constants.SYLLABUS_MAX_LESSONS_COUNT; time++) {
-				Map<String, Integer> groups = new HashMap<>();
-				Map<String, Integer> teachers = new HashMap<>();
-				for(int room = 0; room < Constants.SYLLABUS_ROOMS.length; room++){
-					Row row = rows[day][time][room];
-					if(row == null) continue;
-					if(!groups.containsKey(row.group())){
-						groups.put(row.group(), 0);
-					}
-					groups.put(row.group(), groups.get(row.group()) + 1);
-
-					if(!teachers.containsKey(row.teacher())){
-						teachers.put(row.teacher(), 0);
-					}
-					teachers.put(row.teacher(), teachers.get(row.teacher()) + 1);
-				}
-				for(int room = 0; room < Constants.SYLLABUS_ROOMS.length; room++) {
+				for(int room = 0; room < Syllabus.Config.ROOMS.length; room++) {
 					if(rows[day][time][room] == null) {
 						graphics.setColor(Color.WHITE);
 					}
@@ -85,7 +59,7 @@ public class SyllabusPNG {
 						graphics.setColor(Color.GREEN);
 					}
 					graphics.fillRect(
-						shiftX + (day * Constants.SYLLABUS_MAX_LESSONS_COUNT + time) * part,
+						shiftX + (day * Syllabus.Config.MAX_LESSONS_COUNT + time) * part,
 						shiftY + room * 2 * lineHeight,
 						part,
 						lineHeight

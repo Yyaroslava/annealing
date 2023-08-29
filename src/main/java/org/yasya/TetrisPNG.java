@@ -7,20 +7,20 @@ import java.awt.image.BufferedImage;
 public class TetrisPNG {
 
 	synchronized public static BufferedImage getAreaImage(int imgWidth, int imgHeight, int[][] area, Color[] colors) {
-		int boardMaxSize = Math.max(Constants.TETRIS_BOARD_WIDTH, Constants.TETRIS_BOARD_HEIGHT);
+		int boardMaxSize = Math.max(Tetris.Config.BOARD_WIDTH, Tetris.Config.BOARD_HEIGHT);
 		int min = Math.min(imgWidth, imgHeight);
 		int squareWidth = (min - 40) / boardMaxSize - 1; 
 
-		int shiftX = (imgWidth - ((squareWidth + 1) * Constants.TETRIS_BOARD_WIDTH + 1)) / 2;
-		int shiftY = (imgHeight - ((squareWidth + 1) * Constants.TETRIS_BOARD_HEIGHT + 1)) / 2;
+		int shiftX = (imgWidth - ((squareWidth + 1) * Tetris.Config.BOARD_WIDTH + 1)) / 2;
+		int shiftY = (imgHeight - ((squareWidth + 1) * Tetris.Config.BOARD_HEIGHT + 1)) / 2;
 		
 		BufferedImage image = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
 		Graphics graphics = image.getGraphics();
 		graphics.setColor(Color.GRAY);
 		graphics.fillRect(0, 0, imgWidth, imgHeight);
 
-		for (int x = 0; x < Constants.TETRIS_BOARD_WIDTH; x++) {
-			for (int y = 0; y < Constants.TETRIS_BOARD_HEIGHT; y++) {
+		for (int x = 0; x < Tetris.Config.BOARD_WIDTH; x++) {
+			for (int y = 0; y < Tetris.Config.BOARD_HEIGHT; y++) {
 				Color c;
 				switch (area[x][y]) {
 					case -1:
@@ -43,8 +43,8 @@ public class TetrisPNG {
 		}
 
 		graphics.setColor(Color.GRAY);
-		for (int x = 0; x < Constants.TETRIS_BOARD_WIDTH - 1; x++) {
-			for (int y = 0; y < Constants.TETRIS_BOARD_HEIGHT; y++) {
+		for (int x = 0; x < Tetris.Config.BOARD_WIDTH - 1; x++) {
+			for (int y = 0; y < Tetris.Config.BOARD_HEIGHT; y++) {
 				if(area[x][y] != area[x + 1][y]) {
 					graphics.drawLine(
 						shiftX + (squareWidth + 1) * (x + 1),
@@ -56,8 +56,8 @@ public class TetrisPNG {
 			}
 		}
 
-		for (int x = 0; x < Constants.TETRIS_BOARD_WIDTH; x++) {
-			for (int y = 0; y < Constants.TETRIS_BOARD_HEIGHT - 1; y++) {
+		for (int x = 0; x < Tetris.Config.BOARD_WIDTH; x++) {
+			for (int y = 0; y < Tetris.Config.BOARD_HEIGHT - 1; y++) {
 				if(area[x][y] != area[x][y + 1]) {
 					graphics.drawLine(
 						shiftX + (squareWidth + 1) * x,
@@ -73,25 +73,25 @@ public class TetrisPNG {
 			shiftX,
 			shiftY + 1,
 			shiftX,
-			shiftY + (squareWidth + 1) * Constants.TETRIS_BOARD_HEIGHT
+			shiftY + (squareWidth + 1) * Tetris.Config.BOARD_HEIGHT
 		);
 		graphics.drawLine(
-			shiftX + (squareWidth + 1) * Constants.TETRIS_BOARD_WIDTH,
+			shiftX + (squareWidth + 1) * Tetris.Config.BOARD_WIDTH,
 			shiftY + 1,
-			shiftX + (squareWidth + 1) * Constants.TETRIS_BOARD_WIDTH,
-			shiftY + (squareWidth + 1) * Constants.TETRIS_BOARD_HEIGHT
+			shiftX + (squareWidth + 1) * Tetris.Config.BOARD_WIDTH,
+			shiftY + (squareWidth + 1) * Tetris.Config.BOARD_HEIGHT
 		);
 		graphics.drawLine(
 			shiftX,
 			shiftY,
-			shiftX + (squareWidth + 1) * Constants.TETRIS_BOARD_WIDTH,
+			shiftX + (squareWidth + 1) * Tetris.Config.BOARD_WIDTH,
 			shiftY
 		);
 		graphics.drawLine(
 			shiftX,
-			shiftY + (squareWidth + 1) * Constants.TETRIS_BOARD_HEIGHT,
-			shiftX + (squareWidth + 1) * Constants.TETRIS_BOARD_WIDTH,
-			shiftY + (squareWidth + 1) * Constants.TETRIS_BOARD_HEIGHT
+			shiftY + (squareWidth + 1) * Tetris.Config.BOARD_HEIGHT,
+			shiftX + (squareWidth + 1) * Tetris.Config.BOARD_WIDTH,
+			shiftY + (squareWidth + 1) * Tetris.Config.BOARD_HEIGHT
 		);
 
 		graphics.dispose();

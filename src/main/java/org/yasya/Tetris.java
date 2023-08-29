@@ -17,7 +17,7 @@ public class Tetris extends SwingWorker<Void, Integer> {
 	public Solution bestSolution = null;
 	public boolean stop = false;
 	private long startTime = System.currentTimeMillis();
-	public double[] history = new double[Constants.TETRIS_HISTORY_COUNT];
+	public double[] history = new double[Config.HISTORY_COUNT];
 	public int historyIndex = 0;
 
 	public Tetris() {
@@ -36,6 +36,25 @@ public class Tetris extends SwingWorker<Void, Integer> {
 		if(historyIndex == 0) {
 			Utils.updateChart(history);
 		}
+	}
+
+	public class Config {
+		public static final int BOARD_WIDTH = 16;
+		public static final int BOARD_HEIGHT = 16;
+		public static final int MAX_TILE_SIZE = 6;
+		public static int TILES_COUNT;
+		public static final int PARALLEL = 14;
+		public static final double INITIAL_T = 0.27;
+		public static final int HISTORY_COUNT = 100000;
+		public static final int[][] PALETTE = new int[][] {
+			{255, 0, 0},
+			{255, 165, 0},
+			{255, 255, 0},
+			{0, 128, 0},
+			{0, 0, 255},
+			{75, 0, 130},
+			{238, 130, 238}
+		};
 	}
 
 	public class Solution implements Chainable, Runnable {
@@ -65,8 +84,8 @@ public class Tetris extends SwingWorker<Void, Integer> {
 		public void calculateScore() {
 			int[][] area = greedy(false);
 			double score = 0;
-			for(int y = 0; y < Constants.TETRIS_BOARD_HEIGHT; y++) {
-				for(int x = 0; x < Constants.TETRIS_BOARD_WIDTH; x++) {
+			for(int y = 0; y < Config.BOARD_HEIGHT; y++) {
+				for(int x = 0; x < Config.BOARD_WIDTH; x++) {
 					if(area[x][y] == 0) score++;
 				}
 			}
@@ -74,15 +93,15 @@ public class Tetris extends SwingWorker<Void, Integer> {
 		}
 
 		public int[][] greedy(boolean makeColor) {
-			int[][] area = new int[Constants.TETRIS_BOARD_WIDTH][Constants.TETRIS_BOARD_HEIGHT];
+			int[][] area = new int[Config.BOARD_WIDTH][Config.BOARD_HEIGHT];
 			for(int i = 0; i < tiles.length; i++) {
 				Tile tile = tiles[i];
 				int bestX = -1;
 				int bestY = -1;
 				int bestIntersect = 999;
 				positionLoop:
-				for(int y = 0; y <= Constants.TETRIS_BOARD_HEIGHT - tile.height; y++) {
-					for(int x = 0; x <= Constants.TETRIS_BOARD_WIDTH - tile.width; x++) {
+				for(int y = 0; y <= Config.BOARD_HEIGHT - tile.height; y++) {
+					for(int x = 0; x <= Config.BOARD_WIDTH - tile.width; x++) {
 						int currentIntersect = intersect(area, tile, x, y, bestIntersect);
 						if(currentIntersect == 0) {
 							bestX = x;
@@ -186,12 +205,12 @@ public class Tetris extends SwingWorker<Void, Integer> {
 
 	@Override
 	protected Void doInBackground() throws Exception {
-		UI.currentTemperature = Constants.TETRIS_INITIAL_T;
-		UI.temperatureLabel.setText("t = " + Double.toString(Constants.TETRIS_INITIAL_T));
+		UI.currentTemperature = Config.INITIAL_T;
+		UI.temperatureLabel.setText("t = " + Double.toString(Config.INITIAL_T));
 		publish(0);
 		Solution initialSolution = new Solution();
 		Thread[] sh = Stream.generate(() -> new Thread(initialSolution.copy()))
-			.limit(Constants.TETRIS_PARALLEL)
+			.limit(Config.PARALLEL)
 			.toArray(Thread[]::new);
 
 		Arrays.stream(sh).forEach(Thread::start);

@@ -29,9 +29,9 @@ public class SalesmanPNG {
 
 		if(secondPath != null){
 			graphics.setColor(Color.RED);
-			for (int i = 0; i < Constants.SALESMAN_TOWNS_COUNT; i++) {
+			for (int i = 0; i < Salesman.Config.TOWNS_COUNT; i++) {
 				int start = secondPath[i];
-				int end = secondPath[(i + 1) % Constants.SALESMAN_TOWNS_COUNT];
+				int end = secondPath[(i + 1) % Salesman.Config.TOWNS_COUNT];
 				graphics.drawLine(
 					shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[start][0]) / (townMaxX - townMinX)),
 					shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[start][1]) / (townMaxY - townMinY)),
@@ -42,9 +42,9 @@ public class SalesmanPNG {
 		}
 
 		graphics.setColor(Color.GREEN);
-		for (int i = 0; i < Constants.SALESMAN_TOWNS_COUNT; i++) {
+		for (int i = 0; i < Salesman.Config.TOWNS_COUNT; i++) {
 			int start = path[i];
-			int end = path[(i + 1) % Constants.SALESMAN_TOWNS_COUNT];
+			int end = path[(i + 1) % Salesman.Config.TOWNS_COUNT];
 			graphics.drawLine(
 				shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[start][0]) / (townMaxX - townMinX)),
 				shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[start][1]) / (townMaxY - townMinY)),
@@ -54,7 +54,7 @@ public class SalesmanPNG {
 		}
 		
 		graphics.setColor(Color.BLUE);
-		for (int i = 0; i < Constants.SALESMAN_TOWNS_COUNT; i++) {
+		for (int i = 0; i < Salesman.Config.TOWNS_COUNT; i++) {
 			graphics.drawOval(
 				shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[i][0]) / (townMaxX - townMinX)) - 1,
 				shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[i][1]) / (townMaxY - townMinY)) - 1,

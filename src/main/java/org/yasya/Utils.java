@@ -20,15 +20,15 @@ public class Utils {
 			if(history[i] < min) min = history[i];
 			if(history[i] > max) max = history[i] + 0.0001;
 		}
-		int[] statistic = new int[Constants.CHART_COLUMNS_COUNT];
+		int[] statistic = new int[UI.Config.CHART_COLUMNS_COUNT];
 		for(int i = 0; i < history.length; i++) {
 			if(history[i] == 0) continue;
-			int index = (int)((history[i] - min) / (max - min) * Constants.CHART_COLUMNS_COUNT);
+			int index = (int)((history[i] - min) / (max - min) * UI.Config.CHART_COLUMNS_COUNT);
 			statistic[index]++;
 		}
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-		for(int i = 0; i < Constants.CHART_COLUMNS_COUNT; i++){
-			double value = min + ((max - min) / Constants.CHART_COLUMNS_COUNT) * (i + 0.5);
+		for(int i = 0; i < UI.Config.CHART_COLUMNS_COUNT; i++){
+			double value = min + ((max - min) / UI.Config.CHART_COLUMNS_COUNT) * (i + 0.5);
 			dataset.addValue(statistic[i], "x", String.format("%.1f", value));
 		}
 		JFreeChart chart = ChartFactory.createBarChart(
@@ -61,8 +61,8 @@ public class Utils {
 	public static Color[] getPalette(int size) {
 		Color[] colors = new Color[size];
 		for(int i = 0; i < colors.length; i++) {
-			int index = i % Constants.TETRIS_PALETTE.length;
-			colors[i] = new Color(Constants.TETRIS_PALETTE[index][0], Constants.TETRIS_PALETTE[index][1], Constants.TETRIS_PALETTE[index][2]);
+			int index = i % Tetris.Config.PALETTE.length;
+			colors[i] = new Color(Tetris.Config.PALETTE[index][0], Tetris.Config.PALETTE[index][1], Tetris.Config.PALETTE[index][2]);
 		}
 		return colors;
 	}
