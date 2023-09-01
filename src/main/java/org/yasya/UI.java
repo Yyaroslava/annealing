@@ -2,9 +2,12 @@ package org.yasya;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.Scanner;
 import javax.swing.BoxLayout;
@@ -16,6 +19,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -36,6 +40,27 @@ public class UI {
 		public static final int CHART_COLUMNS_COUNT = 10;
 	}
 
+	public static void setAreaImage(BufferedImage image) {
+		SwingUtilities.invokeLater(()->{
+			areaIcon.setImage(image);
+			areaLabel.repaint();
+		});
+	}
+
+	public static void setScoreLabel(double bestScore) {
+		SwingUtilities.invokeLater(()->{
+			scoreLabel.setText(String.format("better solution found: %6.1f", bestScore));
+			scoreLabel.repaint();
+		});
+	}
+
+	public static void setChart(JFreeChart chart) {
+		SwingUtilities.invokeLater(()->{
+			chartPanel.setSize(600, 400);
+			chartPanel.setChart(chart);
+		});
+	}
+
 	public static void run() {
 
 		InputStream uiStream = UI.class.getResourceAsStream("/UI.json");
@@ -49,40 +74,42 @@ public class UI {
 		JSONObject ui_json = new JSONObject(ui_txt);
 		System.out.println(ui_json);
 
-		areaIcon = new ImageIcon("area.png");
 
-		progressBar = new JProgressBar(0, 100);
-		progressBar.setForeground(Color.GREEN);
-		
-		JPanel mainPanel = new JPanel();
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		panel.setBackground(Color.BLACK);
-		JPanel panel2 = new JPanel();
-		panel2.setBackground(Color.BLACK);
-		
-		JFrame frame = new JFrame("Super solver");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
+
+		//area
+		areaIcon = new ImageIcon();
 		areaLabel = new JLabel(areaIcon);
-		areaLabel.setBorder(new EmptyBorder(20, 20, 20, 20));
-		areaLabel.setName("area");
+		areaLabel.setBounds(20, 20, 400, 400);
 
+		//chart
+		chartPanel = new ChartPanel(null);
+		chartPanel.setBounds(450, 20, 720, 400);	
+		chartPanel.setDoubleBuffered(true);
+		chartPanel.setChart(null);
+
+		//score label
 		scoreLabel = new JLabel("-");
 		scoreLabel.setBorder(new EmptyBorder(20, 20, 20, 20));
 		scoreLabel.setForeground(Color.WHITE);
 		scoreLabel.setFont(new Font(null, 0, 36));
-
-		JMenuBar menuBar = new JMenuBar();
-
+		scoreLabel.setBounds(450, 440, 700, 40);
+				
+		//button
 		JButton stopButton = new JButton("STOP");
 		stopButton.setBorder(new EmptyBorder(10, 20, 10, 20));
 		stopButton.addActionListener(e -> {
 			stop = true;
 		});
+		stopButton.setBounds(20, 440, 100, 40);
 
+		//progress bar
+		progressBar = new JProgressBar(0, 100);
+		progressBar.setForeground(Color.GREEN);
+		progressBar.setBounds(0, 720, 1190, 20);
+		
+		//temperature label;
 		temperatureLabel = new JLabel("t = " + Double.toString(currentTemperature));
 		temperatureLabel.setBorder(new EmptyBorder(20, 20, 20, 20));
 		temperatureLabel.setForeground(Color.WHITE);
@@ -95,14 +122,8 @@ public class UI {
 				temperatureLabel.setText("t = " + Double.toString(currentTemperature));
 			}
 		});
+		temperatureLabel.setBounds(160, 440, 250, 40);
 
-		chartPanel = new ChartPanel(null);
-		chartPanel.setSize(600, 400);
-		chartPanel.setDoubleBuffered(true);
-		chartPanel.setFillZoomRectangle(false);
-		//chartPanel.setMaximumSize(new Dimension(600, 400));
-		chartPanel.setChart(null);
-		
 		//TETRIS
 		JMenuItem launchTetrisItem = new JMenuItem("Tetris");
 		launchTetrisItem.addActionListener(e -> {
@@ -110,7 +131,7 @@ public class UI {
 			Tetris worker = new Tetris();
 			worker.execute();
 		});
-		menuBar.add(launchTetrisItem);
+		
 
 		//SALESMAN
 		JMenuItem launchSalesmanItem = new JMenuItem("Salesman");
@@ -119,7 +140,7 @@ public class UI {
 			Salesman worker = new Salesman();
 			worker.execute();
 		});
-		menuBar.add(launchSalesmanItem);
+		
 
 		//SYLLABUS
 		JMenuItem launchSyllabusItem = new JMenuItem("Syllabus");
@@ -128,20 +149,29 @@ public class UI {
 			Syllabus worker = new Syllabus();
 			worker.execute();
 		});
+		
+		//menu bar
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.add(launchTetrisItem);
+		menuBar.add(launchSalesmanItem);
 		menuBar.add(launchSyllabusItem);
 
-		mainPanel.add(panel);
-		mainPanel.add(panel2);
-		mainPanel.add(progressBar, BorderLayout.PAGE_END);
+		//main panel
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(null);
+		mainPanel.setBackground(Color.BLACK);
+		mainPanel.setBounds(0, 0, 1190, 740);
+		mainPanel.add(areaLabel);
+		mainPanel.add(chartPanel);
+		mainPanel.add(scoreLabel);
+		mainPanel.add(stopButton);
+		mainPanel.add(progressBar);
+		mainPanel.add(temperatureLabel);
 
-		panel.add(areaLabel, BorderLayout.CENTER);
-		panel.add(chartPanel);
-
-		panel2.add(stopButton);
-		panel2.add(temperatureLabel);
-		panel2.add(scoreLabel);
-		panel2.setBackground(Color.BLACK);
-		
+		//frame
+		JFrame frame = new JFrame("Super solver");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLayout(null);
 		frame.setJMenuBar(menuBar);
 		frame.getContentPane().add(mainPanel);
 		frame.setSize(1200, 800);

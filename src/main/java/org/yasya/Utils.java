@@ -12,7 +12,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 public class Utils {
 	public static Random random = new Random();
 
-	public static void updateChart(double[] history) {
+	public static JFreeChart updateChart(double[] history) {
 		double min = 9999999;
 		double max = -1;
 		for(int i = 0; i < history.length; i++) {
@@ -41,8 +41,8 @@ public class Utils {
 			true,
 			false
 		);
-		UI.chartPanel.setSize(600, 400);
-		UI.chartPanel.setChart(chart);
+
+		return chart;
 	}
 	
 	public static int[] smash(int sum) {

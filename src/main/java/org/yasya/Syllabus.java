@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 import javax.swing.SwingWorker;
+
+import org.jfree.chart.JFreeChart;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.awt.image.BufferedImage;
@@ -35,7 +37,8 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 		}
 		historyIndex = (historyIndex + 1) % history.length;
 		if(historyIndex == 0) {
-			Utils.updateChart(history);
+			JFreeChart chart = Utils.updateChart(history);
+			UI.setChart(chart);
 		}
 	}
 
@@ -316,9 +319,8 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 			bestSolution = newSolution.copy();
 			System.out.printf("better solution found: %8.1f %8.5f \n", bestScore, t);
 			BufferedImage image = SyllabusPNG.getAreaImage(340, 400, bestSolution.rows);
-			UI.areaIcon.setImage(image);
-			UI.scoreLabel.setText(String.format("better solution found: %6.1f", bestScore));
-			UI.areaLabel.repaint();
+			UI.setAreaImage(image);
+			UI.setScoreLabel(bestScore);
 		}
 	}
 

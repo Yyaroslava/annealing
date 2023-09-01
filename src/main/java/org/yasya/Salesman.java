@@ -8,9 +8,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
-
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
+
+import org.jfree.chart.JFreeChart;
 
 public class Salesman extends SwingWorker<Void, Integer> {
 	public double[][] towns;
@@ -21,12 +22,19 @@ public class Salesman extends SwingWorker<Void, Integer> {
 	private long startTime = System.currentTimeMillis();
 	public double[] history = new double[Config.HISTORY_COUNT];
 	public int historyIndex = 0;
+	public double[][] distance = null;
 
 	public Salesman() {
 		towns = new double[Config.TOWNS_COUNT][2];
 		for(int i = 0; i < Config.TOWNS_COUNT; i++) {
 			towns[i][0] = Utils.random.nextDouble() * 300;
 			towns[i][1] = Utils.random.nextDouble() * 300;
+		}
+		distance = new double[Config.TOWNS_COUNT][Config.TOWNS_COUNT];
+		for(int i = 0; i < Config.TOWNS_COUNT; i++){
+			for(int j = 0; j < Config.TOWNS_COUNT; j++){
+				distance[i][j] = Utils.distance(towns[i][0], towns[i][1], towns[j][0], towns[j][1]);
+			}
 		}
 	}
 
@@ -39,7 +47,8 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		}
 		historyIndex = (historyIndex + 1) % history.length;
 		if(historyIndex == 0) {
-			Utils.updateChart(history);
+			JFreeChart chart = Utils.updateChart(history);
+			UI.setChart(chart);
 		}
 	}
 
@@ -83,7 +92,7 @@ public class Salesman extends SwingWorker<Void, Integer> {
 			for(int i = 0; i < Config.TOWNS_COUNT - 1; i++) {
 				start = path[i];
 				end = path[(i + 1) % Config.TOWNS_COUNT];
-				score += Utils.distance(towns[start][0], towns[start][1], towns[end][0], towns[end][1]);
+				score += distance[start][end];
 			}
 			this.score = score;
 		}
@@ -157,18 +166,14 @@ public class Salesman extends SwingWorker<Void, Integer> {
 			else{
 				image = SalesmanPNG.getAreaImage(340, 400, towns, bestSolution.path, secondSolution.path);
 			}
-			UI.areaIcon.setImage(image);
-			UI.scoreLabel.setText(String.format("better solution found: %6.1f", bestScore));
-			UI.areaLabel.repaint();
+			UI.setAreaImage(image);
+			UI.setScoreLabel(bestScore);
 		}
 		else if(newScore == bestScore) {}
 		else if(newScore < secondScore) {
 			secondScore = newScore;
 			secondSolution = newSolution.copy();
 			System.out.printf("better second solution found: %8.1f %8.5f \n", secondScore, t);
-			BufferedImage image = SalesmanPNG.getAreaImage(340, 400, towns, bestSolution.path, secondSolution.path);
-			UI.areaIcon.setImage(image);
-			UI.areaLabel.repaint();
 		}
 	}
 

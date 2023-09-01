@@ -6,9 +6,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Stream;
-
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
+
+import org.jfree.chart.JFreeChart;
 
 public class Tetris extends SwingWorker<Void, Integer> {
 	public Tile[] startTiles;
@@ -34,7 +35,8 @@ public class Tetris extends SwingWorker<Void, Integer> {
 		}
 		historyIndex = (historyIndex + 1) % history.length;
 		if(historyIndex == 0) {
-			Utils.updateChart(history);
+			JFreeChart chart = Utils.updateChart(history);
+			UI.setChart(chart);
 		}
 	}
 
@@ -196,10 +198,9 @@ public class Tetris extends SwingWorker<Void, Integer> {
 			if(bestScore == 0) stop = true;
 			System.out.printf("better solution found: %6.1f %8.5f \n", bestScore, t);
 			int[][] area = (bestSolution).greedy(true);
-			BufferedImage image = TetrisPNG.getAreaImage(340, 400, area, colors);
-			UI.areaIcon.setImage(image);
-			UI.scoreLabel.setText(String.format("better solution found: %6.1f", bestScore));
-			UI.areaLabel.repaint();
+			BufferedImage image = TetrisPNG.getAreaImage(400, 400, area, colors);
+			UI.setAreaImage(image);
+			UI.setScoreLabel(bestScore);
 		}
 	}
 
