@@ -161,10 +161,10 @@ public class Salesman extends SwingWorker<Void, Integer> {
 			System.out.printf("better solution found: %8.1f %8.5f \n", bestScore, t);
 			BufferedImage image;
 			if(secondSolution == null){
-				image = SalesmanPNG.getAreaImage(340, 400, towns, bestSolution.path, null);
+				image = SalesmanPNG.getAreaImage(400, 400, towns, bestSolution.path, null);
 			}
 			else{
-				image = SalesmanPNG.getAreaImage(340, 400, towns, bestSolution.path, secondSolution.path);
+				image = SalesmanPNG.getAreaImage(400, 400, towns, bestSolution.path, secondSolution.path);
 			}
 			UI.setAreaImage(image);
 			UI.setScoreLabel(bestScore);

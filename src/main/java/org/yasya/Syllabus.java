@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 import javax.swing.SwingWorker;
-
 import org.jfree.chart.JFreeChart;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -318,7 +317,7 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 			bestScore = newScore;
 			bestSolution = newSolution.copy();
 			System.out.printf("better solution found: %8.1f %8.5f \n", bestScore, t);
-			BufferedImage image = SyllabusPNG.getAreaImage(340, 400, bestSolution.rows);
+			BufferedImage image = SyllabusPNG.getAreaImage(400, 400, bestSolution.rows);
 			UI.setAreaImage(image);
 			UI.setScoreLabel(bestScore);
 		}

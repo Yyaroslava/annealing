@@ -1,16 +1,12 @@
 package org.yasya;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.Scanner;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,6 +15,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import org.jfree.chart.ChartPanel;
@@ -35,6 +32,7 @@ public class UI {
 	public static JFreeChart chart = null;
 	public static ChartPanel chartPanel = null;
 	public static JLabel temperatureLabel = null;
+	public static JTextArea descriptionLabel = null;
 
 	public class Config {
 		public static final int CHART_COLUMNS_COUNT = 10;
@@ -56,8 +54,15 @@ public class UI {
 
 	public static void setChart(JFreeChart chart) {
 		SwingUtilities.invokeLater(()->{
-			chartPanel.setSize(600, 400);
+			chartPanel.setSize(725, 400);
 			chartPanel.setChart(chart);
+		});
+	}
+
+	public static void setDescriptionLabel(String description) {
+		SwingUtilities.invokeLater(()->{
+			descriptionLabel.setText(description);
+			descriptionLabel.repaint();
 		});
 	}
 
@@ -85,7 +90,7 @@ public class UI {
 
 		//chart
 		chartPanel = new ChartPanel(null);
-		chartPanel.setBounds(450, 20, 720, 400);	
+		chartPanel.setBounds(440, 20, 725, 400);	
 		chartPanel.setDoubleBuffered(true);
 		chartPanel.setChart(null);
 
@@ -94,7 +99,7 @@ public class UI {
 		scoreLabel.setBorder(new EmptyBorder(20, 20, 20, 20));
 		scoreLabel.setForeground(Color.WHITE);
 		scoreLabel.setFont(new Font(null, 0, 36));
-		scoreLabel.setBounds(450, 440, 700, 40);
+		scoreLabel.setBounds(450, 660, 700, 40);
 				
 		//button
 		JButton stopButton = new JButton("STOP");
@@ -102,7 +107,7 @@ public class UI {
 		stopButton.addActionListener(e -> {
 			stop = true;
 		});
-		stopButton.setBounds(20, 440, 100, 40);
+		stopButton.setBounds(20, 660, 100, 40);
 
 		//progress bar
 		progressBar = new JProgressBar(0, 100);
@@ -122,7 +127,16 @@ public class UI {
 				temperatureLabel.setText("t = " + Double.toString(currentTemperature));
 			}
 		});
-		temperatureLabel.setBounds(160, 440, 250, 40);
+		temperatureLabel.setBounds(160, 660, 250, 40);
+
+		//description label
+		descriptionLabel = new JTextArea("");
+		descriptionLabel.setBorder(new EmptyBorder(20, 20, 20, 20));
+		descriptionLabel.setBackground(Color.DARK_GRAY);
+		descriptionLabel.setForeground(Color.WHITE);
+		descriptionLabel.setFont(new Font(null, 0, 18));
+		descriptionLabel.setBounds(20, 440, 1145, 200);
+		descriptionLabel.setAlignmentY(JLabel.TOP_ALIGNMENT);
 
 		//TETRIS
 		JMenuItem launchTetrisItem = new JMenuItem("Tetris");
@@ -167,6 +181,7 @@ public class UI {
 		mainPanel.add(stopButton);
 		mainPanel.add(progressBar);
 		mainPanel.add(temperatureLabel);
+		mainPanel.add(descriptionLabel);
 
 		//frame
 		JFrame frame = new JFrame("Super solver");

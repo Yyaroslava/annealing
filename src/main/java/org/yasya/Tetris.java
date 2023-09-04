@@ -20,24 +20,19 @@ public class Tetris extends SwingWorker<Void, Integer> {
 	private long startTime = System.currentTimeMillis();
 	public double[] history = new double[Config.HISTORY_COUNT];
 	public int historyIndex = 0;
+	public static String description = 
+		"""
+		The task is to fill a rectangular area with polyomino shapes as much as possible without overlaps and empty spaces.
+		Given: the size of the field MxN, the maximum number of squares in a polyomino K.
+		The set of polyominoes is obtained by randomly dividing the field into tiles with no more than K squares each.
+		The solution is obtained by sequentially placing the polyominoes on the field with minimal overlaps from left to right, top to bottom.
+		Thus, the solution is uniquely defined by permuting the numbers 1...R, where R is the number of polyominoes.
+		The solution search is performed using a simulated annealing algorythm.
+		""";
 
 	public Tetris() {
 		startTiles = Tile.randomSmash();
 		colors = Utils.getPalette(startTiles.length);
-	}
-
-	synchronized public void addHistory(boolean jumped, double newScore) {
-		if(jumped){
-			history[historyIndex] = newScore;
-		}
-		else{
-			history[historyIndex] = 0;
-		}
-		historyIndex = (historyIndex + 1) % history.length;
-		if(historyIndex == 0) {
-			JFreeChart chart = Utils.updateChart(history);
-			UI.setChart(chart);
-		}
 	}
 
 	public class Config {
@@ -57,6 +52,20 @@ public class Tetris extends SwingWorker<Void, Integer> {
 			{75, 0, 130},
 			{238, 130, 238}
 		};
+	}
+	
+	synchronized public void addHistory(boolean jumped, double newScore) {
+		if(jumped){
+			history[historyIndex] = newScore;
+		}
+		else{
+			history[historyIndex] = 0;
+		}
+		historyIndex = (historyIndex + 1) % history.length;
+		if(historyIndex == 0) {
+			JFreeChart chart = Utils.updateChart(history);
+			UI.setChart(chart);
+		}
 	}
 
 	public class Solution implements Chainable, Runnable {
@@ -208,6 +217,7 @@ public class Tetris extends SwingWorker<Void, Integer> {
 	protected Void doInBackground() throws Exception {
 		UI.currentTemperature = Config.INITIAL_T;
 		UI.temperatureLabel.setText("t = " + Double.toString(Config.INITIAL_T));
+		UI.setDescriptionLabel(description);
 		publish(0);
 		Solution initialSolution = new Solution();
 		Thread[] sh = Stream.generate(() -> new Thread(initialSolution.copy()))
