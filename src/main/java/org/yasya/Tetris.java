@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
-
 import org.jfree.chart.JFreeChart;
 
 public class Tetris extends SwingWorker<Void, Integer> {

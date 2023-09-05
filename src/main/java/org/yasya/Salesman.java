@@ -10,7 +10,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
-
 import org.jfree.chart.JFreeChart;
 
 public class Salesman extends SwingWorker<Void, Integer> {
@@ -23,6 +22,16 @@ public class Salesman extends SwingWorker<Void, Integer> {
 	public double[] history = new double[Config.HISTORY_COUNT];
 	public int historyIndex = 0;
 	public double[][] distance = null;
+	public static String description = 
+		"""
+		The task is to find the most profitable route that passes through a specified number of towns at least once, with a subsequent return 
+		to the starting town.
+		The problem statement includes the criterion of route profitability (shortest).
+		Given: the size of the field MxN, the number of points (cities) R on the field.
+		The solution is obtained .............
+
+		The solution search is performed using a simulated annealing algorythm.
+		""";
 
 	public Salesman() {
 		towns = new double[Config.TOWNS_COUNT][2];
@@ -38,6 +47,13 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		}
 	}
 
+	public class Config {
+		public static final int TOWNS_COUNT = 500;
+		public static final int PARALLEL = 14;
+		public static final double INITIAL_T = 2;
+		public static final int HISTORY_COUNT = 1000000;
+	}
+
 	synchronized public void addHistory(boolean jumped, double newScore) {
 		if(jumped){
 			history[historyIndex] = newScore;
@@ -50,13 +66,6 @@ public class Salesman extends SwingWorker<Void, Integer> {
 			JFreeChart chart = Utils.updateChart(history);
 			UI.setChart(chart);
 		}
-	}
-
-	public class Config {
-		public static final int TOWNS_COUNT = 500;
-		public static final int PARALLEL = 14;
-		public static final double INITIAL_T = 2;
-		public static final int HISTORY_COUNT = 1000000;
 	}
 	
 	public class Solution implements Chainable, Runnable {
@@ -182,6 +191,7 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		publish(0);
 		UI.currentTemperature = Config.INITIAL_T;
 		UI.temperatureLabel.setText("t = " + Double.toString(Config.INITIAL_T));
+		UI.setDescriptionLabel(description);
 		Solution initialSolution = new Solution();
 		Thread[] sh = Stream.generate(() -> new Thread(initialSolution.copy()))
 			.limit(Config.PARALLEL)

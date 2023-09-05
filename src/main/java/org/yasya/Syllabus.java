@@ -22,24 +22,18 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 	public double[] history = new double[Config.HISTORY_COUNT];
 	public int historyIndex = 0;
 	public int counter = 0;
+	public static String description = 
+		"""
+		The task is to create a university class schedule for a week, avoiding teacher, group, and classroom overlaps as much as possible
+		simultaneously.
+		Given: .................................
+		
+		The solution search is performed using a simulated annealing algorythm.
+		""";
 
 	public record Row(String group, String course, String teacher){}
 
 	public Syllabus(){}
-
-	synchronized public void addHistory(boolean jumped, double newScore) {
-		if(jumped){
-			history[historyIndex] = newScore;
-		}
-		else{
-			history[historyIndex] = 0;
-		}
-		historyIndex = (historyIndex + 1) % history.length;
-		if(historyIndex == 0) {
-			JFreeChart chart = Utils.updateChart(history);
-			UI.setChart(chart);
-		}
-	}
 
 	public class Config {
 		public static final String[] DAYS = new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
@@ -126,6 +120,20 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 		public static final JSONObject TEACHER_SKILLS_JSON = new JSONObject(TEACHER_SKILLS_STR);
 		public static final double INITIAL_T = 0.27;
 		public static final int HISTORY_COUNT = 100000;
+	}
+
+	synchronized public void addHistory(boolean jumped, double newScore) {
+		if(jumped){
+			history[historyIndex] = newScore;
+		}
+		else{
+			history[historyIndex] = 0;
+		}
+		historyIndex = (historyIndex + 1) % history.length;
+		if(historyIndex == 0) {
+			JFreeChart chart = Utils.updateChart(history);
+			UI.setChart(chart);
+		}
 	}
 	
 	public class Solution implements Chainable, Runnable {
@@ -327,6 +335,7 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 	protected Void doInBackground() throws Exception {
 		UI.currentTemperature = Config.INITIAL_T;
 		UI.temperatureLabel.setText("t = " + Double.toString(Config.INITIAL_T));
+		UI.setDescriptionLabel(description);
 		publish(0);
 		Solution initialSolution = new Solution();
 		Thread[] sh = Stream.generate(() -> new Thread(initialSolution.copy()))
