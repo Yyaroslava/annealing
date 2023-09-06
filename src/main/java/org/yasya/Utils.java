@@ -32,9 +32,9 @@ public class Utils {
 			dataset.addValue(statistic[i], "x", String.format("%.1f", value));
 		}
 		JFreeChart chart = ChartFactory.createBarChart(
-			"score distribution",
+			"the distribution of the scores of the last 1 million solutions",
 			"score",
-			"frequency",
+			"count",
 			dataset,
 			PlotOrientation.VERTICAL,
 			false,

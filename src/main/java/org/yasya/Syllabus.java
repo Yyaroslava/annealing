@@ -26,7 +26,9 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 		"""
 		The task is to create a university class schedule for a week, avoiding teacher, group, and classroom overlaps as much as possible
 		simultaneously.
-		Given: .................................
+		Given: working days in a week, number of classes per day, sets of groups, teachers, rooms, classes, mandatory amount of hours 
+		for each group per week per class, teacher's qualifications.
+		The solution is 3D array[day][time][room] of records(group, course, teacher).
 		
 		The solution search is performed using a simulated annealing algorythm.
 		""";

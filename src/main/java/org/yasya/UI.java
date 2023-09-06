@@ -47,7 +47,7 @@ public class UI {
 
 	public static void setScoreLabel(double bestScore) {
 		SwingUtilities.invokeLater(()->{
-			scoreLabel.setText(String.format("better solution found: %6.1f", bestScore));
+			scoreLabel.setText(String.format("current best solution score: %6.1f", bestScore));
 			scoreLabel.repaint();
 		});
 	}
@@ -78,10 +78,6 @@ public class UI {
 		scanner.close();
 		JSONObject ui_json = new JSONObject(ui_txt);
 		System.out.println(ui_json);
-
-
-
-
 
 		//area
 		areaIcon = new ImageIcon();
@@ -137,6 +133,7 @@ public class UI {
 		descriptionLabel.setFont(new Font(null, 0, 18));
 		descriptionLabel.setBounds(20, 440, 1145, 200);
 		descriptionLabel.setAlignmentY(JLabel.TOP_ALIGNMENT);
+		descriptionLabel.setEditable(false);
 
 		//TETRIS
 		JMenuItem launchTetrisItem = new JMenuItem("Tetris");

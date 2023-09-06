@@ -3,8 +3,19 @@ package org.yasya;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 public class SalesmanPNG {
+
+	public record Road(int start, int end, double distance){};
+
+	public class RoadComparator implements Comparator<Road> {
+		@Override
+		public int compare(Road o1, Road o2) {
+			return Double.compare(o2.distance, o1.distance);
+		}
+	}
 
 	synchronized public static BufferedImage getAreaImage(int imgWidth, int imgHeight, double[][] towns, int[] path, int[] secondPath) {
 		int min = Math.min(imgWidth, imgHeight);
@@ -29,8 +40,8 @@ public class SalesmanPNG {
 
 		if(secondPath != null){
 			graphics.setColor(Color.RED);
-			for (int i = 0; i < Salesman.Config.TOWNS_COUNT; i++) {
-				int start = secondPath[i];
+			for (int i = 0; i <= Salesman.Config.TOWNS_COUNT; i++) {
+				int start = secondPath[i % Salesman.Config.TOWNS_COUNT];
 				int end = secondPath[(i + 1) % Salesman.Config.TOWNS_COUNT];
 				graphics.drawLine(
 					shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[start][0]) / (townMaxX - townMinX)),
@@ -42,8 +53,8 @@ public class SalesmanPNG {
 		}
 
 		graphics.setColor(Color.GREEN);
-		for (int i = 0; i < Salesman.Config.TOWNS_COUNT; i++) {
-			int start = path[i];
+		for (int i = 0; i <= Salesman.Config.TOWNS_COUNT; i++) {
+			int start = path[i % Salesman.Config.TOWNS_COUNT];
 			int end = path[(i + 1) % Salesman.Config.TOWNS_COUNT];
 			graphics.drawLine(
 				shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[start][0]) / (townMaxX - townMinX)),
@@ -52,6 +63,28 @@ public class SalesmanPNG {
 				shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[end][1]) / (townMaxY - townMinY))
 			);
 		}
+
+		PriorityQueue<Road> maxHeap = new PriorityQueue<>(10, new SalesmanPNG().new RoadComparator());
+		for (int i = 0; i <= Salesman.Config.TOWNS_COUNT; i++) {
+			int start = path[i % Salesman.Config.TOWNS_COUNT];
+			int end = path[(i + 1) % Salesman.Config.TOWNS_COUNT];
+			double distance = Utils.distance(towns[start][0], towns[start][1], towns[end][0], towns[end][1]);
+			maxHeap.offer(new Road(start, end, distance));
+			if (maxHeap.size() > 10) {
+				maxHeap.poll();
+			}
+		}
+		graphics.setColor(Color.YELLOW);
+		while (!maxHeap.isEmpty()) {
+			Road road = maxHeap.poll();
+			graphics.drawLine(
+				shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[road.start][0]) / (townMaxX - townMinX)),
+				shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[road.start][1]) / (townMaxY - townMinY)),
+				shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[road.end][0]) / (townMaxX - townMinX)),
+				shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[road.end][1]) / (townMaxY - townMinY))
+			);
+		}
+		
 		
 		graphics.setColor(Color.BLUE);
 		for (int i = 0; i < Salesman.Config.TOWNS_COUNT; i++) {
@@ -68,3 +101,46 @@ public class SalesmanPNG {
 		return image;
 	}
 }
+
+//public class MyObject {
+//		private int value;
+//
+//		public MyObject(int value) {
+//			this.value = value;
+//		}
+//
+//		public int getValue() {
+//			return value;
+//		}
+//
+//		public static void main(String[] args) {
+//			int N = 5; // Задайте количество максимальных элементов, которые вы хотите сохранить
+//			PriorityQueue<MyObject> maxHeap = new PriorityQueue<>(N, new MyObjectComparator());
+//
+//			// Добавляем объекты в кучу
+//			MyObject[] objects = {new MyObject(10), new MyObject(7), new MyObject(15),
+//								new MyObject(4), new MyObject(20), new MyObject(1), new MyObject(30)};
+//			
+//			for (MyObject obj : objects) {
+//				maxHeap.offer(obj);
+//
+//				// Если размер кучи превышает N, удаляем наименьший элемент
+//				if (maxHeap.size() > N) {
+//					maxHeap.poll();
+//				}
+//			}
+//
+//			// Извлекаем N максимальных объектов
+//			while (!maxHeap.isEmpty()) {
+//				System.out.println(maxHeap.poll().getValue());
+//			}
+//		}
+//	}
+//
+//	class MyObjectComparator implements Comparator<MyObject> {
+//		@Override
+//		public int compare(MyObject o1, MyObject o2) {
+//			// Сравниваем объекты по полю value
+//			return Integer.compare(o2.getValue(), o1.getValue()); // Упорядочивание в убывающем порядке
+//		}
+//	}

@@ -24,11 +24,10 @@ public class Salesman extends SwingWorker<Void, Integer> {
 	public double[][] distance = null;
 	public static String description = 
 		"""
-		The task is to find the most profitable route that passes through a specified number of towns at least once, with a subsequent return 
+		The task is to find the shortest route that passes through all towns exactly once, with a subsequent return 
 		to the starting town.
-		The problem statement includes the criterion of route profitability (shortest).
-		Given: the size of the field MxN, the number of points (cities) R on the field.
-		The solution is obtained .............
+		Given: the size of the area MxM, the number of points (cities) R in the area.
+		The solution is the permutation of set of towns that represents path.
 
 		The solution search is performed using a simulated annealing algorythm.
 		""";
