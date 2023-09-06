@@ -13,7 +13,7 @@ public class SalesmanPNG {
 	public class RoadComparator implements Comparator<Road> {
 		@Override
 		public int compare(Road o1, Road o2) {
-			return Double.compare(o2.distance, o1.distance);
+			return -Double.compare(o2.distance, o1.distance);
 		}
 	}
 
@@ -85,7 +85,6 @@ public class SalesmanPNG {
 			);
 		}
 		
-		
 		graphics.setColor(Color.BLUE);
 		for (int i = 0; i < Salesman.Config.TOWNS_COUNT; i++) {
 			graphics.drawOval(
@@ -101,46 +100,3 @@ public class SalesmanPNG {
 		return image;
 	}
 }
-
-//public class MyObject {
-//		private int value;
-//
-//		public MyObject(int value) {
-//			this.value = value;
-//		}
-//
-//		public int getValue() {
-//			return value;
-//		}
-//
-//		public static void main(String[] args) {
-//			int N = 5; // Задайте количество максимальных элементов, которые вы хотите сохранить
-//			PriorityQueue<MyObject> maxHeap = new PriorityQueue<>(N, new MyObjectComparator());
-//
-//			// Добавляем объекты в кучу
-//			MyObject[] objects = {new MyObject(10), new MyObject(7), new MyObject(15),
-//								new MyObject(4), new MyObject(20), new MyObject(1), new MyObject(30)};
-//			
-//			for (MyObject obj : objects) {
-//				maxHeap.offer(obj);
-//
-//				// Если размер кучи превышает N, удаляем наименьший элемент
-//				if (maxHeap.size() > N) {
-//					maxHeap.poll();
-//				}
-//			}
-//
-//			// Извлекаем N максимальных объектов
-//			while (!maxHeap.isEmpty()) {
-//				System.out.println(maxHeap.poll().getValue());
-//			}
-//		}
-//	}
-//
-//	class MyObjectComparator implements Comparator<MyObject> {
-//		@Override
-//		public int compare(MyObject o1, MyObject o2) {
-//			// Сравниваем объекты по полю value
-//			return Integer.compare(o2.getValue(), o1.getValue()); // Упорядочивание в убывающем порядке
-//		}
-//	}
