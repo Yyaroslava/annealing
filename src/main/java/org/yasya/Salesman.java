@@ -44,6 +44,7 @@ public class Salesman extends SwingWorker<Void, Integer> {
 				distance[i][j] = Utils.distance(towns[i][0], towns[i][1], towns[j][0], towns[j][1]);
 			}
 		}
+		greedy();
 	}
 
 	public class Config {
@@ -128,6 +129,15 @@ public class Salesman extends SwingWorker<Void, Integer> {
 			}
 		}
 
+		public synchronized void handleEvents(Object[] params) {
+			params[0] = UI.checkStop();
+			params[1] = UI.currentTemperature;
+			if(UI.save) {
+				UI.save = false;
+				save();
+			}
+		}
+
 		@Override
 		public double score() {
 			return score;
@@ -158,6 +168,78 @@ public class Salesman extends SwingWorker<Void, Integer> {
 			return Arrays.toString(path);
 		}
 
+	}
+	
+	public record Road(int start, int end, double distance) implements Comparable<Road> {
+
+		@Override
+		public int compareTo(Road o) {
+			return Double.compare(this.distance, o.distance);
+		}
+		
+	}
+
+	public void greedy() {
+		int[][] info = new int[Config.TOWNS_COUNT][4];
+		for(int i = 0; i < Config.TOWNS_COUNT; i++){
+			info[i][0] = 0;
+			info[i][1] = -1;
+			info[i][2] = -1;
+			info[i][3] = i;
+		}
+		Road[] roads = new Road[Config.TOWNS_COUNT * (Config.TOWNS_COUNT - 1) / 2];
+		int index = 0;
+		for(int i = 0; i < Config.TOWNS_COUNT - 1; i++){
+			for(int j = i + 1; j < Config.TOWNS_COUNT; j++){
+				roads[index++] = new Road(i, j, distance[i][j]);
+			}
+		}
+		Arrays.sort(roads);
+		System.out.println(roads[0].distance);
+		int roadsConnected = 0;
+		for(int k = 0; k < roads.length; k++){
+			Road road = roads[k];
+			if(info[road.start][0] == 2) continue;
+			if(info[road.end][0] == 2) continue;
+			if(roadsConnected == Config.TOWNS_COUNT - 1) {
+				info[road.start][2] = road.end;
+				info[road.end][2] = road.start;
+				break;
+			}
+			if(info[road.start][3] == info[road.end][3]) continue;
+			roadsConnected++;
+			int startNeighbours = info[road.start][0];
+			int endNeighbours = info[road.end][0];
+			info[road.start][startNeighbours++] = road.end;
+			info[road.end][endNeighbours++] = road.start;
+			info[road.start][0] = startNeighbours;
+			info[road.end][0] = endNeighbours;
+			int source = info[road.start][3];
+			int dest = info[road.end][3];
+			if(source < dest) {
+				int temp = dest;
+				dest = source;
+				source = temp;
+			}
+			for(int n = 0; n < Config.TOWNS_COUNT; n++) {
+				if(info[n][3] == source) info[n][3] = dest;
+			}
+		}
+		int[] greedyPath = new int[Config.TOWNS_COUNT];
+		greedyPath[0] = 0;
+		int greedyPathIndex = 1;
+		for(int m = info[0][1]; m != 0; m = info[m][1]) {
+			greedyPath[greedyPathIndex++] = m;
+		}
+		int start = greedyPath[0];
+		int end = greedyPath[Config.TOWNS_COUNT - 1];
+		double greedyScore = Utils.distance(towns[start][0], towns[start][1], towns[end][0], towns[end][1]);
+		for(int i = 0; i < Config.TOWNS_COUNT - 1; i++) {
+			start = greedyPath[i];
+			end = greedyPath[(i + 1) % Config.TOWNS_COUNT];
+			greedyScore += distance[start][end];
+		}
+		System.out.printf("greedy path: %f \n", greedyScore);
 	}
 	
 	public synchronized void setBest(Solution newSolution, double newScore, double t) {
@@ -216,10 +298,7 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		UI.progressBar.setValue(latestProgress);
 	}
 
-	@Override
-	protected void done() {
-		long duration = System.currentTimeMillis() - startTime;
-		System.out.printf("best score: %f, duration: %d ms", bestScore, duration);
+	public void save() {
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter("Salesman.txt"))) {
 			writer.write(bestSolution.toString());
 		} catch (IOException e) {
@@ -233,6 +312,13 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	protected void done() {
+		long duration = System.currentTimeMillis() - startTime;
+		System.out.printf("best score: %f, duration: %d ms", bestScore, duration);
+		save();
 	}
 
 }

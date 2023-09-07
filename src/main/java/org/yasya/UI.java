@@ -29,6 +29,7 @@ public class UI {
 	public static JProgressBar progressBar = null;
 	public static double currentTemperature = 1;
 	public static boolean stop = false;
+	public static boolean save = false;
 	public static JFreeChart chart = null;
 	public static ChartPanel chartPanel = null;
 	public static JLabel temperatureLabel = null;
@@ -66,6 +67,10 @@ public class UI {
 		});
 	}
 
+	public static boolean checkStop() {
+		return stop;
+	}
+
 	public static void run() {
 
 		InputStream uiStream = UI.class.getResourceAsStream("/UI.json");
@@ -97,13 +102,22 @@ public class UI {
 		scoreLabel.setFont(new Font(null, 0, 36));
 		scoreLabel.setBounds(450, 660, 700, 40);
 				
-		//button
+		//stop button
 		JButton stopButton = new JButton("STOP");
 		stopButton.setBorder(new EmptyBorder(10, 20, 10, 20));
 		stopButton.addActionListener(e -> {
 			stop = true;
 		});
 		stopButton.setBounds(20, 660, 100, 40);
+
+		//save button
+		JButton saveButton = new JButton("SAVE");
+		saveButton.setBorder(new EmptyBorder(10, 20, 10, 20));
+		saveButton.addActionListener(e -> {
+			save = true;
+		});
+		saveButton.setBounds(1065, 660, 100, 40);
+
 
 		//progress bar
 		progressBar = new JProgressBar(0, 100);
@@ -176,6 +190,7 @@ public class UI {
 		mainPanel.add(chartPanel);
 		mainPanel.add(scoreLabel);
 		mainPanel.add(stopButton);
+		mainPanel.add(saveButton);
 		mainPanel.add(progressBar);
 		mainPanel.add(temperatureLabel);
 		mainPanel.add(descriptionLabel);

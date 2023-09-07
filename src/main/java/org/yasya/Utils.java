@@ -3,7 +3,6 @@ package org.yasya;
 import java.awt.Color;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
@@ -101,10 +100,11 @@ public class Utils {
 				}
 			}
 			
-			if(i++ % 100 == 0) {
-				if(chain.checkStop()) break;
-				if(UI.stop) break;
-				t = UI.currentTemperature;
+			if(i++ % 1000 == 0) {
+				Object[] params = new Object[] {false, t};
+				chain.handleEvents(params);
+				if((boolean)params[0]) break;
+				t = (double)params[1];
 			}
 
 		}while(true);

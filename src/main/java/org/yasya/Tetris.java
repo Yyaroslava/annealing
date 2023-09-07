@@ -188,8 +188,13 @@ public class Tetris extends SwingWorker<Void, Integer> {
 			}
 		}
 
-		public synchronized boolean checkStop() {
-			return stop;
+		public synchronized void handleEvents(Object[] params) {
+			params[0] = stop || UI.checkStop();
+			params[1] = UI.currentTemperature;
+			if(UI.save) {
+				UI.save = false;
+				save();
+			}
 		}
 
 		@Override
@@ -243,10 +248,7 @@ public class Tetris extends SwingWorker<Void, Integer> {
 		UI.progressBar.setValue(latestProgress);
 	}
 
-	@Override
-	protected void done() {
-		long duration = System.currentTimeMillis() - startTime;
-		System.out.printf("best score: %f, duration: %d ms", bestScore, duration);
+	public void save() {
 		int[][] area = (bestSolution).greedy(true);
 		BufferedImage image = TetrisPNG.getAreaImage(800, 800, area, colors);
 		File outputFile = new File("Tetris.png");
@@ -255,6 +257,13 @@ public class Tetris extends SwingWorker<Void, Integer> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	protected void done() {
+		long duration = System.currentTimeMillis() - startTime;
+		System.out.printf("best score: %f, duration: %d ms", bestScore, duration);
+		save();
 	}
 
 }

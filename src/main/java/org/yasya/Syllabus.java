@@ -187,6 +187,15 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 			this.calculateScore();
 		}
 
+		public synchronized void handleEvents(Object[] params) {
+			params[0] = UI.checkStop();
+			params[1] = UI.currentTemperature;
+			if(UI.save) {
+				UI.save = false;
+				save();
+			}
+		}
+
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			for (int day = 0; day < Config.DAYS.length; day++) {
@@ -321,7 +330,7 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 		}
 
 	}
-	
+
 	public synchronized void setBest(Solution newSolution, double newScore, double t) {
 		if(newScore < bestScore) {
 			bestScore = newScore;
@@ -364,15 +373,19 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 		UI.progressBar.setValue(latestProgress);
 	}
 
-	@Override
-	protected void done() {
-		long duration = System.currentTimeMillis() - startTime;
-		System.out.printf("best score: %f, duration: %d ms", bestScore, duration);
+	public void save() {
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter("Syllabus.txt"))) {
 			writer.write(bestSolution.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		}	
+	}
+
+	@Override
+	protected void done() {
+		long duration = System.currentTimeMillis() - startTime;
+		System.out.printf("best score: %f, duration: %d ms", bestScore, duration);
+		save();
 	}
 
 }
