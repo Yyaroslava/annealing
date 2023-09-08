@@ -44,10 +44,10 @@ public class SalesmanPNG {
 				int start = secondPath[i % Salesman.Config.TOWNS_COUNT];
 				int end = secondPath[(i + 1) % Salesman.Config.TOWNS_COUNT];
 				graphics.drawLine(
-					shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[start][0]) / (townMaxX - townMinX)),
-					shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[start][1]) / (townMaxY - townMinY)),
-					shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[end][0]) / (townMaxX - townMinX)),
-					shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[end][1]) / (townMaxY - townMinY))
+					shiftX + (int)Math.round(squareWidth * (townMaxX - towns[start][0]) / (townMaxX - townMinX)),
+					shiftY + (int)Math.round(squareWidth * (townMaxY - towns[start][1]) / (townMaxY - townMinY)),
+					shiftX + (int)Math.round(squareWidth * (townMaxX - towns[end][0]) / (townMaxX - townMinX)),
+					shiftY + (int)Math.round(squareWidth * (townMaxY - towns[end][1]) / (townMaxY - townMinY))
 				);
 			}
 		}
@@ -57,20 +57,20 @@ public class SalesmanPNG {
 			int start = path[i % Salesman.Config.TOWNS_COUNT];
 			int end = path[(i + 1) % Salesman.Config.TOWNS_COUNT];
 			graphics.drawLine(
-				shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[start][0]) / (townMaxX - townMinX)),
-				shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[start][1]) / (townMaxY - townMinY)),
-				shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[end][0]) / (townMaxX - townMinX)),
-				shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[end][1]) / (townMaxY - townMinY))
+				shiftX + (int)Math.round(squareWidth * (townMaxX - towns[start][0]) / (townMaxX - townMinX)),
+				shiftY + (int)Math.round(squareWidth * (townMaxY - towns[start][1]) / (townMaxY - townMinY)),
+				shiftX + (int)Math.round(squareWidth * (townMaxX - towns[end][0]) / (townMaxX - townMinX)),
+				shiftY + (int)Math.round(squareWidth * (townMaxY - towns[end][1]) / (townMaxY - townMinY))
 			);
 		}
 
-		PriorityQueue<Road> maxHeap = new PriorityQueue<>(10, new SalesmanPNG().new RoadComparator());
+		PriorityQueue<Road> maxHeap = new PriorityQueue<>(Salesman.Config.LONGEST_COUNT, new SalesmanPNG().new RoadComparator());
 		for (int i = 0; i <= Salesman.Config.TOWNS_COUNT; i++) {
 			int start = path[i % Salesman.Config.TOWNS_COUNT];
 			int end = path[(i + 1) % Salesman.Config.TOWNS_COUNT];
 			double distance = Utils.distance(towns[start][0], towns[start][1], towns[end][0], towns[end][1]);
 			maxHeap.offer(new Road(start, end, distance));
-			if (maxHeap.size() > 10) {
+			if (maxHeap.size() > Salesman.Config.LONGEST_COUNT) {
 				maxHeap.poll();
 			}
 		}
@@ -78,18 +78,18 @@ public class SalesmanPNG {
 		while (!maxHeap.isEmpty()) {
 			Road road = maxHeap.poll();
 			graphics.drawLine(
-				shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[road.start][0]) / (townMaxX - townMinX)),
-				shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[road.start][1]) / (townMaxY - townMinY)),
-				shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[road.end][0]) / (townMaxX - townMinX)),
-				shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[road.end][1]) / (townMaxY - townMinY))
+				shiftX + (int)Math.round(squareWidth * (townMaxX - towns[road.start][0]) / (townMaxX - townMinX)),
+				shiftY + (int)Math.round(squareWidth * (townMaxY - towns[road.start][1]) / (townMaxY - townMinY)),
+				shiftX + (int)Math.round(squareWidth * (townMaxX - towns[road.end][0]) / (townMaxX - townMinX)),
+				shiftY + (int)Math.round(squareWidth * (townMaxY - towns[road.end][1]) / (townMaxY - townMinY))
 			);
 		}
 		
 		graphics.setColor(Color.BLUE);
 		for (int i = 0; i < Salesman.Config.TOWNS_COUNT; i++) {
 			graphics.drawOval(
-				shiftX + (int)Math.round(squareWidth * ((townMaxX - townMinX) - towns[i][0]) / (townMaxX - townMinX)) - 1,
-				shiftY + (int)Math.round(squareWidth * ((townMaxY - townMinY) - towns[i][1]) / (townMaxY - townMinY)) - 1,
+				shiftX + (int)Math.round(squareWidth * (townMaxX - towns[i][0]) / (townMaxX - townMinX)) - 1,
+				shiftY + (int)Math.round(squareWidth * (townMaxY - towns[i][1]) / (townMaxY - townMinY)) - 1,
 				3,
 				3
 			);

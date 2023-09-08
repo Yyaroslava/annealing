@@ -48,10 +48,11 @@ public class Salesman extends SwingWorker<Void, Integer> {
 	}
 
 	public class Config {
-		public static final int TOWNS_COUNT = 500;
+		public static final int TOWNS_COUNT = 100;
 		public static final int PARALLEL = 14;
 		public static final double INITIAL_T = 2;
 		public static final int HISTORY_COUNT = 1000000;
+		public static final int LONGEST_COUNT = 3;
 	}
 
 	synchronized public void addHistory(boolean jumped, double newScore) {
@@ -81,6 +82,7 @@ public class Salesman extends SwingWorker<Void, Integer> {
 
 		public Solution() {
 			this.path = Utils.randomPermutation(Config.TOWNS_COUNT);
+			//this.path = greedy();
 			this.calculateScore();
 		}
 
@@ -179,7 +181,7 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		
 	}
 
-	public void greedy() {
+	public int[] greedy() {
 		int[][] info = new int[Config.TOWNS_COUNT][4];
 		for(int i = 0; i < Config.TOWNS_COUNT; i++){
 			info[i][0] = 0;
@@ -195,13 +197,14 @@ public class Salesman extends SwingWorker<Void, Integer> {
 			}
 		}
 		Arrays.sort(roads);
-		System.out.println(roads[0].distance);
 		int roadsConnected = 0;
 		for(int k = 0; k < roads.length; k++){
 			Road road = roads[k];
 			if(info[road.start][0] == 2) continue;
 			if(info[road.end][0] == 2) continue;
 			if(roadsConnected == Config.TOWNS_COUNT - 1) {
+				info[road.start][0]++;
+				info[road.end][0]++;
 				info[road.start][2] = road.end;
 				info[road.end][2] = road.start;
 				break;
@@ -210,8 +213,8 @@ public class Salesman extends SwingWorker<Void, Integer> {
 			roadsConnected++;
 			int startNeighbours = info[road.start][0];
 			int endNeighbours = info[road.end][0];
-			info[road.start][startNeighbours++] = road.end;
-			info[road.end][endNeighbours++] = road.start;
+			info[road.start][++startNeighbours] = road.end;
+			info[road.end][++endNeighbours] = road.start;
 			info[road.start][0] = startNeighbours;
 			info[road.end][0] = endNeighbours;
 			int source = info[road.start][3];
@@ -228,18 +231,17 @@ public class Salesman extends SwingWorker<Void, Integer> {
 		int[] greedyPath = new int[Config.TOWNS_COUNT];
 		greedyPath[0] = 0;
 		int greedyPathIndex = 1;
-		for(int m = info[0][1]; m != 0; m = info[m][1]) {
-			greedyPath[greedyPathIndex++] = m;
-		}
-		int start = greedyPath[0];
-		int end = greedyPath[Config.TOWNS_COUNT - 1];
-		double greedyScore = Utils.distance(towns[start][0], towns[start][1], towns[end][0], towns[end][1]);
-		for(int i = 0; i < Config.TOWNS_COUNT - 1; i++) {
-			start = greedyPath[i];
-			end = greedyPath[(i + 1) % Config.TOWNS_COUNT];
-			greedyScore += distance[start][end];
-		}
-		System.out.printf("greedy path: %f \n", greedyScore);
+		int currentTown = info[0][1];
+		int previousTown = 0;
+		do{
+			System.out.printf("%d %d %d %d %d \n", currentTown, info[currentTown][0], info[currentTown][1], info[currentTown][2], info[currentTown][3]);
+			greedyPath[greedyPathIndex++] = currentTown;
+			int temp = currentTown;
+			currentTown = info[currentTown][1] == previousTown ? info[currentTown][2] : info[currentTown][1];
+			previousTown = temp;
+		}while(currentTown != 0);
+		
+		return greedyPath;
 	}
 	
 	public synchronized void setBest(Solution newSolution, double newScore, double t) {

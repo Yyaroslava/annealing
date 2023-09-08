@@ -174,12 +174,21 @@ public class UI {
 			Syllabus worker = new Syllabus();
 			worker.execute();
 		});
+
+		//CHEM
+		JMenuItem launchChemItem = new JMenuItem("Chem");
+		launchChemItem.addActionListener(e -> {
+			stop = false;
+			Chem worker = new Chem();
+			worker.execute();
+		});
 		
 		//menu bar
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(launchTetrisItem);
 		menuBar.add(launchSalesmanItem);
 		menuBar.add(launchSyllabusItem);
+		menuBar.add(launchChemItem);
 
 		//main panel
 		JPanel mainPanel = new JPanel();
