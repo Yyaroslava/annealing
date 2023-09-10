@@ -11,9 +11,11 @@ import javax.swing.SwingWorker;
 import org.jfree.chart.JFreeChart;
 
 public class Chem extends SwingWorker<Void, Integer> {
-	public Tile[] startTiles;
+	public Atom[] atoms;
+	public int[][] links;
+	public double[][] startCoordinates;
 	public Color[] colors;
-	public double bestScore = 999;
+	public double bestScore = 999999999;
 	public Solution bestSolution = null;
 	public boolean stop = false;
 	private long startTime = System.currentTimeMillis();
@@ -27,22 +29,49 @@ public class Chem extends SwingWorker<Void, Integer> {
 		""";
 
 	public Chem() {
-		startTiles = Tile.randomSmash();
-		colors = Utils.getPalette(startTiles.length);
+		atoms = new Atom[]{
+			Atom.C, Atom.C, Atom.C, Atom.C, Atom.C, Atom.C, Atom.C,
+			Atom.H, Atom.H, Atom.H, Atom.H, Atom.H,
+			Atom.N, Atom.N, Atom.N,
+			Atom.O, Atom.O, Atom.O, Atom.O, Atom.O, Atom.O
+		};
+		links = new int[][]{
+		//	 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+			{0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{1, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 2, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 2, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+			{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0},
+			{0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0},
+			{0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0}
+		};
+		startCoordinates = new double[atoms.length][3];
+		for(int i = 0; i < atoms.length; i++){
+			startCoordinates[i][0] = Utils.random.nextDouble() * 20;
+			startCoordinates[i][1] = Utils.random.nextDouble() * 20;
+			startCoordinates[i][2] = Utils.random.nextDouble() * 20;
+		}
 	}
 
 	public class Config {
-		public static final int BOARD_WIDTH = 16;
-		public static final int BOARD_HEIGHT = 16;
-		public static final int MAX_TILE_SIZE = 6;
-		public static int TILES_COUNT;
 		public static final int PARALLEL = 14;
 		public static final double INITIAL_T = 0.27;
 		public static final int HISTORY_COUNT = 100000;
 		public static final int[][] PALETTE = new int[][] {
-			{255, 0, 0},
-			{255, 165, 0},
-			{255, 255, 0},
 			{0, 128, 0},
 			{0, 0, 255},
 			{75, 0, 130},
@@ -50,13 +79,16 @@ public class Chem extends SwingWorker<Void, Integer> {
 		};
 	}
 	
+	public enum Atom {
+		H,
+		C,
+		N,
+		O
+	}
+
 	synchronized public void addHistory(boolean jumped, double newScore) {
-		if(jumped){
-			history[historyIndex] = newScore;
-		}
-		else{
-			history[historyIndex] = 0;
-		}
+		double score = jumped ? newScore : 0;
+		history[historyIndex] = score;
 		historyIndex = (historyIndex + 1) % history.length;
 		if(historyIndex == 0) {
 			JFreeChart chart = Utils.updateChart(history);
@@ -65,16 +97,16 @@ public class Chem extends SwingWorker<Void, Integer> {
 	}
 
 	public class Solution implements Chainable, Runnable {
-		public Tile[] tiles;
+		public double[][] coordinates;
 		public double score;
 
-		public Solution(Tile[] tiles, double score) {
-			this.tiles = tiles;
+		public Solution(double[][] coordinates, double score) {
+			this.coordinates = coordinates;
 			this.score = score;
 		}
 
 		public Solution() {
-			this.tiles = startTiles;
+			this.coordinates = startCoordinates;
 			this.calculateScore();
 		}
 
@@ -89,61 +121,124 @@ public class Chem extends SwingWorker<Void, Integer> {
 		}
 
 		public void calculateScore() {
-			int[][] area = greedy(false);
 			double score = 0;
-			for(int y = 0; y < Config.BOARD_HEIGHT; y++) {
-				for(int x = 0; x < Config.BOARD_WIDTH; x++) {
-					if(area[x][y] == 0) score++;
+			for(int i = 0; i < atoms.length - 1; i++) {
+				for(int j = i + 1; j < atoms.length; j++) {
+					score += energy(i, j);
 				}
 			}
 			this.score = score;
 		}
 
-		public int[][] greedy(boolean makeColor) {
-			int[][] area = new int[Config.BOARD_WIDTH][Config.BOARD_HEIGHT];
-			for(int i = 0; i < tiles.length; i++) {
-				Tile tile = tiles[i];
-				int bestX = -1;
-				int bestY = -1;
-				int bestIntersect = 999;
-				positionLoop:
-				for(int y = 0; y <= Config.BOARD_HEIGHT - tile.height; y++) {
-					for(int x = 0; x <= Config.BOARD_WIDTH - tile.width; x++) {
-						int currentIntersect = intersect(area, tile, x, y, bestIntersect);
-						if(currentIntersect == 0) {
-							bestX = x;
-							bestY = y;
-							bestIntersect = 0;
-							break positionLoop;
-						}
-						if(currentIntersect < bestIntersect) {
-							bestX = x;
-							bestY = y;
-							bestIntersect = currentIntersect;
-						}
-					}
+		public double energy(int i, int j) {
+			double e = 0;
+			double distance = Utils.distance3(coordinates[i][0], coordinates[i][1], coordinates[i][2], coordinates[j][0], coordinates[j][1], coordinates[j][2]);
+			if(atoms[i] == Atom.C && atoms[j] == Atom.C) {
+				if(links[i][j] == 0) {
+					e = 3 / distance;
 				}
-				if(makeColor) {
-					tile.stampColor(area, bestX, bestY, i + 1);
+				else if(links[i][j] == 1) {
+					e = 10.0 * (1 - distance) * (1 - distance);
 				}
-				else {
-					tile.stamp(area, bestX, bestY);
+				else if(links[i][j] == 2) {
+					e = 20.0 * (0.7 - distance) * (0.7 - distance);
+				}
+				else if(links[i][j] == 3) {
+					e = 30.0 * (0.6 - distance) * (0.6 - distance);
 				}
 			}
-			return area;
-		}
+			else if(atoms[i] == Atom.C && atoms[j] == Atom.H || atoms[i] == Atom.H && atoms[j] == Atom.C) {
+				if(links[i][j] == 0) {
+					e = 3 / distance;
+				}
+				else if(links[i][j] == 1) {
+					e = 10.0 * (1 - distance) * (1 - distance);
+				}
+			}
+			else if(atoms[i] == Atom.C && atoms[j] == Atom.N || atoms[i] == Atom.N && atoms[j] == Atom.C) {
+				if(links[i][j] == 0) {
+					e = 3 / distance;
+				}
+				else if(links[i][j] == 1) {
+					e = 10.0 * (1 - distance) * (1 - distance);
+				}
+				else if(links[i][j] == 2) {
+					e = 20.0 * (0.7 - distance) * (0.7 - distance);
+				}
+				else if(links[i][j] == 3) {
+					e = 30.0 * (0.6 - distance) * (0.6 - distance);
+				}
+			}
+			else if(atoms[i] == Atom.C && atoms[j] == Atom.O || atoms[i] == Atom.O && atoms[j] == Atom.C) {
+				if(links[i][j] == 0) {
+					e = 3 / distance;
+				}
+				else if(links[i][j] == 1) {
+					e = 10.0 * (1 - distance) * (1 - distance);
+				}
+				else if(links[i][j] == 2) {
+					e = 20.0 * (0.7 - distance) * (0.7 - distance);
+				}
+			}
 
-		public int intersect(int[][] area, Tile tile, int deltaX, int deltaY, int bestResult) {
-			int result = 0;
-			for(int y = 0; y < tile.height; y++) {
-				for(int x = 0; x < tile.width; x++) { 
-					if(tile.area[x][y] > 0 && area[x + deltaX][y + deltaY] > 0) {
-						result++;
-						if(result >= bestResult) return result;
-					}
+			else if(atoms[i] == Atom.N && atoms[j] == Atom.N) {
+				if(links[i][j] == 0) {
+					e = 3 / distance;
+				}
+				else if(links[i][j] == 1) {
+					e = 10.0 * (1 - distance) * (1 - distance);
 				}
 			}
-			return result;
+			else if(atoms[i] == Atom.N && atoms[j] == Atom.O || atoms[i] == Atom.O && atoms[j] == Atom.N) {
+				if(links[i][j] == 0) {
+					e = 3 / distance;
+				}
+				else if(links[i][j] == 1) {
+					e = 10.0 * (1 - distance) * (1 - distance);
+				}
+				else if(links[i][j] == 2) {
+					e = 20.0 * (0.7 - distance) * (0.7 - distance);
+				}
+			}
+			else if(atoms[i] == Atom.N && atoms[j] == Atom.H || atoms[i] == Atom.H && atoms[j] == Atom.N) {
+				if(links[i][j] == 0) {
+					e = 3 / distance ;
+				}
+				else if(links[i][j] == 1) {
+					e = 10.0 * (1 - distance) * (1 - distance);
+				}
+			}
+
+			else if(atoms[i] == Atom.O && atoms[j] == Atom.O) {
+				if(links[i][j] == 0) {
+					e = 3 / distance;
+				}
+				else if(links[i][j] == 1) {
+					e = 10.0 * (1 - distance) * (1 - distance);
+				}
+				else if(links[i][j] == 2) {
+					e = 20.0 * (0.7 - distance) * (0.7 - distance);
+				}
+			}
+			else if(atoms[i] == Atom.O && atoms[j] == Atom.H || atoms[i] == Atom.H && atoms[j] == Atom.O) {
+				if(links[i][j] == 0) {
+					e = 3 / distance;
+				}
+				else if(links[i][j] == 1) {
+					e = 10.0 * (1 - distance) * (1 - distance);
+				}
+			}
+
+			else if(atoms[i] == Atom.H && atoms[j] == Atom.H) {
+				if(links[i][j] == 0) {
+					e = 3 / distance;
+				}
+				else if(links[i][j] == 1) {
+					e = 10.0 * (1 - distance) * (1 - distance);
+				}
+			}
+
+			return e;
 		}
 
 		@Override
@@ -154,25 +249,24 @@ public class Chem extends SwingWorker<Void, Integer> {
 		@Override
 		public Chainable next() {
 			Solution s = copy();
-			int i1;
-			int i2;
-			do {
-				i1 = Utils.random.nextInt(s.tiles.length);
-				i2 = Utils.random.nextInt(s.tiles.length);
-			} while(i1 == i2 || s.tiles[i1].code == s.tiles[i2].code);
-			Tile t = s.tiles[i1];
-			s.tiles[i1] = s.tiles[i2];
-			s.tiles[i2] = t;
+			int i = Utils.random.nextInt(atoms.length);
+			s.coordinates[i][0] = Utils.random.nextDouble() * 20;
+			s.coordinates[i][1] = Utils.random.nextDouble() * 20;
+			s.coordinates[i][2] = Utils.random.nextDouble() * 20;
 			s.calculateScore();
 
 			return s;
 		}
 
 		public Solution copy() {
-			Tile[] tilesCopy = Arrays.stream(tiles)
-				.map(obj -> ((Tile)obj).copy())
-				.toArray(Tile[]::new);
-			Solution s = new Solution(tilesCopy, this.score);
+			double[][] coordinatesCopy = new double[atoms.length][3];
+			for(int i = 0; i < atoms.length; i++) {
+				coordinatesCopy[i][0] = coordinates[i][0];
+				coordinatesCopy[i][1] = coordinates[i][1];
+				coordinatesCopy[i][2] = coordinates[i][2];
+			}
+			Solution s = new Solution(coordinatesCopy, this.score);
+			
 			return s;
 		}
 
@@ -207,8 +301,7 @@ public class Chem extends SwingWorker<Void, Integer> {
 			bestSolution = newSolution.copy();
 			if(bestScore == 0) stop = true;
 			System.out.printf("better solution found: %6.1f %8.5f \n", bestScore, t);
-			int[][] area = (bestSolution).greedy(true);
-			BufferedImage image = ChemPNG.getAreaImage(400, 400, area, colors);
+			BufferedImage image = ChemPNG.getAreaImage(400, 400, atoms, links, bestSolution.coordinates);
 			UI.setAreaImage(image);
 			UI.setScoreLabel(bestScore);
 		}
@@ -246,8 +339,7 @@ public class Chem extends SwingWorker<Void, Integer> {
 	}
 
 	public void save() {
-		int[][] area = (bestSolution).greedy(true);
-		BufferedImage image = ChemPNG.getAreaImage(800, 800, area, colors);
+		BufferedImage image = ChemPNG.getAreaImage(800, 800, atoms, links, bestSolution.coordinates);
 		File outputFile = new File("Chem.png");
 		try {
 			ImageIO.write(image, "png", outputFile);

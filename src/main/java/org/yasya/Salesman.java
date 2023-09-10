@@ -48,20 +48,16 @@ public class Salesman extends SwingWorker<Void, Integer> {
 	}
 
 	public class Config {
-		public static final int TOWNS_COUNT = 100;
+		public static final int TOWNS_COUNT = 500;
 		public static final int PARALLEL = 14;
 		public static final double INITIAL_T = 2;
-		public static final int HISTORY_COUNT = 1000000;
+		public static final int HISTORY_COUNT = 10000000;
 		public static final int LONGEST_COUNT = 3;
 	}
 
 	synchronized public void addHistory(boolean jumped, double newScore) {
-		if(jumped){
-			history[historyIndex] = newScore;
-		}
-		else{
-			history[historyIndex] = 0;
-		}
+		double score = jumped ? newScore : 0;
+		history[historyIndex] = score;
 		historyIndex = (historyIndex + 1) % history.length;
 		if(historyIndex == 0) {
 			JFreeChart chart = Utils.updateChart(history);

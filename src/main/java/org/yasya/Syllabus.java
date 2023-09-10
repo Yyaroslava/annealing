@@ -125,12 +125,8 @@ public class Syllabus extends SwingWorker<Void, Integer> {
 	}
 
 	synchronized public void addHistory(boolean jumped, double newScore) {
-		if(jumped){
-			history[historyIndex] = newScore;
-		}
-		else{
-			history[historyIndex] = 0;
-		}
+		double score = jumped ? newScore : 0;
+		history[historyIndex] = score;
 		historyIndex = (historyIndex + 1) % history.length;
 		if(historyIndex == 0) {
 			JFreeChart chart = Utils.updateChart(history);
