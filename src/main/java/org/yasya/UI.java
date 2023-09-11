@@ -183,6 +183,10 @@ public class UI {
 			worker.execute();
 		});
 		
+		//3d panel
+		YGC panel3D = new YGC();
+		panel3D.setBounds(20, 20, 400, 400);
+
 		//menu bar
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(launchTetrisItem);
@@ -203,6 +207,7 @@ public class UI {
 		mainPanel.add(progressBar);
 		mainPanel.add(temperatureLabel);
 		mainPanel.add(descriptionLabel);
+		mainPanel.add(panel3D);
 
 		//frame
 		JFrame frame = new JFrame("Super solver");
